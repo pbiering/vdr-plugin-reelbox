@@ -1,0 +1,287 @@
+# VDR plugin language source file.
+# Copyright (C) 2007 Klaus Schmidinger <kls@cadsoft.de>
+# This file is distributed under the same license as the VDR package.
+# Vyacheslav Dikonov <sdiconov@mail.ru>, 2004
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: vdr-reelbox\n"
+"Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
+"POT-Creation-Date: 2017-01-13 15:31+1000\n"
+"PO-Revision-Date: 2008-09-26 12:11+0200\n"
+"Last-Translator: \n"
+"Language-Team: <vdr@linuxtv.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Fill to Screen"
+msgstr "Растянуть по экрану"
+
+msgid "Fill to Aspect"
+msgstr "Растянуть по аспекту"
+
+msgid "Crop to Fill"
+msgstr "Обрезать"
+
+msgid "Setup - Video"
+msgstr "Натсройки - Видео"
+
+msgid "SDTV only"
+msgstr "SDTV только"
+
+msgid "Auto"
+msgstr "Авто"
+
+msgid "Off"
+msgstr "Выкл"
+
+msgid "Progressive"
+msgstr "Прогрессив"
+
+msgid "Interlaced"
+msgstr "Черезстрочное"
+
+msgid "Maximum"
+msgstr "Наибольшее"
+
+msgid "Media resolution"
+msgstr ""
+
+msgid "Normal"
+msgstr "Нормально"
+
+msgid "Always on"
+msgstr "Всегда вкл"
+
+msgid "Always off"
+msgstr "Всегда выкл"
+
+msgid "On"
+msgstr "Вкл"
+
+msgid "HDMI"
+msgstr ""
+
+msgid "DVI"
+msgstr ""
+
+msgid "SCART"
+msgstr ""
+
+msgid "Mini-DIN"
+msgstr ""
+
+msgid "Analog+digital"
+msgstr ""
+
+msgid "Experts"
+msgstr ""
+
+msgid "Video Settings"
+msgstr "Настройки видео"
+
+msgid "Use extension HD"
+msgstr "Использовать HD плату"
+
+msgid "Output"
+msgstr "Выход"
+
+msgid "Analog Output"
+msgstr "Аналоговый выход"
+
+msgid "Analog Port"
+msgstr "Аналоговый порт"
+
+msgid "Secondary Output"
+msgstr "Вторичный порт"
+
+msgid "Switching Voltage"
+msgstr ""
+
+msgid "Display Type"
+msgstr ""
+
+msgid "Aspect Ratio"
+msgstr ""
+
+msgid "Overscan no"
+msgstr ""
+
+msgid "Overscan yes"
+msgstr ""
+
+msgid "Overscan"
+msgstr ""
+
+msgid "Resolution"
+msgstr "Разрешение"
+
+msgid "Refresh Rate"
+msgstr "Частота кадров"
+
+msgid "Progressive/Interlaced"
+msgstr "Прогрессив/Черезстрочно"
+
+msgid "Deinterlacer for SDTV"
+msgstr ""
+
+msgid "Dot by Dot"
+msgstr ""
+
+msgid "256 Colors OSD"
+msgstr ""
+
+msgid "True Color OSD"
+msgstr ""
+
+msgid "OSD type"
+msgstr "Тип МЕНЮ"
+
+msgid "Resolution change"
+msgstr "Изменение разрешения"
+
+msgid "OSD scaling"
+msgstr "Масштабирование МЕНЮ"
+
+msgid "Mode"
+msgstr ""
+
+msgid "Output mode"
+msgstr ""
+
+msgid "Anamorphic+WSS"
+msgstr ""
+
+msgid "Anamorphic"
+msgstr ""
+
+msgid "Manual"
+msgstr ""
+
+msgid "Aspect Ratio Ctrl."
+msgstr ""
+
+msgid "Auto PAL50/PAL60"
+msgstr ""
+
+msgid "PAL50 only"
+msgstr ""
+
+msgid "NTSC only"
+msgstr ""
+
+msgid "Norm/Framerate"
+msgstr "Частота кадров"
+
+msgid "At Startup"
+msgstr ""
+
+msgid "Scart Voltage"
+msgstr ""
+
+msgid "Auto 75Hz+60Hz (VESA)"
+msgstr ""
+
+msgid "Auto 50Hz+60Hz (NON-VESA!)"
+msgstr ""
+
+msgid "Auto 67Hz+60Hz (NON-VESA!)"
+msgstr ""
+
+msgid "50Hz Only (NON-VESA!)"
+msgstr ""
+
+msgid "60Hz Only (VESA)"
+msgstr ""
+
+msgid "67Hz Only (NON-VESA!)"
+msgstr ""
+
+msgid "75Hz Only (VESA)"
+msgstr ""
+
+msgid "Framerate"
+msgstr "Частота кадров"
+
+msgid "no"
+msgstr "нет"
+
+msgid "1080i"
+msgstr ""
+
+msgid "720p"
+msgstr ""
+
+msgid "Upscaling for SDTV"
+msgstr ""
+
+msgid "Setup - Audio"
+msgstr "Установки - Звук"
+
+msgid "Audio Settings"
+msgstr "Настройка звука"
+
+msgid "Setup.DVB$Use Dolby Digital"
+msgstr ""
+
+msgid " Output Dolby D/dts on"
+msgstr ""
+
+msgid "S/P-DIF"
+msgstr ""
+
+msgid " Output as"
+msgstr ""
+
+msgid "Stereo (PCM)"
+msgstr ""
+
+msgid "bitstream (Dolby D)"
+msgstr ""
+
+msgid "Soundcard"
+msgstr "Звуковая карта"
+
+msgid " Delay (1/100s)"
+msgstr " Задержка (1/100c)"
+
+msgid "Analog Audio on"
+msgstr ""
+
+msgid "TRS (3.5mm phone jack)"
+msgstr ""
+
+msgid "HDMI/SCART/RCA jack"
+msgstr ""
+
+msgid "Analog Mix"
+msgstr ""
+
+msgid "Restart ReelBox now? Please wait 2 minutes!"
+msgstr ""
+
+msgid "Picture Settings"
+msgstr "Установки картинки"
+
+msgid "brightness"
+msgstr "яркость"
+
+msgid "contrast"
+msgstr "контрастность"
+
+msgid "colour"
+msgstr "цветность"
+
+msgid "sharpness"
+msgstr "чёткость"
+
+msgid "gamma cor."
+msgstr "гамма кор."
+
+msgid "flicker"
+msgstr "мерцание"
+
+msgid "Reset to default"
+msgstr "Сброс по умолч."
