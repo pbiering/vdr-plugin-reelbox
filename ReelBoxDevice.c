@@ -173,8 +173,10 @@ namespace Reel
         AudioPlayerBsp::Destroy();
         AudioPlayerHd::Destroy();
         VideoPlayer::Destroy();
-	if(ringBuffer)
+	if(ringBuffer) {
+	    ringBuffer->Clear();
     	    delete ringBuffer;
+	};
     }
 
     Int ReelBoxDevice::AudioDelay() const
