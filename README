@@ -1,0 +1,10 @@
+# building (currently)
+
+store reelbox utils directory outside VDR plugin tree
+
+make:
+
+LC_ALL=C make VANILLAVDR=1
+
+Currently tested:
+- Fedora 33 (using compat-ffmpeg28 and libpng12)
