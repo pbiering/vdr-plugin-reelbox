@@ -1,3 +1,42 @@
+This is a "plugin" for the Video Disk Recorder (VDR) to use
+ReelBox eHD as video output device
+
+Latest version available via GIT at:
+https://github.com/vdr-projects/vdr-plugin-reelbox
+
+The vdr-plugin
+Copyright (C) 2005-2010 by Reel Multimedia
+
+Some files:
+Copyright (C) 1999 Aaron Holtzman
+Copyright (C) 2002-2004 Werner Fink, <werner@suse.de>
+
+Extensions by contributors
+Copyright (C) 2021-2021 by Peter Bieringer <pb@bieringer.de>
+
+
+The vdr-plugin is covered by the
+GNU GENERAL PUBLIC LICENSE (GPL), version 2:
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as published by
+the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 51
+Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+
+
+**** Reviewed version ****
+
+- Support at least vdr >= 2.4.4
+
+
 # building (currently)
 
 store reelbox utils directory outside VDR plugin tree
