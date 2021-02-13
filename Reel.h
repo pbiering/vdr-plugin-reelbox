@@ -46,7 +46,7 @@ namespace Reel
     typedef unsigned long long  ULLong;
     typedef unsigned int        uint;
 
-    const int nullptr = 0;
+    // const int nullptr = 0; 	// FIXED: expected unqualified-id before »nullptr« - looks like not used at all
 
 #define MemoryBarrier() asm volatile("" : : : "memory")
 
