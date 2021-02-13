@@ -33,7 +33,11 @@
 #include <iostream>
 #include <algorithm>
 
+#ifdef USE_LIBPNG12
+#include <libpng12/png.h>
+#else
 #include <png.h>
+#endif
 
 #include "font_helper.h"
 

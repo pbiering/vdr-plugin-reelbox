@@ -28,7 +28,11 @@
 #include <cstring>
 #include <algorithm>
 
+#ifdef USE_LIBPNG12
+#include <libpng12/png.h>
+#else
 #include <png.h>
+#endif
 
 
 namespace Reel

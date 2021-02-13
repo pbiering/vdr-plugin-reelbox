@@ -9,6 +9,10 @@
 #
 PLUGIN = reelbox
 
+OS=$(shell lsb_release -si)
+ARCH=$(shell uname -m | sed 's/x86_//;s/i[3-6]86/32/')
+VER=$(shell lsb_release -sr)
+
 # set it if you want to compile the skin for use with the reelbox
 #REELSKIN=1
 
@@ -67,6 +71,16 @@ export CXXFLAGS = $(call PKGCFG,cxxflags)
 #INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include
 INCLUDES += -I$(LIBASOUND)/include $(BSPINCLUDE) $(HDINCLUDE)
 INCLUDES += -I$(LIBMAD) `freetype-config --cflags`
+
+ifeq ($(OS), Fedora)
+ifeq ($(VER), 33)
+  # select ffmpeg28
+  INCLUDES += -I/usr/include/compat-ffmpeg28	# FIXED: libavutil/opt.h: No such file or directory
+  # select libpng12
+  DEFINES  += -DUSE_LIBPNG12			# FIXED: invalid use of incomplete type 'png_info'
+endif # Fedora 33
+endif # Fedora
+
 
 ifdef REELSKIN
   DEFINES += -DREELSKIN
