@@ -38,7 +38,7 @@ namespace Reel
     namespace HdCommChannel
     {
 
-        void InitHda();
+        int InitHda();
 
         class Channel
         {
@@ -65,7 +65,7 @@ namespace Reel
 
         void Exit() NO_THROW;
 
-        void Init();
+        int Init();
 
         void SetAspect(int HDaspect = -1);
 

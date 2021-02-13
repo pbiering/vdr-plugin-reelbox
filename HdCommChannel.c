@@ -20,6 +20,7 @@
 
 // HdCommChannel.c
 
+#include "logging.h"
 #include "HdCommChannel.h"
 #include "ReelBoxMenu.h"
 #include "ReelBoxDevice.h"
@@ -111,13 +112,12 @@ namespace Reel
                 ch_ = hd_channel_open(chNum);
                 if (ch_) 
                     break;                
-                syslog(LOG_INFO,"HDE-Channel open %i: waiting to appear (%i) \n",chNum, n);
+                dsyslog_rb("HDE-Channel open %i: waiting to appear (%i)",chNum, n);
                 sleep(1);
             }
             if (!ch_)
             {
-                syslog(LOG_INFO,"Error opening hd channel %d\n, using dummy", chNum);
-                fprintf(stderr, "Error opening hd channel %d\n, using dummy", chNum);
+                esyslog_rb("open hd channel %d not successful, using dummy", chNum);
                 Close();
 //              REEL_THROW();
                 ch_=NULL;
@@ -182,12 +182,22 @@ namespace Reel
             ::hd_deinit(0);
         }
 
-        void Init()
+        int Init()
         {
-            InitHda();
+            dsyslog_rb("HDE: start");
+            if (InitHda()) {
+		esyslog_rb("HDE: Init not successful");
+		return 1;
+            };
 
+            dsyslog_rb("HDE: call chStream1.Open(%d)", HDCH_STREAM1);
             chStream1.Open(HDCH_STREAM1);
+            dsyslog_rb("HDE: call chStream1.Open(%d) returned", HDCH_STREAM1);
+            dsyslog_rb("HDE: call chOsd.Open(%d)", HDCH_OSD);
             chOsd.Open(HDCH_OSD);
+            dsyslog_rb("HDE: call chOsd.Open(%d) returned", HDCH_OSD);
+            dsyslog_rb("HDE: start successful");
+            return 0;
         }
 
 	void SetHWControl(ReelBoxSetup *rb)
@@ -393,21 +403,23 @@ namespace Reel
 	    SetAspect(HDaspect);
         }
 
-        void InitHda()
+        int InitHda()
         {
+            dsyslog_rb("HDE: start");
             ::hdshm_area_t *area;
 
             if (::hd_init(0) != 0)
             {
-                syslog(LOG_ERR, "ERROR: Unable to open hdshm device. Using dummy device.\n");
+                esyslog_rb("HDE: Unable to open hdshm device. Using dummy device.\n");
 //                REEL_THROW();
                 hda=(::hd_data_t*)malloc(sizeof(::hd_data_t));  // GA: Don't crash if no HD was found
                 memset((void*)hda,0,sizeof(::hd_data_t));
-                return;
+                return 1;
             }
 
 	    // Be tolerant...
 	    for(int n=0;n<20;n++) {
+                    dsyslog_rb("HDE: try to get area id=%d\n", HDID_HDA);
 		    area = ::hd_get_area(HDID_HDA);
 		    if (area)
 			    break;
@@ -415,12 +427,12 @@ namespace Reel
 	    }
 	    
 	    if (area)
-    	        syslog(LOG_INFO,"HDE control area: %p, mapped %p, pyhs %ld, len %x, hdp %i, hdc %i\n",area,
+		dsyslog_rb("HDE control area: %p, mapped %p, pyhs 0x%lx, len 0x%x, hdp_running=%i, hdc_running=%i\n",area,
     	            area->mapped, area->physical, area->length,
     	              ((::hd_data_t volatile *)area->mapped)->hdp_running,((::hd_data_t volatile *)area->mapped)->hdc_running);
             else
             { // Create dummy
-                syslog(LOG_ERR, "ERROR: Can't get HDE control area (hdctrld not running on HDE?). Using dummy.\n");
+                esyslog_rb("HDE: can't get control area (hdctrld not running on HDE?). Using dummy.\n");
                 int area_size = ALIGN_UP(sizeof(hd_data_t), 2*4096);
 		::hdshm_reset();
 		area = hd_create_area(HDID_HDA, NULL, area_size, HDSHM_MEM_HD);
@@ -428,21 +440,33 @@ namespace Reel
 
             if (!area)
             {
-                syslog(LOG_ERR, "ERROR: Unable to get HDE control area.\n");
+                esyslog_rb("HDE: unable to get control area.\n");
+                return 1;
 //                REEL_THROW();
             }
 
             hda = (::hd_data_t volatile *)area->mapped;
             for(int n=30;n>=0;n--) {
+		dsyslog_rb("HDE: set hdp_enable=1\n");
                 hda->hdp_enable = 1;
+		dsyslog_rb("HDE: set hdp_enable=1 executed\n");
+		dsyslog_rb("HDE: check for hdp_running\n");
                 if (hda->hdp_running)
                     break;
-                syslog(LOG_INFO,"Wait for hdplayer (%i)\n",n);
+                isyslog_rb("HDE: wait for hdplayer (%i)\n",n);
                 sleep(1);
             }
+            if (hda->hdp_running) {
+		isyslog_rb("HDE: hdplayer is running\n");
+	    } else {
+		esyslog_rb("HDE: hdplayer is NOT running\n");
+		return 1;
+            };
             hda->hd_shutdown = 0;
             hda->osd_dont_touch=0;
             hda->osd_hidden=0;
+            isyslog_rb("HDE: InitHda successful");
+            return 0;
         }
     }
 }

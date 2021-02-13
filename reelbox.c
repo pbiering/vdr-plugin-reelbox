@@ -162,7 +162,8 @@ namespace Reel
 
         if (RBSetup.usehdext)
         {
-            HdCommChannel::Init();
+            if (HdCommChannel::Init())
+		    return false;
             Reel::HdCommChannel::SetVideomode();
 	    Reel::HdCommChannel::SetPicture(&RBSetup);
 	    Reel::HdCommChannel::SetHWControl(&RBSetup);
