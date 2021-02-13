@@ -171,6 +171,7 @@ namespace Reel
 
         void Exit() NO_THROW
         {
+	    if (hda == NULL) return;
             hda->player[0].data_generation++;
             hda->hdp_enable = 0;
             hda->hd_shutdown = 1;
