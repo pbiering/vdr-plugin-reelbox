@@ -34,11 +34,15 @@ LIBDIR = $(DESTDIR)$(call PKGCFG,libdir)
 LOCDIR = $(DESTDIR)$(call PKGCFG,locdir)
 #
 
+ifdef VANILLAVDR
+	BSPSHM = ../../../utils/bspshm
+	HDSHM = ../../../utils/hdshm3/src
+endif
 
 TMPDIR ?= /tmp
 
-BSPSHM = ./utils/bspshm
-HDSHM = ./utils/hdshm3/src
+BSPSHM ?= ./utils/bspshm
+HDSHM ?= ./utils/hdshm3/src
 
 BSPINCLUDE = -I$(BSPSHM) -I$(BSPSHM)/include
 HDINCLUDE = -I$(HDSHM) -I$(HDSHM)/include
