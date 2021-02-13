@@ -55,6 +55,8 @@ LIBMAD     ?= ../../../../temp/docimage/libs/libmad
 LIBASOUND  ?= ../../../../temp/docimage/libs/alsa-lib
 INCLUDES   += -I$(LIBASOUND)/include
 INCLUDES   += -I$(LIBMAD)
+LDFLAGS    += -L$(LIBASOUND)/src/.libs
+LDFLAGS    += -L$(LIBMAD)/.libs
 endif
 
 ### Allow user defined options to overwrite defaults:
@@ -83,6 +85,7 @@ ifeq ($(OS), Fedora)
 ifeq ($(VER), 33)
   # select ffmpeg28
   INCLUDES += -I/usr/include/compat-ffmpeg28	# FIXED: libavutil/opt.h: No such file or directory
+  LDFLAGS  += -L/usr/lib64/compat-ffmpeg28
   # select libpng12
   DEFINES  += -DUSE_LIBPNG12			# FIXED: invalid use of incomplete type 'png_info'
   LIBPNG   = -lpng12
@@ -105,9 +108,6 @@ else
 endif
 
 LIBS += -lasound -lmad $(LIBPNG) -lavcodec -lswscale -la52
-
-LDFLAGS += -L$(LIBASOUND)/src/.libs
-LDFLAGS += -L$(LIBMAD)/.libs
 
 ### The version number of this plugin (taken from the main source file):
 
