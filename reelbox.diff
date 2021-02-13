@@ -1,0 +1,2532 @@
+diff -Nupr reelbox-3/AudioDecoder.h reelbox-3-17539/AudioDecoder.h
+--- reelbox-3/AudioDecoder.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/AudioDecoder.h	2011-08-13 14:51:10.000000000 +1100
+@@ -24,6 +24,7 @@
+ #define AUDIO_DECODER_H_INCLUDED
+ 
+ #include <cstring>
++#include <vdr/tools.h>
+ 
+ #include "AudioPacketQueue.h"
+ #include "Utils.h"
+diff -Nupr reelbox-3/AudioOut.c reelbox-3-17539/AudioOut.c
+--- reelbox-3/AudioOut.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/AudioOut.c	2011-09-03 00:17:25.000000000 +1100
+@@ -73,8 +73,8 @@ namespace Reel
+         // ALSA pcm operations.
+ 
+         // ALSA mixer: Enable digitial output.
+-        SystemExec("amixer cset numid=38 1 > /dev/null\n");
+-        SystemExec("amixer cset numid=38 0 > /dev/null\n");
++        SystemExec("amixer cset numid=31 1 > /dev/null\n");
++        SystemExec("amixer cset numid=31 0 > /dev/null\n");
+ 
+         Init();
+ 
+diff -Nupr reelbox-3/AudioPlayerHd.c reelbox-3-17539/AudioPlayerHd.c
+--- reelbox-3/AudioPlayerHd.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/AudioPlayerHd.c	2011-03-25 00:07:13.000000000 +1000
+@@ -23,7 +23,7 @@
+ #include "AudioPlayerHd.h"
+ 
+ #include "HdCommChannel.h"
+-
++#include <vdr/tools.h>
+ //#define DEBUG_AUDIO_HD(format, args...) printf (format, ## args)
+ #define DEBUG_AUDIO_HD(format, args...) 
+ 
+@@ -198,7 +198,6 @@ namespace Reel
+         rawaudio_ = true;
+ 
+         AudioDecoder *decoder = esPacket.GetAudioDecoder();
+-
+         if (decoder != lastDecoder_)
+         {
+             if(dynamic_cast<AudioDecoderPcm*>(lastDecoder_) != NULL) //switch from pcm to ?
+@@ -236,7 +235,6 @@ namespace Reel
+             packet.timestamp = esPacket.HasPts() ? esPacket.GetPts() : 0;
+             packet.stream_id = esPacket.GetStreamId();
+             packet.substream_id = esPacket.GetSubStreamId();
+-
+             HdCommChannel::chStream1.SendPacket(HD_PACKET_ES_DATA, packet, data, dataLength);
+         }
+         else //pcm!
+diff -Nupr reelbox-3/BkgPicPlayer.c reelbox-3-17539/BkgPicPlayer.c
+--- reelbox-3/BkgPicPlayer.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/BkgPicPlayer.c	2011-02-25 21:59:28.000000000 +1000
+@@ -28,7 +28,7 @@
+ #include <vector>
+ 
+ #if VDRVERSNUM >= 10716
+-#include "../mcli/mcli_service.h"
++#include "mcli_service.h"
+ 
+ #define AUDIO_ONLY_TIMEOUT  3
+ #define NO_REPLAY_TIMEOUT  10
+@@ -114,7 +114,6 @@ isyslog("Receiving %d (%d Lock %d) Repla
+             }
+ #endif
+         } // if
+-#if 0 // Not used/makes trouble?
+         if((lastReplayTime_ + NO_REPLAY_TIMEOUT) < now) {
+             newBase = CheckSignal();
+         } else if(device_.Transferring()) {
+@@ -123,7 +122,6 @@ isyslog("Receiving %d (%d Lock %d) Repla
+                 if(newBase != picBase) device_.Restart(); // Need to restart if we have played something before
+             } // if
+         } // if
+-#endif
+         if (newBase && ((newBase != picBase) || (now >= lastPicTime_ + picInterval_))) {
+             char *bkgndImgFileName=NULL;
+             if(asprintf(&bkgndImgFileName, newBase, ++nextPic_) == -1) bkgndImgFileName = NULL;
+@@ -191,7 +189,6 @@ isyslog("ShowPic %s", bkgndImgFileName);
+         }
+         condWake_.Wait(mutex_, t * 1000000000LL);
+ #else
+-        cCondWait::SleepMs(3); // Keeps cpu load low, even if condWake_.Wait returns immediately?
+         condWake_.Wait(mutex_, 1000000000LL);
+ #endif
+     }
+@@ -203,9 +200,8 @@ isyslog("ShowPic %s", bkgndImgFileName);
+             running_ = true;
+ #if VDRVERSNUM >= 10716
+             ResetTimer();
+-#else
+-            MutexLocker lock(mutex_);
+ #endif
++            MutexLocker lock(mutex_);
+             stop_ = false;
+             thread_.Start(*this, &BkgPicPlayer::Action);
+         }
+diff -Nupr reelbox-3/font_helper.h reelbox-3-17539/font_helper.h
+--- reelbox-3/font_helper.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/font_helper.h	2011-02-25 22:23:57.000000000 +1000
+@@ -1,12 +1,12 @@
+ #ifndef FONT_HELPER_H
+ #define FONT_HELPER_H
+ 
+-#if VDRVERSNUM >= 10716
++//#if VDRVERSNUM >= 10716
+ // Stop this ugly hacking in further versions...
+ // Created an include file that is used from font.c and this plugin
+-#include <vdr/font_ft.h>
++//#include "font_ft.h"
+ 
+-#else
++//#else
+ 
+ /**
+  * just copies from VDR's *.c-files
+@@ -87,7 +87,7 @@ public:
+   virtual void DrawText(cBitmap *Bitmap, int x, int y, const char *s, tColor ColorFg, tColor ColorBg, int Width) const;
+   };
+ 
+-#endif
++//#endif
+ #ifndef FONT_HELPER_H
+ #define FONT_HELPER_H
+ 
+diff -Nupr reelbox-3/fs453settings.c reelbox-3-17539/fs453settings.c
+--- reelbox-3/fs453settings.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/fs453settings.c	2011-02-24 21:58:01.000000000 +1000
+@@ -187,8 +187,8 @@ void cFs453Settings::Show(void)
+         int lineHeight = cFont::GetFont(fontSml)->Height();
+         int helper = RBSetup.usehdext ? 3+1 : FS453_SETTINGS+1;
+         int totalHeight = helper * lineHeight + (helper + 1) * (lineHeight / 2);
+-        osd = cOsdProvider::NewTrueColorOsd(Setup.OSDLeft, Setup.OSDTop + Setup.OSDHeight - totalHeight, 0, 0);  
+-        tArea Areas[] = { { 0, 0, Setup.OSDWidth - 1, totalHeight - 1 , 32 } };
++        osd = cOsdProvider::NewOsd(Setup.OSDLeft, Setup.OSDTop + Setup.OSDHeight - totalHeight, 0);
++        tArea Areas[] = { { 0, 0, Setup.OSDWidth - 1, totalHeight - 1 , 8 } };
+         osd->SetAreas(Areas, sizeof(Areas) / sizeof(tArea));
+         osd->DrawRectangle(0, 0,Setup.OSDWidth - 1, totalHeight - 1, backgroundColor); 
+         int offset = 0;
+diff -Nupr reelbox-3/HdCommChannel.c reelbox-3-17539/HdCommChannel.c
+--- reelbox-3/HdCommChannel.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/HdCommChannel.c	2011-12-11 23:51:16.000000000 +1100
+@@ -45,6 +45,7 @@ namespace Reel
+         ::hd_data_t volatile *hda = NULL;
+         Channel chStream1;
+         Channel chOsd;
++	int aspect_changed=0;
+ 
+         //static void InitHda();
+ 
+@@ -127,6 +128,51 @@ namespace Reel
+ //            static FairMutex mutex;
+             mutex_.Lock();
+ 
++//if(dataSize>10){
++//int off =0;
++//uchar *Data = (uchar *)data;
++//esyslog(" %X %X %X %X %X %X %X %X %X %X \n",Data[0+off],Data[1+off],Data[2+off],Data[3+off],Data[4+off],Data[5+off],Data[6+off],Data[7+off],Data[8+off],Data[9+off]);
++//}
++
++           // get aspect realtime
++            int w = hda->player_status[0].w;
++            int h = hda->player_status[0].h;
++            int ax = hda->player_status[0].asp_x;
++            int ay = hda->player_status[0].asp_y;
++//esyslog(" ========== w %d h %d ax %d ay %d \n",w,h,ax,ay);
++           if (ax == 0 && ay == 0 && aspect_changed == 0 && w < 720) {
++               hd_aspect_t hd_aspect = {0} ;
++               hd_aspect.w = RBSetup.HDdisplay_type == 0 ? 1 : 5;
++               hd_aspect.h = RBSetup.HDdisplay_type == 0 ? 1 : 4;
++
++            switch (RBSetup.HDaspect) {
++                case 0: /* WF */
++                    hd_aspect.scale=HD_VM_SCALE_F2S;
++                    //hd_aspect.overscan=0;
++                    hd_aspect.automatic=0;
++                    break;
++                case 1: /* WS */
++                    hd_aspect.scale=HD_VM_SCALE_F2A;
++                    //hd_aspect.overscan=0;
++                    hd_aspect.automatic=0;
++                    break;
++                case 2: /* WC */
++                    hd_aspect.scale=HD_VM_SCALE_C2F;
++                    //hd_aspect.overscan=0;
++                    hd_aspect.automatic=0;
++                    break;
++            }
++
++           memcpy((void*)&hda->aspect, (void*)&hd_aspect, sizeof(hd_aspect_t)-sizeof(int));
++           hda->aspect.changed++;
++           aspect_changed = 1;
++           }
++
++           if ((ax != 0 && ay != 0 && aspect_changed != 0) || (ax == 0 && ay == 0 && aspect_changed != 0 && w == 720)){
++               SetAspect();
++               aspect_changed = 0;
++           }
++
+             header.magic = HD_PACKET_MAGIC;
+             header.seq_nr = packetSeqNr_;
+             header.type = type;
+@@ -325,6 +371,9 @@ namespace Reel
+                     width=720;
+                     height=480;
+                     break;
++		default:
++		    width=720;
++                    height=576;
+             }
+ 
+             switch (RBSetup.HDintProg)
+@@ -345,6 +394,8 @@ namespace Reel
+                 case HD_VM_NORM_60HZ:
+                     fps = 60;
+                     break;
++		default:
++		    fps = 50;    
+             }
+ 
+ 
+@@ -380,7 +431,6 @@ namespace Reel
+ 		    area = ::hd_get_area(HDID_HDA);
+ 		    if (area)
+ 			    break;
+-                    syslog(LOG_INFO,"Wait for hdctrld (%i)\n",n);
+ 		    sleep(1);
+ 	    }
+ 	    
+@@ -399,10 +449,7 @@ namespace Reel
+             if (!area)
+             {
+                 syslog(LOG_ERR, "ERROR: Unable to get HDE control area.\n");
+-                //REEL_THROW();
+-                hda=(::hd_data_t*)malloc(sizeof(::hd_data_t));  // Don't crash - use dummy
+-                memset((void*)hda,0,sizeof(::hd_data_t));
+-                return;
++//                REEL_THROW();
+             }
+ 
+             hda = (::hd_data_t volatile *)area->mapped;
+diff -Nupr reelbox-3/HdFbTrueColorOsd.c reelbox-3-17539/HdFbTrueColorOsd.c
+--- reelbox-3/HdFbTrueColorOsd.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/HdFbTrueColorOsd.c	2011-02-24 21:30:03.000000000 +1000
+@@ -555,8 +555,8 @@ void HdFbTrueColorOsd::new_osd() {
+         unsigned char const *xs;
+         unsigned int qx, qy, xt1, yt1, xt, yt, vfx, vfy, vfw, vfh, x, y, w, h, m, *px, n;
+ 
+-        x = X + left;
+-        y = Y + top;
++        x = X + Left();
++        y = Y + Top();
+         w = bitmap.Width();
+         h = bitmap.Height();
+ 
+@@ -637,8 +637,8 @@ void HdFbTrueColorOsd::new_osd() {
+         static unsigned int qx, qy, xt1, yt1, x, y, w, h, *px, line, row;
+         static unsigned int pxs;
+ 
+-        x = X + left;
+-        y = Y + top;
++        x = X + Left();
++        y = Y + Top();
+         w = bitmap.Width();
+         h = bitmap.Height();
+         UpdateDirty(x, y, x+w, y+h);
+@@ -700,10 +700,10 @@ void HdFbTrueColorOsd::new_osd() {
+     //esyslog("HdFbTrueColorOsd: DrawEllipse\n");
+ 
+         unsigned int l, t, r, b;
+-        l = left + X1;
+-        t = top + Y1;
+-        r = left + X2 + 1;
+-        b = top + Y2 + 1;
++        l = Left() + X1;
++        t = Top() + Y1;
++        r = Left() + X2 + 1;
++        b = Top() + Y2 + 1;
+ 
+         int x1 = l;
+         int y1 = t;
+@@ -816,8 +816,8 @@ void HdFbTrueColorOsd::new_osd() {
+         if (ImageIdInRange(imageId))
+             LoadImage(imageId);
+ 
+-        x += left;
+-        y += top;
++        x += Left();
++        y += Top();
+ 
+         CachedImage const *img = cachedImages_[imageId]; //hda->osd_cached_images[imageId];
+         int m, n, h_, v;
+@@ -831,8 +831,8 @@ void HdFbTrueColorOsd::new_osd() {
+             h = img->height;
+             unsigned int w_all = horRepeat ? horRepeat * w : w;
+             unsigned int h_all = vertRepeat ? vertRepeat * h : h;
+-            if(horRepeat * w > width) horRepeat = width / w;
+-            if(vertRepeat * h > height) vertRepeat = height / h;
++            if(horRepeat * w > Width()) horRepeat = Width() / w;
++            if(vertRepeat * h > Height()) vertRepeat = Height() / h;
+             UpdateDirty(x, y, x+w_all, y+h_all);
+ 
+             w_all = horRepeat ? horRepeat * w : w;
+@@ -904,66 +904,58 @@ void HdFbTrueColorOsd::new_osd() {
+     {
+     //esyslog("HdFbTrueColorOsd: DrawImage\n");
+ 
+-        if (ImageIdInRange(imageId)) {
+-            LoadImage(imageId);
+-            
++    if (ImageIdInRange(imageId)) {
++        LoadImage(imageId);
+ 
+-            x+=left;
+-            y+=top;
+-            x0+=left;
+-            y0+=top;
+-            x1+=left;
+-            y1+=top;
+-            UpdateDirty(x0, y0, x1, y1);
+-
+-            CachedImage const *img = cachedImages_[imageId];
+-            int m, n, h, v;
+-            int width_;    
+-            int height_;    
+-            uint32_t const *srcPixels;
+-            int vertRepeat = 1;
+-            int horRepeat = 1;
+-
+-            if (img) {
+-                if(x0<x || y0<y) return; // invalid param
+-                if(x1<=x0 || y1<=y0) return; // inavlid param
+-                if(img->height<=0 || img->width<=0) return; // invalid image
+-                if(x0-x >= img->width) return; // invalid param for this image
+-                if(y0-y >= img->height) return; // invalid param for this image
+-
+-                width_ = x1-x0;
+-                height_ = y1-y0;
+-                if(img->height)
+-                    vertRepeat = (y1-y0)/img->height;
+-                if(vertRepeat < 1) vertRepeat = 1;
+-                if(img->width)
+-                      horRepeat = (x1-x0)/img->width;
+-                if(horRepeat < 1) horRepeat = 1;
+-                if (blend) {
+-                    int dy=y0;
+-                    for (v = vertRepeat; v > 0; --v) {
+-                        srcPixels = img->data + img->width*(y0-y) + (x0-x);
+-                        for (n = min(height_, img->height); n > 0; --n) {
+-                            unsigned int *tgtPixels = (unsigned int*)(osd->buffer + osd->bpp * osd->width * dy++ + x0*osd->bpp);
+-                            for (h = horRepeat; h > 0; --h) {
+-                                unsigned int const *src = srcPixels;
+-                                for (m = min(width_, img->width); m > 0; --m) {
+-                                    *tgtPixels = AlphaBlend((*src++), (*tgtPixels) );
+-                                    ++tgtPixels;
+-                                }
++        x+=Left();
++        y+=Top();
++        x0+=Left();
++        y0+=Top();
++        x1+=Left();
++        y1+=Top();
++        UpdateDirty(x0, y0, x1, y1);
++
++        CachedImage const *img = cachedImages_[imageId];
++        int m, n, h, v;
++        int width_;    
++        int height_;    
++        uint32_t const *srcPixels;
++        int vertRepeat = 1;
++        int horRepeat = 1;
++
++        if (img) {
++            width_ = x1-x0;
++            height_ = y1-y0;
++            if(img->height)
++                vertRepeat = (y1-y0)/img->height;
++            if(vertRepeat < 1) vertRepeat = 1;
++            if(img->width)
++                  horRepeat = (x1-x0)/img->width;
++            if(horRepeat < 1) horRepeat = 1;
++
++            if (blend) {
++                for (v = vertRepeat; v > 0; --v) {
++                    srcPixels = img->data + img->width*(y0-y) + (x0-x);
++                    for (n = height_; n > 0; --n) {
++                        unsigned int *tgtPixels = (unsigned int*)(osd->buffer + osd->bpp * osd->width * y0++ + x0*osd->bpp);
++                        for (h = horRepeat; h > 0; --h) {
++                            unsigned int const *src = srcPixels;
++                            for (m = Width(); m > 0; --m) {
++                                *tgtPixels = AlphaBlend((*src++), (*tgtPixels) );
++                                ++tgtPixels;
+                             }
+-                            srcPixels += img->width;
+                         }
++                        srcPixels += img->width;
+                     }
+-                } else {
+-                    int dy=y0;
+-                    for (v = vertRepeat; v > 0; --v) {
+-                        srcPixels = img->data + img->width*(y0-y) + (x0-x);
+-                        for (n = min(height_, img->height); n > 0; --n) {
+-                            unsigned int *tgtPixels = (unsigned int*)(osd->buffer + osd->bpp * osd->width * dy++ + x0*osd->bpp);
++                }
++            } else {
++                for (v = vertRepeat; v > 0; --v) {
++                    srcPixels = img->data + img->width*(y0-y) + (x0-x);
++                        for (n = height_; n > 0; --n) {
++                        unsigned int *tgtPixels = (unsigned int*)(osd->buffer + osd->bpp * osd->width * y0++ + x0*osd->bpp);
+                             for (h = horRepeat; h > 0; --h) {
+                                 unsigned int const *src = srcPixels;
+-                                memcpy(tgtPixels, src, min(width_,img->width)*sizeof(int));
++                                memcpy(tgtPixels, src, img->width*sizeof(int));
+                                 tgtPixels += img->width;
+                             }
+                             srcPixels += img->width;
+@@ -994,10 +986,10 @@ void HdFbTrueColorOsd::new_osd() {
+     //esyslog("HdFbTrueColorOsd: DrawRectangle\n");
+ 
+         unsigned int l, t, r, b;
+-        l = left + x1;
+-        t = top + y1;
+-        r = left + x2 + 1;
+-        b = top + y2 + 1;
++        l = Left() + x1;
++        t = Top() + y1;
++        r = Left() + x2 + 1;
++        b = Top() + y2 + 1;
+ 
+         if (ClipArea(osd, &l, &t, &r, &b)) {
+             UpdateDirty(l, t, r, b);
+@@ -1032,10 +1024,10 @@ void HdFbTrueColorOsd::new_osd() {
+         dirty_ = true;
+ 
+         unsigned int l, t, r, b;
+-        l = left + x1;
+-        t = top + y1;
+-        r = left + x2 + 1;
+-        b = top + y2 + 1;
++        l = Left() + x1;
++        t = Top() + y1;
++        r = Left() + x2 + 1;
++        b = Top() + y2 + 1;
+ 
+         if (ClipArea(osd, &l, &t, &r, &b)) {
+             UpdateDirty(l, t, r, b);
+@@ -1075,8 +1067,8 @@ void HdFbTrueColorOsd::new_osd() {
+ 
+     if (s_in) {
+         /* adjust coordinates with global OSD-margins */        
+-        x+=left;
+-        y+=top;
++        x+=Left();
++        y+=Top();
+ 
+         /* check for empty string */
+         unsigned int i;
+@@ -1093,7 +1085,7 @@ void HdFbTrueColorOsd::new_osd() {
+ 
+         if(i == len) { /* every char is a space */
+             if((colorBg >> 24) != 0) /* not transparent */
+-                DrawRectangle(x-left, y-top, x + w - left, y + h - top, colorBg); /* clear the background */
++                DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
+             return;
+         }
+ 
+@@ -1384,7 +1376,7 @@ void HdFbTrueColorOsd::new_osd() {
+ 
+     /* override */ void HdFbTrueColorOsd::SaveRegion(int x1, int y1, int x2, int y2)
+     {
+-        x1 += left; y1 += top; x2 += left; y2 += top;
++        x1 += Left(); y1 += Top(); x2 += Left(); y2 += Top();
+         savedRegion_x0 = x1; savedRegion_y0 = y1; savedRegion_x1 = x2; savedRegion_y1 = y2;
+         int lines = y2 - y1;    
+         int pixels = x2 - x1;
+@@ -1473,10 +1465,10 @@ void HdFbTrueColorOsd::new_osd() {
+ 
+             l = std::max(0, l);
+             t = std::max(0, l);
+-            width = r - l;
+-            height = b - t;
+-            width = std::max(1, width);
+-            height = std::max(1, height);
++//          width = r - l;
++//          height = b - t;
++//          width = std::max(1, width);
++//          height = std::max(1, height);
+         }
+         return ret;
+ 
+diff -Nupr reelbox-3/HdTrueColorOsd.c reelbox-3-17539/HdTrueColorOsd.c
+--- reelbox-3/HdTrueColorOsd.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/HdTrueColorOsd.c	2011-02-24 21:30:32.000000000 +1000
+@@ -371,7 +371,7 @@ namespace Reel
+         // Send the palette indexes.
+         SendOsdCmd(bco, sizeof(hdcmd_osd_palette_t) + payloadSize);
+ 
+-        hdcmd_osd_draw8_t bco2 = {HDCMD_OSD_DRAW8, left + x, top + y, bitmap.Width(), bitmap.Height(), blend};
++        hdcmd_osd_draw8_t bco2 = {HDCMD_OSD_DRAW8, Left() + x, Top() + y, bitmap.Width(), bitmap.Height(), blend};
+ 
+         SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), bitmap.Data(0, 0), bitmap.Width() * bitmap.Height());
+         free(buffer);
+@@ -419,7 +419,7 @@ namespace Reel
+         // Send the palette indexes.
+         SendOsdCmd(bco, sizeof(hdcmd_osd_palette_t) + payloadSize);
+ 
+-        hdcmd_osd_draw8_t bco2 = {HDCMD_OSD_DRAW8_OVERLAY, left + x, top + y, width, height, blend};
++        hdcmd_osd_draw8_t bco2 = {HDCMD_OSD_DRAW8_OVERLAY, Left() + x, Top() + y, width, height, blend};
+ 
+         SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), bitmap.Data(0, 0), width * height);
+         free(buffer);
+@@ -448,10 +448,10 @@ namespace Reel
+ 	//esyslog("HdTrueColorOsd: DrawEllipse\n");
+ 
+         hdcmd_osd_draw_ellipse const bco = {HDCMD_OSD_DRAW_ELLIPSE,
+-                                             left + x1,
+-                                             top + y1,
+-                                             left + x2 + 1,
+-                                             top + y2 + 1,
++                                             Left() + x1,
++                                             Top() + y1,
++                                             Left() + x2 + 1,
++                                             Top() + y2 + 1,
+                                              color,
+                                              quadrants};
+ 
+@@ -473,7 +473,7 @@ namespace Reel
+             CacheImage(imageId);
+             hdcmd_osd_draw_image const bco = {HDCMD_OSD_DRAW_IMAGE,
+                                                imageId,
+-                                               left + x, top + y,
++                                               Left() + x, Top() + y,
+                                                blend,
+                                                horRepeat, vertRepeat};
+     
+@@ -494,9 +494,9 @@ namespace Reel
+             CacheImage(imageId);
+             hdcmd_osd_draw_crop_image const bco = {HDCMD_OSD_DRAW_CROP_IMAGE,
+                                                imageId,
+-                                               left + x, top + y,
+-                                               left + x0, top + y0,
+-                                               left + x1, top + y1,
++                                               Left() + x, Top() + y,
++                                               Left() + x0, Top() + y0,
++                                               Left() + x1, Top() + y1,
+                                                blend};
+             SendOsdCmd(bco);
+         }
+@@ -519,10 +519,10 @@ namespace Reel
+ 	//esyslog("HdTrueColorOsd: DrawRectangle\n");
+ 
+   hdcmd_osd_draw_rect const bco = {HDCMD_OSD_DRAW_RECT,
+-                                          left + x1,
+-                                          top + y1,
+-                                          left + x2 + 1,
+-                                          top + y2 + 1,
++                                          Left() + x1,
++                                          Top() + y1,
++                                          Left() + x2 + 1,
++                                          Top() + y2 + 1,
+                                           color};
+ 
+         SendOsdCmd(bco);
+@@ -537,10 +537,10 @@ namespace Reel
+ 	//esyslog("HdTrueColorOsd: DrawRectangle\n");
+ 
+   hdcmd_osd_draw_rect2 const bco = {HDCMD_OSD_DRAW_RECT2,
+-                                          left + x1,
+-                                          top + y1,
+-                                          left + x2 + 1,
+-                                          top + y2 + 1,
++                                          Left() + x1,
++                                          Top() + y1,
++                                          Left() + x2 + 1,
++                                          Top() + y2 + 1,
+                                           color,
+                                           alphaGradH,
+                                           alphaGradV,
+@@ -590,7 +590,7 @@ namespace Reel
+         if(height == 0)
+ 	     height=font->Height();
+ 
+-        cacheBitmap->SetSizeWithoutRealloc(width, height); 
++        cacheBitmap->SetSize(width, height);
+ 
+         if((colorBg >> 24 == 0) || ((colorBg&0x00ffffff) == 0x00000000)){ /* TB: transparent as bgcolor is evil */
+ 		colorBg = colorFg&0x01ffffff; 
+@@ -784,7 +784,7 @@ namespace Reel
+ 
+     /* override */ void HdTrueColorOsd::SaveRegion(int x1, int y1, int x2, int y2)
+     {
+-        hdcmd_osd_clear_t const bco = {HDCMD_OSD_SAVE_REGION, x1+left, y1+top, x2+left, y2+top};
++        hdcmd_osd_clear_t const bco = {HDCMD_OSD_SAVE_REGION, x1+Left(), y1+Top(), x2+Left(), y2+Top()};
+         SendOsdCmd(bco);
+     }
+ 
+@@ -906,10 +906,10 @@ namespace Reel
+ 
+             l = std::max(0, l);
+             t = std::max(0, l);
+-            width = r - l;
+-            height = b - t;
+-            width = std::max(1, width);
+-            height = std::max(1, height);
++//          width = r - l;
++//          height = b - t;
++//          width = std::max(1, width);
++//          height = std::max(1, height);
+         }
+         return ret;
+ 
+diff -Nupr reelbox-3/Makefile reelbox-3-17539/Makefile
+--- reelbox-3/Makefile	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/Makefile	2011-02-25 22:06:31.000000000 +1000
+@@ -10,7 +10,7 @@
+ PLUGIN = reelbox
+ 
+ # set it if you want to compile the skin for use with the reelbox
+-REELSKIN=1
++#REELSKIN=1
+ 
+ ### The object files (add further files here):
+ 
+@@ -32,8 +32,8 @@ VDRDIR = ../../..
+ LIBDIR = ../../lib
+ TMPDIR = /tmp
+ 
+-BSPSHM = ../../../utils/bspshm
+-HDSHM = ../../../utils/hdshm3/src
++BSPSHM = ./utils/bspshm
++HDSHM = ./utils/hdshm3/src
+ 
+ BSPINCLUDE = -I$(BSPSHM) -I$(BSPSHM)/include
+ HDINCLUDE = -I$(HDSHM) -I$(HDSHM)/include
+@@ -70,8 +70,126 @@ endif
+ LDFLAGS += -L$(LIBASOUND)/src/.libs
+ LDFLAGS += -L$(LIBMAD)/.libs
+ 
+-# Include common rules
+-include $(VDRDIR)/Make.common
++### The version number of this plugin (taken from the main source file):
++
++VERSION = $(shell grep 'static const char \*VERSION *=' $(PLUGIN).c | awk '{ print $$6 }' | sed -e 's/[";]//g')
++
++### The version number of VDR (taken from VDR's "config.h"):
++
++APIVERSION = $(shell grep 'define APIVERSION ' $(VDRDIR)/config.h | awk '{ print $$3 }' | sed -e 's/"//g')
++
++VDRLOCALE = $(shell grep '^LOCALEDIR' $(VDRDIR)/Makefile)
++
++### The name of the distribution archive:
++
++ARCHIVE = $(PLUGIN)-$(VERSION)
++PACKAGE = vdr-$(ARCHIVE)
++
++### Includes and Defines (add further entries here):
++
++INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include
++DEFINES  += -D_GNU_SOURCE -D_LARGEFILE_SOURCE
++
++ifdef DEBUG
++  DEFINES += -DDEBUG
++  CXXFLAGS += -g
++endif
++
++### Targets:
++
++plug: libvdr-$(PLUGIN).so
++
++all: libvdr-$(PLUGIN).so i18n
++
++### Implicit rules:
++
++%.o: %.c
++	$(CXX) $(CXXFLAGS) -D__STDC_CONSTANT_MACROS -c $(DEFINES) -DPLUGIN_NAME='"$(PLUGIN)"' -DPLUGIN_NAME_I18N='"$(PLUGIN)"' $(INCLUDES) -o $@ $<
++
++# Dependencies:
++
++MAKEDEP = $(CXX) -MM -MG
++DEPFILE = .dependencies
++$(DEPFILE): Makefile
++	@$(MAKEDEP) $(DEFINES) $(INCLUDES) $(OBJS:%.o=%.c)   > $@
++
++-include $(DEPFILE)
++
++### Internationalization (I18N):
++ifneq ($(strip $(VDRLOCALE)),)
++### do gettext based i18n stuff
++
++PODIR     = po
++LOCALEDIR = $(VDRDIR)/locale
++I18Npo    = $(wildcard $(PODIR)/*.po)
++I18Nmsgs  = $(addprefix $(LOCALEDIR)/, $(addsuffix /LC_MESSAGES/vdr-$(PLUGIN).mo, \
++		$(notdir $(foreach file, $(I18Npo), $(basename $(file))))))
++I18Npot   = $(PODIR)/$(PLUGIN).pot
++
++%.mo: %.po
++	msgfmt -c -o $@ $<
++
++$(I18Npot): $(wildcard *.c $(PLUGIN).h $(EXTRA_I18N))
++	echo $(I18Nmsgs)
++	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --from-code=utf-8 --msgid-bugs-address='<reelbox-devel@mailings.reelbox.org>' $^ -o $@
++
++#%.po:
++%.po: $(I18Npot)
++	msgmerge -U --no-wrap --no-location --backup=none -q $@ $<
++	@touch $@
++
++$(I18Nmsgs): $(LOCALEDIR)/%/LC_MESSAGES/vdr-$(PLUGIN).mo: $(PODIR)/%.mo
++	@mkdir -p $(dir $@)
++	cp $< $@
++
++.PHONY: i18n
++i18n: $(I18Npot) $(I18Nmsgs)
++
++#i18n-dist: $(I18Nmsgs)
++i18n-dist:
++	for i in `ls po/*.po` ; do \
++		odir=`echo $$i | cut -b4-8` ;\
++		msgfmt -c -o $(LOCALEDIR)/$$odir/LC_MESSAGES/vdr-$(PLUGIN).mo $$i ;\
++	done
++
++else ### do i18n.c based i18n stuff
++
++i18n:
++	@### nothing to do
++
++#i18n compatibility generator:
++i18n.c: i18n-template.c po2i18n.pl $(I18Npo)
++	./po2i18n.pl < i18n-template.c > i18n.c
++
++endif
++
++libvdr-$(PLUGIN).so: $(OBJS)
++	$(CXX) $(CXXFLAGS) -shared $(OBJS) $(LDFLAGS) $(LIBS) -o $@
++	@cp $@ $(LIBDIR)/$@.$(APIVERSION)
++
++dist: distclean
++	@rm -rf $(TMPDIR)/$(ARCHIVE)
++	@mkdir $(TMPDIR)/$(ARCHIVE)
++	@cp -a * $(TMPDIR)/$(ARCHIVE)
++	@rm -f $(TMPDIR)/$(ARCHIVE)/$(PLUGIN).kdevelop
++	@rm -f $(TMPDIR)/$(ARCHIVE)/$(PLUGIN).kdevelop.filelist
++	@rm -f $(TMPDIR)/$(ARCHIVE)/$(PLUGIN).kdevelop.pcs
++	@rm -f $(TMPDIR)/$(ARCHIVE)/$(PLUGIN).kdevses
++	@rm -rf $(TMPDIR)/$(ARCHIVE)/CVS
++	@rm -rf $(TMPDIR)/$(ARCHIVE)/Examples/CVS
++	@rm -rf $(TMPDIR)/$(ARCHIVE)/Patch/CVS
++	@ln -s $(ARCHIVE) $(TMPDIR)/$(PLUGIN)
++	@tar czf $(PACKAGE).tgz -C $(TMPDIR) $(ARCHIVE) $(PLUGIN)
++	@rm -rf $(TMPDIR)/$(ARCHIVE) $(TMPDIR)/$(PLUGIN)
++	@echo Distribution package created as $(PACKAGE).tgz
++
++clean:
++	@-rm -f $(PODIR)/*.mo
++	@-rm -f $(OBJS) $(MAIN) $(DEPFILE) *.so *.tgz core* *~
++	@-rm -f $(LIBDIR)/libvdr-$(PLUGIN).so.$(APIVERSION)
++
++distclean: clean
++	@-rm -f $(PODIR)/*.pot
+ 
+ useless-target-for-compatibility-with-vanilla-vdr:
+ 	$(LIBDIR)/$@.$(APIVERSION)
+diff -Nupr reelbox-3/mcli_service.h reelbox-3-17539/mcli_service.h
+--- reelbox-3/mcli_service.h	1970-01-01 10:00:00.000000000 +1000
++++ reelbox-3-17539/mcli_service.h	2011-01-21 22:47:07.000000000 +1000
+@@ -0,0 +1,13 @@
++#ifndef MCLI_SERVICE_H
++#define MCLI_SERVICE_H
++
++#define MAX_TUNERS_IN_MENU 16
++
++typedef struct
++{
++	int type[MAX_TUNERS_IN_MENU];
++	char name[MAX_TUNERS_IN_MENU][128];
++    int preference[MAX_TUNERS_IN_MENU];
++} mclituner_info_t;
++
++#endif
+diff -Nupr reelbox-3/MpegPes.c reelbox-3-17539/MpegPes.c
+--- reelbox-3/MpegPes.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/MpegPes.c	2011-08-28 15:03:16.000000000 +1100
+@@ -50,7 +50,7 @@ namespace Reel
+             }
+             if (streamId_ == StreamIdMpegPrivateStream1)
+             {
+-                if (subStreamId_ >= SubStreamIdAc3Stream0 && subStreamId_ <= SubStreamIdAc3Stream7)
++                if (subStreamId_ >= SubStreamIdAc3Stream0 && subStreamId_ <= SubStreamIdAc3Stream7 || subStreamId_ == 0xb)
+                 {
+                     mediaType_ = MediaTypeAudio;
+                     audioDecoder_ = AudioDecoderAc3::Instance();
+@@ -180,6 +180,7 @@ namespace Reel
+                                     }
+                                     subStreamId_ = static_cast<SubStreamId>(*pesPtr++);
+                                     -- pesLength;
++//pesPtr--;pesLength++;
+                                 }
+                                 data_ = pesPtr;
+                                 dataLength_ = pesLength;
+diff -Nupr reelbox-3/Mutex.h reelbox-3-17539/Mutex.h
+--- reelbox-3/Mutex.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/Mutex.h	2011-02-20 00:30:31.000000000 +1000
+@@ -93,14 +93,10 @@ namespace Reel
+     {
+ #ifdef REEL_DEBUG
+         pthread_mutexattr_t attr = {{ ReelDebug ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP }};
+-#else	
+-	pthread_mutexattr_t attr;
+-	pthread_mutexattr_init(&attr);
+ #endif
+                 // Note: Two braces necessary for type correctness (otherwise Compiler WARNING). There's
+                 //       something seriously wrong in pthread.h. 
+-//        REEL_ASSERT(pthread_mutex_init(&mutex_, &attr) == 0);
+-	pthread_mutex_init(&mutex_, &attr);
++        REEL_ASSERT(pthread_mutex_init(&mutex_, &attr) == 0);
+         REEL_IF_DEBUG(locked_ = 0);
+     }
+ 
+diff -Nupr reelbox-3/reelbox.c reelbox-3-17539/reelbox.c
+--- reelbox-3/reelbox.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/reelbox.c	2011-09-25 00:10:22.000000000 +1100
+@@ -32,10 +32,9 @@
+ #include "config.h"
+ #include "VdrXineMpIf.h"
+ #include "fs453settings.h"
+-
+-#include <vdr/config.h>
+-#if APIVERSNUM >= 10716
+-  #include <vdr/shutdown.h>
++#include "vdr/config.h"
++#if VDRVERSNUM >= 10716
++#include "vdr/shutdown.h"
+ #endif
+ 
+ #ifdef REELSKIN
+@@ -163,7 +162,7 @@ namespace Reel
+         if (RBSetup.usehdext)
+         {
+             HdCommChannel::Init();
+-            //Reel::HdCommChannel::SetVideomode();
++            Reel::HdCommChannel::SetVideomode();
+ 	    Reel::HdCommChannel::SetPicture(&RBSetup);
+ 	    Reel::HdCommChannel::SetHWControl(&RBSetup);
+ 	    Reel::HdCommChannel::hda->plane[2].enable=1; // avoid init race
+@@ -213,7 +212,7 @@ namespace Reel
+     }
+ 
+     const char *Plugin::CommandLineHelp(void)
+-    {
++    { 
+         // return a string that describes all known command line options.
+         return "  --nofb           Do not use the framebuffer-based OSD-implementation.\n"
+                "  --fbdev <dev>   Use <dev> as the framebuffer device (/dev/fb0)\n";
+@@ -280,7 +279,7 @@ namespace Reel
+             {
+                 Reel::Bsp::BspCommChannel::SetVideomode();
+             }
+-	    else
++	    else 
+ 	    {
+ 		Reel::HdCommChannel::SetVideomode();
+ 	    }
+@@ -294,7 +293,7 @@ namespace Reel
+             }
+             return true;
+         }
+-#if APIVERSNUM >= 10716 && REELVDR
++#if VDRVERSNUM >= 10716 && REELVDR
+         else if (strcmp(Id, "ActiveModeChanged") == 0)
+         {
+             if (Data)
+@@ -336,7 +335,7 @@ namespace Reel
+                 } // switch
+ 
+            } //if
+-           else
++           else 
+                esyslog("ERROR reelbox pl: Service(\"ActiveModeChange\") Data == NULL");
+ 
+            return true;
+diff -Nupr reelbox-3/ReelBoxDevice.c reelbox-3-17539/ReelBoxDevice.c
+--- reelbox-3/ReelBoxDevice.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/ReelBoxDevice.c	2011-12-18 21:08:38.000000000 +1100
+@@ -67,6 +67,12 @@ namespace Reel
+ 
+     ReelBoxDevice *ReelBoxDevice::instance_;
+ 
++    uint32_t Delta = 0;
++    uint32_t ptsValues[150];
++    int numPtsValues=0;
++    eVideoSystem vo_system;
++    eVideoSystem last_vo_system;
++
+     ReelBoxDevice::ReelBoxDevice()
+     :   digitalAudio_(false), pipActive_(false), audioChannel_(0),
+ #if VDRVERSNUM < 10716
+@@ -92,6 +98,7 @@ namespace Reel
+             VideoPlayerHd::Create();
+             VideoPlayerPipHd::Create();
+             tmpHDaspect = -1;
++	    last_vo_system = Reel::HdCommChannel::hda->video_mode.framerate == 50 ? vsPAL : vsNTSC;
+ #ifdef RBLITE
+             if (!audioOverHDMI_ && digitalAudio_ )
+ #else
+@@ -158,6 +165,8 @@ namespace Reel
+         AudioPlayerBsp::Destroy();
+         AudioPlayerHd::Destroy();
+         VideoPlayer::Destroy();
++	if(ringBuffer)
++    	    delete ringBuffer;
+     }
+ 
+     Int ReelBoxDevice::AudioDelay() const
+@@ -186,7 +195,8 @@ namespace Reel
+ #ifdef RBLITE
+         if(!audioOverHDMI_ && digitalAudio_ )
+ #else
+-        if(!audioOverHd_ && !digitalAudio_)
++//        if(!audioOverHd_ && !digitalAudio_)
++        if(!audioOverHd_ )
+ #endif
+         {
+             if(audioPlayerHd_)
+@@ -275,11 +285,18 @@ namespace Reel
+       } 
+     }
+ 
+-    void ReelBoxDevice::GetOsdSize (int &Width, int &Height, double &Aspect) {
+-      Width=720;
+-      Height=576;
+-      Aspect=1.0; // DL TODO: Check aspect for 16:9/4:3
++    void ReelBoxDevice::GetOsdSize(int &Width, int &Height, double &PixelAspect)
++    {
++        Width = 720;
++        Height = 576;
++
++        if (Setup.VideoFormat == 1) // 16:9 Format
++            PixelAspect = 16.0 /9.0;
++        else
++            PixelAspect = 4.0 /3.0;
++        PixelAspect /= double(Width) / Height;
+     }
++
+ #endif
+ 
+     //void ReelBoxDevice::Stop()
+@@ -353,6 +370,7 @@ namespace Reel
+                 DEBUG_DEVICE("[reelbox] \033[0;48m !! NO  Audio Over HDMI_  !! \033[0m \n");
+                 AudioPlayerBsp::Create();
+                 audioPlayerBsp_ = &AudioPlayer::InstanceBsp();
++
+             }
+             else
+             {
+@@ -641,15 +659,47 @@ namespace Reel
+         bkgPicPlayer_.PlayedAudio();
+ #endif
+ 
++uchar *Data = (uchar*)data;
++//esyslog(" 14 %X \n",data[14]);
++
++//if (data[3] == 0xBD ){
++//int flag=Data[7];
++//Data[4]=0x23;
++//Data[5]=0x08;
++//Data[6]=0x84;
++//Data[7]=0x80;
++//Data[9]=0;
++//Data[10]=0x0;
++//Data[11]=0x0;
++//Data[12]=0x0;
++//Data[13]=0x0;
++
++//Data[4]=0;//(length-6)>>8;
++//Data[5]=0;//(length-6)&255;
++
++//Data[14]=0xb;
++//Data[15]=0x77;
++//Data[18]=0x1e;
++//Data[19]=0x40;
++//}
++
+ 	if (useHDExtension_) {
++//if(length>30){
++//if (Data[3] == 0xBD){
++//int off = 0;
++//esyslog("reelbox %d %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X \n",length,Data[0+off],Data[1+off],Data[2+off],Data[3+off],Data[4+off],Data[5+off],Data[6+off],Data[7+off],Data[8+off],Data[9+off],Data[10+off],Data[11+off],Data[12+off],Data[13+off],Data[14+off],Data[15+off],Data[16+off],Data[17+off],Data[18+off],Data[19+off],Data[20+off],Data[21+off],Data[22+off]);
++//off=length-22;
++//esyslog("reelbox  %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X \n",Data[0+off],Data[1+off],Data[2+off],Data[3+off],Data[4+off],Data[5+off],Data[6+off],Data[7+off],Data[8+off],Data[9+off],Data[10+off],Data[11+off],Data[12+off],Data[13+off],Data[14+off],Data[15+off],Data[16+off],Data[17+off],Data[18+off],Data[19+off],Data[20+off],Data[21+off],Data[22+off]);
++//}
++//}
+ 		videoPlayer_->PlayPesPacket((void*)data, length, 0);
++
+                 if(!audioPlayerBsp_) //send packets to alsa too
+                 {
+ 		    return length;
+                 }
+ 	}
+ 
+-
+         try
+         {
+             // LogData(data, length, 0);
+@@ -658,10 +708,11 @@ namespace Reel
+ 
+             while (pesPacketLength > 0)
+             {
+-                Mpeg::EsPacket esPacket(data, pesPacketLength);
++		Mpeg::EsPacket esPacket(data, pesPacketLength);
++
+                 if (audioPlayerHd_)
+                 {
+-                   // audioPlayerHd_->PlayPacket(esPacket);
++                    audioPlayerHd_->PlayPacket(esPacket);
+                 }
+                 if (audioPlayerBsp_)
+                 {
+@@ -720,75 +771,230 @@ namespace Reel
+        printf("SetAudioTrack: %i\n", index);
+   }
+ 
+-    Int ReelBoxDevice::PlayVideoTs(Byte const *data, Int length, bool VideoOnly, uchar* PATPMT)
+-    {
+-       CHECK_CONCURRENCY;
+-        if(needRestart) Restart();
+-        if(audioChannel_ != oldAudioChannel){
+-	   oldAudioChannel = audioChannel_;
+-        }
+-        if(PATPMT){
+-          int vpidpatpmt = PATPMT[TS_SIZE + 19]&0xff | ((PATPMT[TS_SIZE+18]&0x1f)  << 8);
+-          int apidpatpmt[MAXAPIDS] = { 0 };
+-          int dpidpatpmt[MAXDPIDS] = { 0 };
+-          int dpidsfound = 0, apidsfound = 0;
+-	  int offset = 17+5; /* after header and vpid */
+-	  /* as long as there are audio tracks */
+-	  while(PATPMT[TS_SIZE + offset] == 0x06 || PATPMT[TS_SIZE + offset] == 0x04){
+-             /* test for dolby */
+-             if (PATPMT[TS_SIZE + offset]==0x06 && dpidsfound < MAXDPIDS){
+-		/* set first mpa also, will be overriden if a real mpa-track is found */
+-                dpidpatpmt[dpidsfound] = apidpatpmt[apidsfound] = PATPMT[TS_SIZE + offset + 2]&0xff | ((PATPMT[TS_SIZE + offset + 1]&0x1f ) << 8);
+-                SetAvailableTrack(ttDolby, dpidsfound, dpidpatpmt[dpidsfound], 0);
+-		dpidsfound++;
+-	        offset += 8;
+-             }
+-             /* test for mpa */
+-	     if (PATPMT[TS_SIZE + offset]==0x04 && apidsfound < MAXAPIDS){
+-		apidpatpmt[apidsfound] = PATPMT[TS_SIZE + offset + 2]&0xff | ((PATPMT[TS_SIZE + offset + 1]&0x1f ) << 8);
+-		SetAvailableTrack(ttAudio, apidsfound, apidpatpmt[apidsfound], 0);
+-		offset += 5;
+-		apidsfound++;
+-             }
+-          }
+-
+-          printf("PATPMT: vpid: %x apid: %x dpid : %x dpid2: %x\n",vpidpatpmt, apidpatpmt[0], dpidpatpmt[0], dpidpatpmt[1]);
+-
+-          if(vpidpatpmt != 0 && (apidpatpmt[0] !=0 || dpidpatpmt[0] != 0) ){
+-             printf("VALID PATPMT: vpid: %x apid: %x dpid : %x dpid2: %x\n",vpidpatpmt, apidpatpmt[0], dpidpatpmt[0], dpidpatpmt[1]);
+-	     if(!dpidpatpmt[0] && audioIndex > 0) //TB: if there's only one track select it regardless what VDR wants
+-		audioIndex = 0;
+-          }
+-        }
++static int CmpUint32(const void *p1, const void *p2)
++{
++  if (*(uint32_t *)p1 < *(uint32_t *)p2) return -1;
++    if (*(uint32_t *)p1 > *(uint32_t *)p2) return  1;
++        return 0;
++}
+ 
+-           try
+-           {
+-#if VDRVERSNUM < 10716
+-              bkgPicPlayer_.Stop();
+-              videoPlayback_ = 3500;
+-              if (-- audioPlayback_ < 0)
+-              {
+-                 audioPlayback_ = 0;
+-              }
++void ReelBoxDevice::CalcVideoSystem(Byte const *data, Int length)
++{
++    int off;
++    if (data){
++       if (PesHasPts(data) && length > 9){
++           off = PesPayloadOffset(data);
++           if (data[off] == 0 && data[off+1] == 0 && data[off+2] == 1 && data[off+3] == 0xB3){
++               switch (data[7+off]&0xf){
++                   case 1:
++                       vo_system = vsNTSC;
++                       break;
++                   case 2:
++                       vo_system = vsNTSC;
++                       break;
++                   case 4:
++                       vo_system = vsNTSC;
++                       break;
++                   case 5:
++                       vo_system = vsNTSC;
++                       break;
++                   case 6:
++                       vo_system = vsPAL;
++                       break;
++                   case 7:
++                       vo_system = vsNTSC;
++                       break;
++                   case 8:
++                       vo_system = vsNTSC;
++                       break;
++                   default:
++                       vo_system = vsPAL;
++               }
++
++
++           }
++
++           else if (data[off] == 0 && data[off+1] == 0 && data[off+2] == 0 && data[off+3] == 1 && data[off+4] == 9){
++//if(length>30){
++//int f = 20;
++//esyslog(" %X %X %X %X %X %X %X %X %X %X \n",data[0+off+f],data[1+off+f],data[2+off+f],data[3+off+f],data[4+off+f],data[5+off+f],data[6+off+f],data[7+off+f],data[8+off+f],data[9+off+f]);
++//}
++               if (ptsValues[numPtsValues]=PesGetPts(data))
++                   numPtsValues++;
++               else numPtsValues = 0;
++               if (numPtsValues>2){
++                   qsort(ptsValues, numPtsValues, sizeof(uint32_t), CmpUint32);
++                   numPtsValues--;
++                   for (int i = 0; i < numPtsValues; i++)
++                       ptsValues[i] = ptsValues[i + 1] - ptsValues[i];
++                   qsort(ptsValues, numPtsValues, sizeof(uint32_t), CmpUint32);
++                   Delta = ptsValues[0];
++                   numPtsValues = 0;
++               }
++
++               if (Delta > 0 ){
++                   if (abs(Delta - 3600) <= 1)
++                       vo_system =  vsPAL;
++                   else if (Delta % 3003 == 0)
++                       vo_system =  vsNTSC;
++                   else if (abs(Delta - 1800) <= 1)
++                       vo_system =  vsPAL;
++                   else if (Delta == 1501)
++                       vo_system =  vsNTSC;
++                   else if ((Delta *1000 / 1501 - Delta / 1501 * 1000 ) < 10)
++                       vo_system =  vsNTSC;
++                   else
++                       vo_system =  vsPAL;
++
++               }
++           }
++       }
++    }
++}
++
++eVideoSystem ReelBoxDevice::GetVideoSystem(void)
++{
++    return vo_system;
++}
++/*
++int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
++       {
++               CHECK_CONCURRENCY;
++               if(needRestart) Restart();
++               if(!TsHasPayload(Data)) return length;
++
++               int pid = TsPid(Data);
++
++if(RBSetup.HDnorm == 3 || RBSetup.HDresolution == 4){
++if(TsPayloadStart(Data)){
++    const uchar *Pes = Data + TsPayloadOffset(Data);
++    CalcVideoSystem(Pes,length-TsPayloadOffset(Data));
++}
++if (last_vo_system != vo_system) {
++    if (vo_system == vsPAL) dsyslog("+++++++++++++ vo PES PAL\n");
++    if (vo_system == vsNTSC) dsyslog("+++++++++++++ vo PES NTSC\n");
++    if (RBSetup.HDresolution == 4) {
++
++       HdCommChannel::hda->video_mode.height = vo_system == vsPAL ? 576 : 480;
++       HdCommChannel::hda->video_mode.norm = vo_system == vsPAL ? HD_VM_NORM_PAL : HD_VM_NORM_NTSC;
++     }
++    HdCommChannel::hda->video_mode.framerate = vo_system == vsPAL ? 50 : 60;
++    HdCommChannel::hda->video_mode.changed++;
++
++    last_vo_system = vo_system;
++}
++}
++               if(pid != playVideoPid_)
++               {
++                       printf("PlayTsVideo: new Vpid: %i\n", pid);
++                       playVideoPid_ = pid;
++
++                       bkgPicPlayer_.PlayedVideo();
++                       if(ringBuffer)
++                               ringBuffer->Clear();
++               }
++
++               PlayAudioVideoTS(Data,length);
++
++               return length;
++       }
++
++       int ReelBoxDevice::PlayTsAudio(const uchar *Data, int Length)
++       {
++               CHECK_CONCURRENCY;
++
++               int pid = TsPid(Data);
++
++               if(pid != playAudioPid_)
++               {
++                       printf("PlayTsAudio: new Apid: %i\n", pid);
++                       playAudioPid_ = pid;
++
++#if 1
++                           bkgPicPlayer_.Start();
+ #else
+-              bkgPicPlayer_.PlayedVideo();
+-#endif
++                           if (audioBackgroundPics_)
++                               bkgPicPlayer_.Start();
++                           else
++                               bkgPicPlayer_.Stop();
++#endif
++
++                       if(audioPlayerBsp_)
++                       {
++                               tsToPesConverter.Reset();
++                               audioPlayerBsp_->Stop();
++                       }
++               }
++
++               PlayAudioVideoTS(Data,Length);
++
++               if(!audioPlayerBsp_) //send packets to alsa too
++                   return Length;
++
++               try
++        {
++                       //first make PES and then ES for alsa output
++                       UInt l;
++                       if (const Reel::Byte *p = tsToPesConverter.GetPes((int&)l))
++                       {
++                               while (l > 0)
++                               {
++                                       Mpeg::EsPacket esPacket(p, l);
++                                       audioPlayerBsp_->PlayPacket(esPacket);
++                               }
++
++                               tsToPesConverter.Reset();
++                       }
++                       tsToPesConverter.PutTs(Data, Length);
++               }
++        catch (std::exception const &e)
++        {
++            REEL_LOG_EXCEPTION(e);
++            printf("PlayTsAudio: exception caught \n");
++        }
++               return Length;
++       }
+ 
+-              videoPlayer_->PlayTsPacket((void*)data, length, PATPMT);
++       void ReelBoxDevice::PlayAudioVideoTS(const uchar *data, int length)
++       {
++               if(!ringBuffer)
++                       ringBuffer = new cRingBufferLinear(RINGBUFSIZE, BUFFEREDTSPACKETSSIZE, false, "PlayTsBuffer");
+ 
+-	       } catch (std::exception const &e)
+-		   {
+-	            REEL_LOG_EXCEPTION(e);
+-		   }
+-	       return length;
+-    }
++               ringBuffer->Put(data, length);
+ 
++               int count = ringBuffer->Available();
++               if(count == BUFFEREDTSPACKETSSIZE)
++               {
++                       uchar *b = ringBuffer->Get(count);
++                       videoPlayer_->PlayTsPacket((void*)b, count, playVideoPid_, playAudioPid_);
++                       ringBuffer->Del(count);
++               }
++       }
+ 
++*/
+     Int ReelBoxDevice::PlayVideo(Byte const *data, Int length)
+     {
+         CHECK_CONCURRENCY;
+         if(needRestart) Restart();
++if(RBSetup.HDnorm == 3 || RBSetup.HDresolution == 4){
++CalcVideoSystem(data,length);
++
++if (last_vo_system != vo_system) {
++    if (vo_system == vsPAL) dsyslog("+++++++++++++ vo PES PAL\n");
++    if (vo_system == vsNTSC) dsyslog("+++++++++++++ vo PES NTSC\n");
++
++    if (RBSetup.HDresolution == 4) {
+ 
++       HdCommChannel::hda->video_mode.height = vo_system == vsPAL ? 576 : 480;
++       HdCommChannel::hda->video_mode.norm = vo_system == vsPAL ? HD_VM_NORM_PAL : HD_VM_NORM_NTSC;
++    }
++
++    HdCommChannel::hda->video_mode.framerate = vo_system == vsPAL ? 50 : 60;
++    HdCommChannel::hda->video_mode.changed++;
++
++    last_vo_system = vo_system;
++}
++}
+ #if VDRVERSNUM >= 10716
+         bkgPicPlayer_.PlayedVideo();
+ #endif
+@@ -798,13 +1004,20 @@ namespace Reel
+ 		bkgPicPlayer_.Stop();
+ 		videoPlayback_ = 3500;
+ #else
+-		if((length > 7) && !data[0] && !data[1] && (data[2]==1) && (data[7]&0x20)) {
+-			VideoPlayerHd *player = dynamic_cast<VideoPlayerHd*>(&VideoPlayer::Instance());
+-			isyslog("ReelBoxDevice::PlayVideo: Broken Link %p", player);
+-			if(player) player->IncGen();
+-		} // if
++//		if((length > 7) && !data[0] && !data[1] && (data[2]==1) && (data[7]&0x20)) {
++//			VideoPlayerHd *player = dynamic_cast<VideoPlayerHd*>(&VideoPlayer::Instance());
++//			isyslog("ReelBoxDevice::PlayVideo: Broken Link %p", player);
++//			if(player) player->IncGen();
++//		} // if
+ #endif
++if ((length > 7) && !data[0] && !data[1] && ((data[2]==1 && (data[3]==0xE0 || data[3] == 0xEA)) || (!data[2] && data[3] == 1 && data[4] == 9))) //drop not video stream, ex 0xBE
+ 		videoPlayer_->PlayPesPacket((void*)data, length, 1);
++//else{
++//if(length>30){
++//int f = 0,off=0;;
++//esyslog(" !!! %X %X %X %X %X %X %X %X %X %X \n",data[0+off+f],data[1+off+f],data[2+off+f],data[3+off+f],data[4+off+f],data[5+off+f],data[6+off+f],data[7+off+f],data[8+off+f],data[9+off+f]);
++//}}
++
+ 		return length;
+ 	}
+ 
+@@ -1013,6 +1226,7 @@ namespace Reel
+     void ReelBoxDevice::SetDigitalAudioDevice(bool on)
+     {
+         DEBUG_DEVICE("[reelbox] \033[0;44n %s  ON? %s \033[0m \n", __PRETTY_FUNCTION__, on?"YES":"NO");
++/*
+         if (digitalAudio_ != on)
+         {
+             if (digitalAudio_)
+@@ -1024,6 +1238,7 @@ namespace Reel
+             SetVolumeDevice(IsMute() ? 0 : CurrentVolume());
+         }
+         RestartAudio();
++*/
+     }
+ 
+     int64_t ReelBoxDevice::GetSTC()
+@@ -1066,8 +1281,13 @@ namespace Reel
+             playMode_ = playMode;
+             if (playMode == pmAudioVideo || playMode == pmAudioOnly || playMode == pmAudioOnlyBlack || playMode == pmVideoOnly)
+             {
+-                SetPlayModeOn();
++            SetPlayModeOn();
+             }
++//	    else if (playMode == pmExtern_THIS_SHOULD_BE_AVOIDED)
++//	    {
++//	     needRestart = true;
++//	     SetPlayModeOff();
++//	    }
+             else
+             {
+                 SetPlayModeOff();
+@@ -1151,16 +1371,6 @@ namespace Reel
+             audioPlayerBsp_->SetChannel(channel);
+         }
+ 
+-#ifndef RBLITE
+-        if (audioOverHd_)
+-            return;
+-#endif
+-        // ALSA
+-
+-        volume = volume / 8;  // range is from 0-31 on RB_Lite, 0-255 on RB_II;
+-                              // FIXME: SetVolume() should check volume_range before setting
+-                              //        and take volume as % as input
+-
+         if (digitalAudio_ )  // we have ac3
+         {
+             if (RBSetup.ac3 || !useHDExtension_)
+@@ -1171,7 +1381,7 @@ namespace Reel
+                 MUTE("CD");
+                 SET_VOLUME(0);
+             }
+-            else
++            else if (!RBSetup.ac3)
+             {
+                 // HD-Ext decode AC3 -> analog -> CD -> Realtek
+                 MUTE("PCM");
+@@ -1250,7 +1460,14 @@ namespace Reel
+                 continue;
+             if (snd_mixer_selem_has_playback_channel(elem, chn)) {
+                     if (snd_mixer_selem_has_playback_volume(elem)) {
+-                        snd_mixer_selem_set_playback_volume(elem, chn, Volume);
++                        long min, max;
++                                               if(snd_mixer_selem_get_playback_volume_range(elem, &min, &max) >= 0)
++                                               {
++                                                       unsigned int percent = 100*Volume/MAXVOLUME;
++                                                       long relVol = (max-min)*percent/100 + min;
++                                                       snd_mixer_selem_set_playback_volume(elem, chn, relVol);
++                                               }
++
+                     }
+             }
+         }
+@@ -1276,8 +1493,8 @@ namespace Reel
+         needRestart=true;
+         try
+         {
++	    tsMode_ = false;
+             std::vector<Mpeg::EsPacket> videoPackets;
+-
+ #if VDRVERSNUM >= 10716
+             if (length && data[0] == 0x47) {
+                 return cDevice::StillPicture(data, length);
+@@ -1290,7 +1507,6 @@ namespace Reel
+                 data[3] <= 0xB8)
+             {
+                 // ES
+-
+                 int const maxLen = 2000;
+                 while (length > 0)
+                 {
+@@ -1307,7 +1523,6 @@ namespace Reel
+             else
+             {
+                 // PES
+-
+                 UInt pesLength = length;
+ 
+                 // Parse packets.
+@@ -1324,7 +1539,7 @@ namespace Reel
+             // Display them.
+             if (videoPackets.size())
+             {
+-                videoPlayer_->StillPicture(&videoPackets[0], videoPackets.size());
++                videoPlayer_->StillPicture(&videoPackets[0], videoPackets.size(), tsMode_);
+             }
+         }
+         catch (std::exception const &e)
+@@ -1373,8 +1588,7 @@ namespace Reel
+ 
+         bkgPicPlayer_.Stop();
+ #endif
+-        normalPlay = false;
+-
++	normalPlay = false;
+         if (audioPlayerHd_)
+         {
+             audioPlayerHd_->Stop();
+@@ -1389,13 +1603,19 @@ namespace Reel
+ 
+     void ReelBoxDevice::SetPlayModeOn()
+     {
++//	if(needRestart)
++//	{
++	    if (!HdCommChannel::hda->hdp_running) HdCommChannel::hda->hdp_enable = 1;
++//	    Restart();
++//	    Reel::HdCommChannel::SetAspect();
++//	}
+         printf ("[reelbox] \033[0;44m  SetPlayModeOn() \033[0m\n");
+ 
+ #if VDRVERSNUM < 10716
+         audioPlayback_ = 100;
+         videoPlayback_ = 10;
+ #endif
+-        normalPlay = true;
++	normalPlay = true;
+ 
+         if (audioPlayerHd_)
+         {
+diff -Nupr reelbox-3/ReelBoxDevice.h reelbox-3-17539/ReelBoxDevice.h
+--- reelbox-3/ReelBoxDevice.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/ReelBoxDevice.h	2011-11-10 23:39:35.000000000 +1100
+@@ -34,16 +34,20 @@
+ 
+ #include <vdr/device.h>
+ #include <vdr/plugin.h>
++#include <vdr/remux.h>
+ 
+-#if 1 //def REELVDR
++#ifdef REELVDR
+ #include <vdr/reelboxbase.h>
+ #endif
+ 
+ #include <memory>
+ 
++#define BUFFEREDTSPACKETSSIZE          64*TS_SIZE //size of ts buffered packets before sending to eHD
++#define RINGBUFSIZE                    MEGABYTE(25) //size of the ring buffer used for ts buffering (must be at least 2*BUFFEREDTSPACKETSSIZE)
++
+ namespace Reel
+ {
+-#if 1 //def REELVDR
++#ifdef REELVDR
+     class ReelBoxDevice : public cDevice, public cReelBoxBase /* final */
+ #else
+     class ReelBoxDevice : public cDevice /* final */
+@@ -54,6 +58,7 @@ namespace Reel
+         static void Create();
+ 
+         virtual void MakePrimaryDevice(bool On);
++	virtual eVideoSystem GetVideoSystem(void);
+ 
+         ReelBoxDevice();
+         virtual ~ReelBoxDevice();
+@@ -95,9 +100,12 @@ namespace Reel
+ 
+         /* override */ Int PlayVideo(Byte const *data, Int length);
+ 
++//	/* override */ virtual int PlayTsVideo(const uchar *Data, int Length);
++//	/* override */ virtual int PlayTsAudio(const uchar *Data, int Length);
++
+         void PlayVideoEs(Byte const *data, Int length, UInt pts);
+ 
+-        Int PlayVideoTs(Byte const *data, Int length, bool VideoOnly, uchar* PATPMT);
++        //Int PlayVideoTs(Byte const *data, Int length, bool VideoOnly, uchar* PATPMT);
+ 
+         /* override */ void PlayPipVideo(Byte const *data, Int length);
+ 
+@@ -144,18 +152,22 @@ namespace Reel
+         virtual void GetVideoSize (int &Width, int &Height, double &Aspect);
+         virtual void GetOsdSize (int &Width, int &Height, double &Aspect);
+ #endif
+-        virtual bool NeedDelayedTrickmode() { return true; }
+-        virtual bool NeedTSCheck() { return true; }
+-        virtual bool NeedTSCheckEOS() { return true; }
+ 
+         virtual int AproxFramesInQueue(void);
+         virtual bool ShowAudioBackgroundPics();
+     private:
+         static ReelBoxDevice *instance_;
+ 
++	int playVideoPid_;
++	int playAudioPid_;
++        cTsToPes tsToPesConverter;
++        cRingBufferLinear *ringBuffer;
++        bool tsMode_;
++
+         ReelBoxDevice(ReelBoxDevice const &); // Forbid copy construction.
+         ReelBoxDevice &operator=(ReelBoxDevice const &); // Forbid copy assignment.
+ 
++//	void PlayAudioVideoTS(const uchar *data, int length);
+         void PlayAudioVideoPesPacket(Byte const *data, Int length);
+         void SetPlayModeOff();
+         void SetPlayModeOn();
+@@ -163,6 +175,7 @@ namespace Reel
+ 
+         std::auto_ptr<cSpuDecoder> spuDecoder_;
+ 
++	void CalcVideoSystem(Byte const *data, Int length);
+         class VideoPlayerPip *videoPlayerPip_;
+         class AudioPlayer *audioPlayerBsp_;
+         class AudioPlayer *audioPlayerHd_;
+diff -Nupr reelbox-3/ReelBoxMenu.c reelbox-3-17539/ReelBoxMenu.c
+--- reelbox-3/ReelBoxMenu.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/ReelBoxMenu.c	2011-12-30 22:23:59.000000000 +1100
+@@ -133,7 +133,7 @@ void cMenuVideoMode::Setup()
+ 		   if (expert_mode)
+         		SetHelp(NULL/*tr("Audio")*/, NULL, NULL, tr("Normal"));
+ 		   else
+-			SetHelp(NULL/*tr("Audio")*/, NULL, NULL, data.ExpertOptions ? tr("Experts") : NULL);
++			SetHelp(NULL/*tr("Audio")*/, NULL, NULL, tr("Experts"));
+ 		} else {
+         		SetHelp(NULL/*tr("Audio")*/, NULL, NULL, NULL);
+                 }
+@@ -279,20 +279,26 @@ void cMenuVideoMode::Setup()
+             showAspect[2] = tr("Crop to Fill");
+             Add(new cMenuEditStraItem(tr("Aspect Ratio"), &rbSetup_.HDaspect, 3, showAspect));
+ 
++            showOverscan[0] = tr("Overscan no");
++            showOverscan[1] = tr("Overscan yes");
++            Add(new cMenuEditStraItem(tr("Overscan"), &rbSetup_.HDoverscan, 2, showOverscan));
++
+             showResolution[0] = "1080";
+             showResolution[1] = "720";
+             showResolution[2] = "576";
+             showResolution[3] = "480";
++	    showResolution[4] = "Auto 576/480";
+ 
+             if (rbSetup_.HDaport != HD_APORT_SCART)
+-                Add(new cMenuEditStraItem(tr("Resolution"), &rbSetup_.HDresolution, 4, showResolution));
++                Add(new cMenuEditStraItem(tr("Resolution"), &rbSetup_.HDresolution, 5, showResolution));
+ 
+-            if (rbSetup_.HDresolution != HD_VM_RESOLUTION_576 && rbSetup_.HDresolution != HD_VM_RESOLUTION_480 && expert_mode)
++            if (rbSetup_.HDresolution != HD_VM_RESOLUTION_576 && rbSetup_.HDresolution != HD_VM_RESOLUTION_480 && rbSetup_.HDresolution != HD_VM_RESOLUTION_AUTO && expert_mode)
+             {
+-		static const char * showNorm[2];
++		static const char * showNorm[3];
+ 		showNorm[0] = "50 Hz";
+ 		showNorm[1] = "60 Hz";
+-		Add(new cMenuEditStraItem(tr("Refresh Rate"), &rbSetup_.HDnorm, 2, showNorm));
++		showNorm[2] = "AUTO";
++		Add(new cMenuEditStraItem(tr("Refresh Rate"), &rbSetup_.HDnorm, 3, showNorm));
+     	    }
+ 
+             if (rbSetup_.HDresolution != HD_VM_RESOLUTION_1080)  // not 1080
+@@ -305,7 +311,7 @@ void cMenuVideoMode::Setup()
+                 rbSetup_.HDintProg = 1; // no 1080p yet
+             }
+ 
+-            if (!((rbSetup_.HDresolution == HD_VM_RESOLUTION_576 || rbSetup_.HDresolution==HD_VM_RESOLUTION_480)
++            if (!((rbSetup_.HDresolution == HD_VM_RESOLUTION_576 || rbSetup_.HDresolution==HD_VM_RESOLUTION_480 || rbSetup_.HDresolution == HD_VM_RESOLUTION_AUTO)
+                  && rbSetup_.HDintProg))
+             {
+                 if (expert_mode)
+@@ -315,7 +321,7 @@ void cMenuVideoMode::Setup()
+             showOsd[0] = tr("Fill to Screen");
+             showOsd[1] = tr("Dot by Dot");
+ 
+-            if (rbSetup_.HDresolution != HD_VM_RESOLUTION_576 && rbSetup_.HDresolution != HD_VM_RESOLUTION_480)
++            if (rbSetup_.HDresolution != HD_VM_RESOLUTION_576 && rbSetup_.HDresolution != HD_VM_RESOLUTION_480 && rbSetup_.HDresolution != HD_VM_RESOLUTION_AUTO)
+             {
+                 if (expert_mode)
+                 {
+@@ -436,9 +442,11 @@ void cMenuVideoMode::Setup()
+         Add(new cOsdItem(" ", osUnknown, false), false, NULL);
+ 
+ 
+-        Add(new cMenuEditBoolItem(tr("Setup.DVB$Use Dolby Digital"), &data.UseDolbyDigital));
++//        Add(new cMenuEditBoolItem(tr("Setup.DVB$Use Dolby Digital"), &data.UseDolbyDigital));
+         if (data.UseDolbyDigital)
+         {
++        Add(new cOsdItem(tr("Setup.DVB$Use Dolby Digital"), osUnknown, false));
++
+ #if defined RBLITE // RB Lite
+             if (rbSetup_.usehdext && rbSetup_.HDdmode == HD_DMODE_HDMI)
+             {
+@@ -462,15 +470,15 @@ void cMenuVideoMode::Setup()
+             {
+                 Add (new cMenuEditBoolItem(tr(" Output Dolby D/dts on"),      &rbSetup_.audio_over_hdmi,
+                                            tr("Soundcard"), tr("HDMI")));
+-                if (rbSetup_.audio_over_hdmi)
+-                {
++//                if (rbSetup_.audio_over_hdmi)
++//                {
+                     Add (new cMenuEditBoolItem(tr(" Output as"), &rbSetup_.ac3,
+                                                tr("Stereo (PCM)"), tr("bitstream (Dolby D)")));
+-                }
+-                else
+-                {
+-                    rbSetup_.ac3 = 0;
+-                }
++//                }
++//                else
++//                {
++//                    rbSetup_.ac3 = 1;
++//                }
+             }
+ 
+ #endif
+@@ -523,7 +531,7 @@ eOSState cMenuVideoMode::ProcessKey(eKey
+             state = osContinue;
+             break;
+         case kBlue:
+-            if (menu_mode == video_mode && data.ExpertOptions)
++            if (menu_mode == video_mode)
+             {
+                 expert_mode_changed = true;
+                 expert_mode = !expert_mode;
+@@ -538,7 +546,8 @@ eOSState cMenuVideoMode::ProcessKey(eKey
+         case kBack:
+             state = osBack;
+             break;
+-        default: state = osUnknown;
++        default: 
++	    state = osUnknown;
+     }
+ 
+ #ifndef RBLITE
+diff -Nupr reelbox-3/ReelBoxMenu.h reelbox-3-17539/ReelBoxMenu.h
+--- reelbox-3/ReelBoxMenu.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/ReelBoxMenu.h	2011-12-30 22:20:37.000000000 +1100
+@@ -24,6 +24,7 @@
+ #define HD_VM_RESOLUTION_720   1
+ #define HD_VM_RESOLUTION_576   2
+ #define HD_VM_RESOLUTION_480   3
++#define HD_VM_RESOLUTION_AUTO  4
+ 
+ #define HD_VM_NORM_50HZ   0
+ #define HD_VM_NORM_60HZ   1
+@@ -116,6 +117,7 @@ namespace Reel
+ 	    const char *showHDAPort[5];
+             const char *showDisplayType[2];
+             const char *showAspect[3];
++            const char *showOverscan[2];
+             const char *showResolution[9];
+             const char *showOsd[2];
+             const char *showIntProg[2];
+diff -Nupr reelbox-3/ReelSkin.c reelbox-3-17539/ReelSkin.c
+--- reelbox-3/ReelSkin.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/ReelSkin.c	2011-02-20 00:30:31.000000000 +1000
+@@ -520,24 +520,23 @@ namespace Reel
+ 
+     static void SetImagePaths(cOsd *osd)
+     {
+-            char path[128];
++            char *path;
+             char *m_path = (char*)malloc(256);
+             //if(!strcmp(Theme.Name(), "default"))
+             if(!strcmp(Theme.Name(), "Blue"))
+-                snprintf(path, sizeof(path), "%s", REEL_SKIN_IMAGES_FOLDER);
++                asprintf(&path, "%s", REEL_SKIN_IMAGES_FOLDER);
+             else
+             {
+                 DIR *dir = NULL;
+-                char pathTry[128];
+-                snprintf(pathTry, sizeof(pathTry), "%s/%s", DEFAULT_BASE, Theme.Name());
++                char *pathTry;
++                asprintf(&pathTry, "%s/%s", DEFAULT_BASE, Theme.Name());
+                 if( (dir = opendir(pathTry))!= NULL)
+                 {
+-                    //path = pathTry;
+-                    snprintf(path, sizeof(path), "%s", pathTry);
++                    path = pathTry;
+                     closedir(dir);
+                 }
+                 else
+-                    snprintf(path, sizeof(path), "%s/%s", cThemes::GetThemesDirectory(), Theme.Name());
++                    asprintf(&path, "%s/%s", cThemes::GetThemesDirectory(), Theme.Name());
+             }
+         if (lastPath != path)
+         {
+@@ -687,7 +686,7 @@ namespace Reel
+ 
+             lastPath = path;
+         }
+-        //free(path);
++        free(path);
+         free(m_path);
+     }
+ 
+@@ -2146,11 +2145,11 @@ void DrawUnbufferedImage(cOsd* osd, std:
+         snprintf(t, sizeof(t), "%s  %s - %s", *Event->GetDateString(), *Event->GetTimeString(), *Event->GetEndTimeString());
+         ts.Set(osd, xl, y, x6 - xl, y4 - y, t, font, themeClrMenuEventTime, themeClrBackground);
+         if (Event->Vps() && Event->Vps() != Event->StartTime()) {
+-            char buffer[30];
+-            snprintf(buffer, sizeof(buffer), " VPS: %s", *Event->GetVpsString());
++            char *buffer;
++            asprintf(&buffer, " VPS: %s", *Event->GetVpsString());
+             const cFont *font = cFont::GetFont(fontSml);
+             osd->DrawText(x6 - font->Width(buffer), y, buffer, themeClrMainText, themeClrBackground, font);
+-            //free(buffer);
++            free(buffer);
+             }
+         y += ts.Height();
+         y += font->Height();
+@@ -2182,11 +2181,7 @@ void DrawUnbufferedImage(cOsd* osd, std:
+         int y = y2;
+         cTextScroller ts;
+         char t[32];
+-#if APIVERSNUM < 10721
+         snprintf(t, sizeof(t), "%s  %s", *DateString(Recording->start), *TimeString(Recording->start));
+-#else
+-        snprintf(t, sizeof(t), "%s  %s", *DateString(Recording->Start()), *TimeString(Recording->Start()));
+-#endif
+         ts.Set(osd, xl, y, x6 - xl, y4 - y, t, font, themeClrMenuEventTime, themeClrBackground);
+ 
+         y += font->Height();
+diff -Nupr reelbox-3/setupmenu.c reelbox-3-17539/setupmenu.c
+--- reelbox-3/setupmenu.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/setupmenu.c	2011-02-24 21:58:31.000000000 +1000
+@@ -27,6 +27,7 @@ eOSState cMenuReelBoxSetup::ProcessKey(e
+ 
+     if (state == osUnknown && key == kOk)
+     {
++        if (HasSubMenu()) return cMenuSetupPage::ProcessKey(key);
+         const char *text = Get(Current())->Text();
+ 
+         if ( text && strstr(text, tr("Video Settings")) )
+diff -Nupr reelbox-3/VideoPlayerBsp.c reelbox-3-17539/VideoPlayerBsp.c
+--- reelbox-3/VideoPlayerBsp.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/VideoPlayerBsp.c	2011-02-24 21:45:58.000000000 +1000
+@@ -164,7 +164,7 @@ namespace Reel
+ 
+     //--------------------------------------------------------------------------------------------------------------
+ 
+-    void VideoPlayerBsp::StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount)
++    void VideoPlayerBsp::StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode)
+     {
+         MutexLocker lock(mutex_);
+ 
+diff -Nupr reelbox-3/VideoPlayerBsp.h reelbox-3-17539/VideoPlayerBsp.h
+--- reelbox-3/VideoPlayerBsp.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/VideoPlayerBsp.h	2011-02-24 21:46:13.000000000 +1000
+@@ -44,7 +44,7 @@ namespace Reel
+         /* override */ void Play();
+ 
+         /* override */ void PlayPacket(Mpeg::EsPacket const &esPacket, bool still = false);
+-    void PlayTsPacket(void *data, int length, unsigned char* PATPMT){};
++    	void PlayTsPacket(void *data, int length, int vpid, int apid){};
+ 
+         /* override */ bool Poll();
+ 
+@@ -52,7 +52,7 @@ namespace Reel
+ 
+         /* override */ void SetStc(bool stcValid, UInt stc);
+ 
+-        /* override */ void StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount);
++        /* override */ void StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode = false);
+ 
+         /* override */ void Start();
+ 
+diff -Nupr reelbox-3/VideoPlayer.h reelbox-3-17539/VideoPlayer.h
+--- reelbox-3/VideoPlayer.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/VideoPlayer.h	2011-02-24 21:45:10.000000000 +1000
+@@ -56,9 +56,9 @@ namespace Reel
+         virtual void PlayPacket(Mpeg::EsPacket const &esPacket, bool still = false) = 0;
+             ///< Play the given es packet. Return as soon as possible if data can be buffered, otherwise block.
+ 
+-        virtual void PlayTsPacket(void *packet, int length, unsigned char *PATPMT) = 0;
++        virtual void PlayTsPacket(void *packet, int length, int vpid, int apid) = 0;
+ 
+-	virtual void PlayPesPacket(void *data, int length, int av) {};
++		virtual void PlayPesPacket(void *data, int length, int av) {};
+ 
+         virtual bool Poll() = 0;
+             ///< Return true if further data is needed. Return immediately without blocking, even if other member
+@@ -68,7 +68,7 @@ namespace Reel
+ 
+         virtual void SetStc(bool valid, UInt stc) = 0;
+ 
+-        virtual void StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount) = 0;
++        virtual void StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode = false) = 0;
+             ///< Display a sequence of es packets as a still picture.
+ 
+         virtual void Start() = 0;
+diff -Nupr reelbox-3/VideoPlayerHd.c reelbox-3-17539/VideoPlayerHd.c
+--- reelbox-3/VideoPlayerHd.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/VideoPlayerHd.c	2011-12-14 22:29:01.000000000 +1100
+@@ -109,18 +109,11 @@ namespace Reel
+ 
+ 		Trickmode ( 0 );
+ 		hdPlayer_.pause=0;
+-	}
+-
+-	//--------------------------------------------------------------------------------------------------------------
+ 
+-	static unsigned int oldvpid = 0;
+-	static unsigned int oldapidpatpmt[MAXAPIDS] = {0};
+-	static unsigned int oldAudioIndex = 0;
+-	// static int off;
+-	static Byte sendbuf[64*TS_SIZE];
+-	static int buffill = 0;
++	}
+ 
+-	void VideoPlayerHd::PlayTsPacket ( void *data, int length, unsigned char* PATPMT )
++	//--------------------------------------------------------------------------------------------------------------		
++	void VideoPlayerHd::PlayTsPacket ( void *data, int length, int vpid, int apid)
+ 	{
+ 		hd_packet_ts_data_t packet;
+ 
+@@ -131,116 +124,17 @@ namespace Reel
+ 		if ( ac3_pts_shift_ != 10 * RBSetup.delay_ac3 )
+ 		{
+ 			hdPlayer_.ac3_pts_shift = ac3_pts_shift_ = 10 * RBSetup.delay_ac3;
+-		}
+-
++		}				
++		
+ 		hdPlayer_.pause=0;
+-		hdPlayer_.data_generation = generation_; // Must be done _before_ sending the packet!
+-
+-		unsigned int audioIndex = ReelBoxDevice::Instance()->GetAudioTrack();
+-
+-		packet.generation = generation_;
+-
+-		int bytes_sent = 0;
+-		Byte const* d = ( Byte const* ) data;
+-
+-		packet.vpid = 0; packet.apid = 0;
+-
+-		if ( PATPMT )
+-		{
+-			// ++generation_; // no longer required
+-			//int ix;
+-			//printf("%x %x %d %d\n", PATPMT[TS_SIZE + 19], PATPMT[TS_SIZE + 18], PATPMT[TS_SIZE + 19], PATPMT[TS_SIZE + 18]);
+-			int vpidpatpmt = PATPMT[TS_SIZE + 19]&0xff | ( ( PATPMT[TS_SIZE+18]&0x1f )  << 8 );
+-			int apidpatpmt[MAXAPIDS] = { 0 };
+-			unsigned int apidsfound = 0;
+-			int offset = 17+5; /* after header and vpid */
+-			/* as long as there are audio tracks */
+-			while ( PATPMT[TS_SIZE + offset] == 0x06 || PATPMT[TS_SIZE + offset] == 0x04 )
+-			{
+-				/* test for mpa */
+-				if ( PATPMT[TS_SIZE + offset]==0x04 && apidsfound < MAXAPIDS )
+-				{
+-					apidpatpmt[apidsfound] = PATPMT[TS_SIZE + offset + 2]&0xff | ( ( PATPMT[TS_SIZE + offset + 1]&0x1f ) << 8 );
+-					offset += 5;
+-					apidsfound++;
+-				}
+-				/* test for dolby */
+-				if ( PATPMT[TS_SIZE + offset]==0x06 && apidsfound < MAXAPIDS )
+-				{
+-					/* set first mpa also, will be overriden if a real mpa-track is found */
+-					apidpatpmt[apidsfound] = PATPMT[TS_SIZE + offset + 2]&0xff | ( ( PATPMT[TS_SIZE + offset + 1]&0x1f ) << 8 );
+-					apidsfound++;
+-					offset += 8;
+-				}
+-			}
+-			if ( vpidpatpmt != 0 )
+-			{
+-	                        /* A audiotrack is desired that doesn't exist */
+-        	                if (audioIndex >= apidsfound){
+-                	                 ReelBoxDevice::Instance()->SetAudioTrack(0);
+-                        	         audioIndex = 0;
+-                        	}
+-				packet.vpid = vpidpatpmt;
+-				packet.apid = apidpatpmt[audioIndex];
+-				//printf ( "VALID PATPMT: vpid: %x apid: %x audioIndex: %x\n",packet.vpid, packet.apid, audioIndex );
+-				//    if(oldvpid != packet.vpid || oldapid != packet.apid)
+-				//		packet.generation++;
+-				HdCommChannel::chStream1.SendPacket ( HD_PACKET_TS_DATA, packet, d, 0 );
+-
+-				oldvpid = vpidpatpmt;
+-				int i = 0;
+-				while ( apidpatpmt[i] )
+-				{
+-					oldapidpatpmt[i] = apidpatpmt[i];
+-					i++;
+-				}
+-			}
+-		}
+-		if ( !d || !length )
+-			return;
+-
+-		//printf("DEBUG: PlayTsPacket: len: %i \n", length);
+-
+-		// sync to 0x47
+-		if ( length>=2*TS_SIZE )
+-		{
+-			while (length>=TS_SIZE &&  d[0]!=0x47 && d[TS_SIZE]!=0x47 )
+-			{
+-				sendbuf[buffill++] = *d;
+-				d++;
+-				length--;
+-			}
+-		}
+-
+-		if ( oldAudioIndex != audioIndex )
+-		{
+-			//printf("Audio Index changed from %i to %i\n", oldAudioIndex, audioIndex);
+-			oldAudioIndex = audioIndex;
+-		}
+-		packet.vpid=oldvpid; // Always include PIDs in packet
+-		packet.apid=oldapidpatpmt[oldAudioIndex];
+-
+-		if ( buffill>=TS_SIZE )
+-		{
+-			HdCommChannel::chStream1.SendPacket ( HD_PACKET_TS_DATA, packet, ( Byte const* ) &sendbuf, buffill );
+-			buffill=0;
+-		}
+-
+-#define MAXPACKLEN (TS_SIZE*64)
+-		while ( length>=TS_SIZE )
+-		{
+-			int len_rounded = length - ( length%TS_SIZE );
+-			int tosend = len_rounded > MAXPACKLEN ? MAXPACKLEN : len_rounded;
+-			HdCommChannel::chStream1.SendPacket ( HD_PACKET_TS_DATA, packet, d+bytes_sent, tosend );
+-//		HdCommChannel::chStream1.SendPacket(HD_PACKET_TS_DATA, packet, d, length);
+-			bytes_sent += tosend;
+-			length -= tosend;
+-		}
+-		if ( length>0 )
+-		{
+-			memcpy ( &sendbuf, d+bytes_sent, length );
+-			buffill+=length;
+-		}
++		hdPlayer_.data_generation = generation_;		
++		
++		packet.vpid = vpid;		
++		packet.apid = apid;
++		packet.generation = generation_;	
++			
++		HdCommChannel::chStream1.SendPacket ( HD_PACKET_TS_DATA, packet.header, sizeof ( packet ), ( const Reel::Byte* ) data, length );		
++		freeze_ = false;
+ 	}
+ 
+ 	void VideoPlayerHd::PlayPacket ( Mpeg::EsPacket const &esPacket, bool still )
+@@ -265,8 +159,13 @@ namespace Reel
+ 		packet.timestamp = esPacket.HasPts() ? esPacket.GetPts() : 0;
+ 		packet.stream_id = esPacket.GetStreamId();
+ 		packet.still_frame = still;
++//esyslog("packet id %X \n",packet.stream_id);
+ 		HdCommChannel::chStream1.SendPacket ( HD_PACKET_ES_DATA, packet.header, sizeof ( packet ), data, dataLength );
+ 		freeze_ = false;
++//int off =0;
++//uchar *Data = (uchar *)data;
++//if(packet.stream_id != 0xe0)
++//esyslog(" %X %X %X %X %X %X %X %X %X %X \n",Data[0+off],Data[1+off],Data[2+off],Data[3+off],Data[4+off],Data[5+off],Data[6+off],Data[7+off],Data[8+off],Data[9+off]);
+ 	}
+ 
+ 	//--------------------------------------------------------------------------------------------------------------
+@@ -283,10 +182,14 @@ namespace Reel
+ 		{
+ 			hdPlayer_.ac3_pts_shift = ac3_pts_shift_ = 10 * RBSetup.delay_ac3;
+ 		}
++
+ 		packet.generation = generation_;
+ 		packet.av=av;
+ 		HdCommChannel::chStream1.SendPacket ( HD_PACKET_PES_DATA, packet.header, sizeof ( packet ), ( const Reel::Byte* ) data, length );
+ 		freeze_ = false;
++//int off =0;
++//uchar *Data = (uchar *)data;
++//esyslog(" %X %X %X %X %X %X %X %X %X %X \n",Data[0+off],Data[1+off],Data[2+off],Data[3+off],Data[4+off],Data[5+off],Data[6+off],Data[7+off],Data[8+off],Data[9+off]);
+ 	}
+ 
+ 	int VideoPlayerHd::AproxFramesInQueue(void) {
+@@ -302,7 +205,7 @@ namespace Reel
+ 
+ 	//--------------------------------------------------------------------------------------------------------------
+ 
+-	void VideoPlayerHd::StillPicture ( Mpeg::EsPacket const esPackets[], UInt packetCount )
++	void VideoPlayerHd::StillPicture ( Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode )
+ 	{
+ 		//printf("VideoPlayerHd::StillPicture()\n");
+ 		/* TB: resend picture settings, auto format may have resetted them */
+@@ -313,7 +216,7 @@ namespace Reel
+ #if VDRVERSNUM < 10716
+ 		const UInt repeat = 6; //send the frame several times (still frame prob with hdext) - increased again due to fade-in
+ #else
+-		const UInt repeat = 15;
++		const UInt repeat = (tsMode?10:4); //send the frame several times (still frame prob with hdext)
+ #endif
+ 		for ( UInt rep = 0; rep < repeat; ++rep )
+ 		{
+@@ -321,6 +224,8 @@ namespace Reel
+ 			{
+ 				Mpeg::EsPacket const &esPacket = esPackets[n];
+ 				PlayPacket ( esPacket, true );
++				if(tsMode)
++				    usleep(25000);
+ 			}
+ 		}
+ 	}
+@@ -331,11 +236,9 @@ namespace Reel
+ 	{
+ 		/* fallback against old BSP-config values when using the HD-ext */
+ 		hd_channel_invalidate ( HdCommChannel::chStream1.ch_, 1 );
+-		Clear();
+-
+ 		hd_packet_rpc_done_t packet;
+ 		memset(&packet, 0, sizeof(packet));
+-		HdCommChannel::chStream1.SendPacket ( HD_PACKET_RPC_DONE, packet, 0, 0 );
++		HdCommChannel::chStream1.SendPacket ( HD_PACKET_RPC_DONE, packet, 0, 0);
+ 		if (RBSetup.usehdext && ((RBSetup.brightness > 255 || RBSetup.contrast > 255 || RBSetup.gamma > 195) || (RBSetup.brightness == 0 || RBSetup.contrast == 0 || RBSetup.gamma == 0))) {
+ 			esyslog("ERROR: Picture settings out of range. Resetting to factory default.\n");
+ 			RBSetup.brightness = fs453_defaultval_tab0_HD;
+@@ -373,7 +276,6 @@ namespace Reel
+ 		//printf ( "VideoPlayerHd::Trickmode(%d)\n", trickSpeed );
+ 		bool iFramesOnly = trickSpeed != 2 && trickSpeed != 4 && trickSpeed != 8;
+ 		// HACK: VDR will uses these trick speeds for "slow forward", the only trickmode with all frame types.
+-
+ 		hdPlayer_.pause=0;
+ 		hdPlayer_.trickmode=iFramesOnly;
+ 		hdPlayer_.trickspeed=trickSpeed;
+diff -Nupr reelbox-3/VideoPlayerHd.h reelbox-3-17539/VideoPlayerHd.h
+--- reelbox-3/VideoPlayerHd.h	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/VideoPlayerHd.h	2011-02-24 21:52:14.000000000 +1000
+@@ -45,9 +45,9 @@ namespace Reel
+ 
+         /* override */ void PlayPacket(Mpeg::EsPacket const &esPacket, bool still = false);
+ 
+-                       void PlayTsPacket(void *data, int length, unsigned char *PATPMT);
++       void PlayTsPacket(void *data, int length, int vpid, int apid);
+ 
+-		       void PlayPesPacket(void *data, int length, int av);
++		void PlayPesPacket(void *data, int length, int av);
+ 
+         /* override */ bool Poll();
+ 
+@@ -61,7 +61,7 @@ namespace Reel
+ 
+         /* override */ void SetStc(bool stcValid, UInt stc);
+ 
+-        /* override */ void StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount);
++        /* override */ void StillPicture(Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode = false);
+ 
+         /* override */ void Start();
+ 
+@@ -70,7 +70,7 @@ namespace Reel
+         /* override */ void Trickmode(UInt trickSpeed);
+ 	   virtual int AproxFramesInQueue(void);
+ 
+-           void IncGen(void) { generation_++; }
++           void IncGen(void) { generation_++; }		   
+     protected:
+         VideoPlayerHd(); // Allow construction only through Create().
+         virtual ~VideoPlayerHd() NO_THROW; // Allow destruction only through Destroy().
+@@ -83,7 +83,7 @@ namespace Reel
+         UInt          generation_;
+         bool volatile freeze_;
+         Int pts_shift_;
+-        Int ac3_pts_shift_;
++        Int ac3_pts_shift_;	
+ 
+         template<typename T>
+         void SendPacket(T const &header, void const *data, size_t dataSize);
+diff -Nupr reelbox-3/VideoPlayerPipHd.c reelbox-3-17539/VideoPlayerPipHd.c
+--- reelbox-3/VideoPlayerPipHd.c	2011-12-13 21:12:22.000000000 +1100
++++ reelbox-3-17539/VideoPlayerPipHd.c	2011-11-03 01:43:27.000000000 +1100
+@@ -24,9 +24,6 @@
+ 
+ #include "HdCommChannel.h"
+ 
+-#include "Reel.h" // for Byte
+-#include <png.h>  // reading png file
+-
+ #include <unistd.h>
+ #include <stdlib.h>
+ #include <sys/types.h>
+@@ -34,7 +31,6 @@
+ #include <fcntl.h>
+ #include <sys/mman.h>
+ #include <vdr/thread.h>
+-#include <vdr/tools.h>
+ #include <stdlib.h>
+ 
+ extern "C" {
+@@ -64,121 +60,9 @@ typedef unsigned char uchar;
+ #define FBPIP_USAGE 0x100
+ 
+ #define BORDER 2
+-#define NO_PIP_IMAGE "/etc/vdr/plugins/osdpip/nopip.png" // a PNG image
+-
+ 
+ namespace Reel
+ {
+-
+-// Copy of HdTrueColorOsd::OpenPngFile()
+-// expected image returned should be RGBA
+-bool png_file_2_rgb(char const         *path,
+-                   Byte **&rows,
+-                   int                &width,
+-                   int                &height)
+-{
+-
+-    Byte header[8];
+-
+-    FILE *fp = fopen(path, "rb");
+-    if (!fp || fread(header, 1, 8, fp) != 8) {
+-        if(fp)
+-            fclose(fp);
+-        return false;
+-    }
+-
+-    if (png_sig_cmp(header, 0, 8)) {
+-        fclose(fp);
+-        return false;
+-    }
+-
+-    png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+-    if (!png_ptr) {
+-        fclose(fp);
+-        return false;
+-    }
+-
+-    png_infop info_ptr = png_create_info_struct(png_ptr);
+-    if (!info_ptr) {
+-        png_destroy_read_struct(&png_ptr,
+-                                NULL, NULL);
+-        fclose(fp);
+-        return false;
+-    }
+-
+-    png_infop end_info = png_create_info_struct(png_ptr);
+-    if (!end_info) {
+-        png_destroy_read_struct(&png_ptr, &info_ptr,
+-                                (png_infopp)NULL);
+-        fclose(fp);
+-        return false;
+-    }
+-
+-    png_init_io(png_ptr, fp);
+-
+-    png_set_sig_bytes(png_ptr, 8);
+-
+-    if (setjmp(png_jmpbuf(png_ptr))) {
+-        ::printf("setjmp err\n");
+-        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+-        fclose(fp);
+-        return false;
+-    }
+-
+-    png_read_info(png_ptr, info_ptr);
+-
+-    png_byte h = info_ptr->height;
+-    png_byte color_type = info_ptr->color_type;
+-
+-#define PRINT_COLOR_TYPE 1
+-#ifdef PRINT_COLOR_TYPE
+-    png_byte w = info_ptr->width;
+-    png_byte bit_depth = info_ptr->bit_depth;
+-    printf("bit depth: %i - ", bit_depth);
+-    switch (color_type) {
+-            case PNG_COLOR_TYPE_GRAY: puts("color_type: PNG_COLOR_TYPE_GRAY"); break;
+-            case PNG_COLOR_TYPE_PALETTE: puts("color_type: PNG_COLOR_TYPE_PALETTE"); break;
+-            case PNG_COLOR_TYPE_RGB: puts("color_type: PNG_COLOR_TYPE_RGB"); break;
+-            case PNG_COLOR_TYPE_RGB_ALPHA: puts("color_type: PNG_COLOR_TYPE_RGB_ALPHA"); break;
+-            case PNG_COLOR_TYPE_GRAY_ALPHA: puts("color_type: PNG_COLOR_TYPE_GRAY_ALPHA"); break;
+-            default: puts("ERROR: unknown color_type"); break;
+-    }
+-#endif
+-
+-    if (color_type == PNG_COLOR_TYPE_PALETTE) // Lets have RGB
+-    {
+-        png_set_expand(png_ptr);
+-        png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
+-    }
+-
+-    if (color_type == PNG_COLOR_TYPE_GRAY || color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+-      png_set_gray_to_rgb(png_ptr);
+-
+-    if (color_type == PNG_COLOR_TYPE_RGB || color_type == PNG_COLOR_TYPE_GRAY)
+-      png_set_add_alpha(png_ptr, 0xff, PNG_FILLER_AFTER);
+-
+-    png_read_update_info(png_ptr, info_ptr);
+-
+-    rows = (png_bytep*) malloc(sizeof(png_bytep) * h);
+-    int y;
+-    for (y=0; y<h; y++) {
+-        rows[y] = (png_byte*) malloc(info_ptr->rowbytes);
+-    }
+-
+-    png_read_image(png_ptr, rows);
+-
+-    width = png_get_image_width(png_ptr, info_ptr);
+-    height = png_get_image_height(png_ptr, info_ptr);
+-
+-    fclose(fp);
+-    png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+-
+-    return true;
+-
+-} // png_file_2_rgb()
+-
+-
+-
+ 	class SWDecoder: public ::cThread {
+ 	public:
+ 		SWDecoder(uint x=DEFAULT_X, uint y=DEFAULT_Y, uint w=DEFAULT_WIDTH, uint h=DEFAULT_HEIGHT);
+@@ -189,12 +73,7 @@ bool png_file_2_rgb(char const         *
+ 
+ 	private:
+ 
+-		// draw an empty frame and
+-		// if drawImage read NO_PIP_IMAGE and display it
+-		void EmptyFrame(bool drawImage=false);
+-		// to avoid drawing NO_PIP_IMAGE over itself
+-		bool noPipImageDrawn;
+-
++		void EmptyFrame(void);
+ 		void ClearBox(uint x, uint y, uint w, uint h);
+ 		void ClearFrame(uint x1, uint y1, uint x2, uint y2);
+ 		int Show();
+@@ -241,7 +120,7 @@ bool png_file_2_rgb(char const         *
+ 
+     //--------------------------------------------------------------------------------------------------------------
+ 
+-        SWDecoder::SWDecoder(uint x, uint y, uint w, uint h) : ::cThread("SWDecoder")
++	SWDecoder::SWDecoder(uint x, uint y, uint w, uint h)
+ 	{
+ 		extern const char *fbdev;
+ 
+@@ -305,11 +184,7 @@ bool png_file_2_rgb(char const         *
+ 		xpos=nxpos=oxpos=x;
+ 		ypos=nypos=oypos=y;
+ 		width=w;
+-
+-                // compute height_ar from stream else osd on which PiP is
+-                // drawn is cleared more than necessary, hence height_ar=0
+-                height= h ; height_ar=0;
+-                //height=height_ar=h;
++		height=height_ar=h;
+ 		show_enabled=0;
+ 		start_stc=0;
+ 
+@@ -318,7 +193,6 @@ bool png_file_2_rgb(char const         *
+ 		is_moving=0;
+ 		dec_width=dec_height=0;
+ 		dec_num=dec_den=1;
+-		noPipImageDrawn = false;
+ 		Start();		
+ 	}
+ 	//----------------------------------------------------------------------------------------------------------
+@@ -361,20 +235,8 @@ bool png_file_2_rgb(char const         *
+ 	{
+ 		nxpos=x;
+ 		nypos=y;
+-
+-                /* when osd is open, avoid "move special effect" as it clears OSD/Menu */
+-                if (HdCommChannel::hda->osd_dont_touch != 0) { // osd/menu open
+-                    xpos=nxpos=oxpos=x;
+-                    ypos=nypos=oypos=y;
+-                } // if
+-
+-                if (w && h) {
+-                    printf("wxh:= %dx%d -->", width, height);
+-                    // make width a multiple of 16, else PiP im menu is scrambled
+-                    width=w&~0xf;
+-                    height=h;
+-                    printf("%dx%d\n", width, height);
+-                }
++//		width=w;
++//		height=h;
+ 	}
+ 	//----------------------------------------------------------------------------------------------------------
+ 	void SWDecoder::MoveWindow(void)
+@@ -440,55 +302,13 @@ bool png_file_2_rgb(char const         *
+ 			ClearBox(x2+width,y1,x1-x2+2*BORDER+2,h);
+ 	}
+ 	//----------------------------------------------------------------------------------------------------------
+-	// Draw an empty frame and if drawImage=true then show NO_PIP_IMAGE
+-	// avoid drawing NO_PIP_IMAGE if it was already drawn
+-	void SWDecoder::EmptyFrame(bool drawImage)
++	void SWDecoder::EmptyFrame(void)
+ 	{
+ 		uint n,m;
+ 		int *z;
+ 		int aval=60+alpha/4;
+ 		int bval=(aval<<24)|(aval<<16)|(aval<<8)|aval;
+-
+-		Byte **rows;
+-		int w, h;
+-		bool read_image_success = false;
+-
+-		// requested draw NO_PIP_IMAGE and it was already drawn.
+-		// Do nothing.
+-		if (drawImage && noPipImageDrawn)
+-		{
+-		    printf("nothing to do\n");
+-		    return;
+-		}
+-
+-
+-		if (drawImage)
+-		{
+-		    // height_ar should be height of NO_PIP_IMAGE
+-		    read_image_success  = png_file_2_rgb(NO_PIP_IMAGE, rows, w, h);
+-
+-            if (read_image_success)  // read a png image
+-            {
+-                // if earlier pip-channel had a different aspect ratio
+-                // and therefore large height. Clear pip window.
+-                if (h < height_ar)
+-                    ClearBox(xpos-BORDER,ypos-BORDER,width+2*BORDER,height_ar+2*BORDER);
+-
+-                //prevent subsequent unnecessary calls to ClearBox()
+-                height_ar = h;
+-
+-            } // if read_image_success
+-            else 
+-                esyslog("%s:%d PiP image '%s' file not read successfully by png_file_2_rgb", 
+-                __FILE__, __LINE__, NO_PIP_IMAGE);
+-
+-		} // if (drawImage)
+-
+-
+-// no border required, new PiP icon has its own
+-#if 0 
+-    
+-		// draw empty frame here
++		
+ 		for(n=0;n<BORDER;n++) {
+ 			z=(int*)(framebuffer+fbwidth*(n+ypos-BORDER)+xpos-BORDER);
+ 			memset(z,bval,(width+BORDER*2)*4);
+@@ -505,44 +325,7 @@ bool png_file_2_rgb(char const         *
+ 			for(m=0;m<BORDER;m++)
+ 				*z++=bval;
+ 		}
+- #endif
+-
+-		// draw NO_PIP_IMAGE ?
+-		if (!drawImage) return ; // only empty frame
+-
+-
+-		// could not read image
+-		if (!read_image_success) {
+-		    noPipImageDrawn = false;
+-		    return;
+-		} // if
+-
+-
+-		// draw NO_PIP_IMAGE on to OSD
+-		int al = (0xff<<24); // alpha ch
+-		printf("png_2_rgb w=%d h=%d\n", w, h);
+-
+-		for (int y = 0; y < h; ++y) {
+-		    unsigned char *r = rows[y];
+-		    z=(int*)(framebuffer+fbwidth*(y+ypos)+xpos);
+-
+-		    for(int m=0;m<w;m++) {
+-
+-// Assume image to be RGBA, write image to fb as ARGB
+-//#define R ( (r[3]<<24) | (r[2]<<16) |(r[1]<<8)|r[0])
+-#define R ((r[0]<<16)|(r[1]<<8)|r[2])
+-
+-			*z++ = (r[3]<<24)|R;
+-			r += 4;
+-		    }
+-		    free(rows[y]);
+-		}
+-		free(rows);
+-
+-		noPipImageDrawn = true;
+-
+-	} // EmptyFrame()
+-
++	}
+ 	//----------------------------------------------------------------------------------------------------------
+ 	int SWDecoder::Show(void)
+ 	{
+@@ -552,19 +335,8 @@ bool png_file_2_rgb(char const         *
+ 		LLong now,diff,offs;
+ 		uint n,m;
+ 
+-        // move pip-window frame even if video stream is empty
+-        // do not let it in the middle of the screen
+-		MoveWindow();
+-		
+-		if (is_moving)
+-			ClearFrame(oxpos,oypos,xpos,ypos);
+-
+-
+-                if (!show_enabled || (qin%PICS_BUF)==qo || qin==qout
+-                // allow PiP to be drawn over OSD/Menu
+-                        /*|| (HdCommChannel::hda->osd_dont_touch&~FBPIP_USAGE)*/ )
+-                    return -1;
+-
++		if (!show_enabled || (qin%PICS_BUF)==qo || qin==qout || (HdCommChannel::hda->osd_dont_touch&~FBPIP_USAGE) )
++			return -1;
+ 
+ 		gettimeofday(&tv, 0);
+ 		now=LLong(tv.tv_sec) * 1000000 + tv.tv_usec;
+@@ -582,6 +354,10 @@ bool png_file_2_rgb(char const         *
+ 			start_stc-=offs;
+ 
+ 		pic=(uint*)rgb_buffer[qo];
++		MoveWindow();
++		
++		if (is_moving)
++			ClearFrame(oxpos,oypos,xpos,ypos);
+ 
+ 		EmptyFrame();
+ 
+@@ -638,22 +414,15 @@ bool png_file_2_rgb(char const         *
+ 			if (Show()) {
+ 				retry++;
+ 			}
+-			else {
++			else
+ 				retry=0;
+-				// pip channel shown ie. NO_PIP_IMAGE cleared
+-				noPipImageDrawn = false;
+-			}
+ 
+-                        if (retry>50*5) { // Indicate PiP channel cannot be shown
+-                            printf("HdCommChannel::hda->osd_dont_touch: %x\n",
+-                                   HdCommChannel::hda->osd_dont_touch);
+-                            // Do not show NO_PIP_IMAGE only when drawing over OSD/menu
+-                            bool show_nopip = (HdCommChannel::hda->osd_dont_touch == 0);
+-                                EmptyFrame(show_nopip); // show NO_PIP_IMAGE
++			if (retry>50*5) { // Indicate PiP-Area even without frames
++				EmptyFrame();
+ 				retry=0;
+ 			}
+ 			usleep(2*1000);
+-		} // while
++		}
+ 		printf("PiP Thread end\n");
+ 	}
+ 	//----------------------------------------------------------------------------------------------------------
+@@ -677,11 +446,8 @@ bool png_file_2_rgb(char const         *
+ 			if (img_convert_ctx)
+ 				sws_freeContext(img_convert_ctx);
+ 
+-                        // Cleanup old area, only for a valid height_ar
+-                        if (height_ar > 0u) {
+-                            ClearBox(xpos-BORDER,ypos-BORDER, width+2*BORDER,
+-                                     height_ar + 2*BORDER);
+-                        }
++			// Cleanup old area
++			ClearBox(xpos-BORDER,ypos-BORDER,width+2*BORDER,height_ar+2*BORDER);
+ 		       
+ 			height_ar=(height*var1*av_context->height*dar2)/(var2*av_context->width*dar1);
+ 
+@@ -730,9 +496,14 @@ bool png_file_2_rgb(char const         *
+ 	int SWDecoder::Decode()
+ 	{
+ 		int len,gotPicture;
+-
++#if LIBAVCODEC_VERSION_INT < ((53<<16)+0+0)
+ 		len = avcodec_decode_video(av_context, decoded_frame, &gotPicture, (uint8_t*)esbuf+esdec, eslen-esdec);	    
+-
++#else
++		AVPacket *avpkt;
++		avpkt->data = (uint8_t*)esbuf+esdec;
++		avpkt->size = eslen-esdec;
++		len = avcodec_decode_video2(av_context, decoded_frame, &gotPicture, avpkt);	    
++#endif
+ 		if (len>0)
+ 			esdec+=len;
+ 
+@@ -745,9 +516,7 @@ bool png_file_2_rgb(char const         *
+ 	// len is typically about 2K
+ 	int SWDecoder::StoreData(uchar* data, int len, uint pts)
+ 	{
+-                if (    // allow PiP to be drawn over OSD/Menu
+-                        /*!(HdCommChannel::hda->osd_dont_touch&~FBPIP_USAGE) &&*/
+-                        enabled && len && esbuf) {
++		if (!(HdCommChannel::hda->osd_dont_touch&~FBPIP_USAGE) && enabled && len && esbuf) {
+ 			int count=5;
+ 			
+ 			while(eslen-esdec>20000 && --count)
+@@ -814,14 +583,6 @@ bool png_file_2_rgb(char const         *
+ 	    xpos=x;
+ 	    ypos=y;
+ 
+-            if (w && h) {
+-                printf("%s %dx%d -->", __PRETTY_FUNCTION__, width, height);
+-                //width = w;
+-                //height = h;
+-                printf("%dx%d\n", w, h);
+-                if (!shutdown && decoder)
+-                        decoder->SetPosition(xpos,ypos,w,h);
+-            } else
+ 	    if (!shutdown && decoder)
+ 		    decoder->SetPosition(xpos,ypos,width,height);
+     }
