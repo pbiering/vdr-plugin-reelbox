@@ -200,8 +200,9 @@ isyslog("ShowPic %s", bkgndImgFileName);
             running_ = true;
 #if VDRVERSNUM >= 10716
             ResetTimer();
+#else
+            MutexLocker lock(mutex_);
 #endif
-//            MutexLocker lock(mutex_);
             stop_ = false;
             thread_.Start(*this, &BkgPicPlayer::Action);
         }
