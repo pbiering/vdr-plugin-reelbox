@@ -183,7 +183,11 @@ namespace Reel
         void SetPlayModeOn();
         void SetVolume(int volume, const char *device);
 
+#if (__cplusplus >= 201103L)
+        std::unique_ptr<cSpuDecoder> spuDecoder_;
+#else
         std::auto_ptr<cSpuDecoder> spuDecoder_;
+#endif
 
         class VideoPlayerPip *videoPlayerPip_;
         class AudioPlayer *audioPlayerBsp_;

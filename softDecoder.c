@@ -45,6 +45,9 @@
 
 //uint8_t *inbuf[AUDIO_INBUF_SIZE + FF_INPUT_BUFFER_PADDING_SIZE];
 
+
+// TODO: deprecated code/file, looks like not used at all
+
 /*
  * Audio decoding.
  */
@@ -86,12 +89,20 @@ static void soft_decode(unsigned char *outbuf,int out_len, unsigned char *inbuf,
         int got_frame = 0;
 
         if (!decoded_frame) {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1) // FIXED: 'AVFrame* avcodec_alloc_frame()' is deprecated
+            if (!(decoded_frame = av_frame_alloc())) {
+#else
             if (!(decoded_frame = avcodec_alloc_frame())) {
+#endif
                 fprintf(stderr, "Could not allocate audio frame\n");
                 exit(1);
             }
         } else
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1) // FIXED: 'void avcodec_get_frame_defaults(AVFrame*)' is deprecated
+            av_frame_unref(decoded_frame);
+#else
             avcodec_get_frame_defaults(decoded_frame);
+#endif
 
         len = avcodec_decode_audio4(c, decoded_frame, &got_frame, &avpkt);
         if (len < 0) {
@@ -129,7 +140,11 @@ static void soft_decode(unsigned char *outbuf,int out_len, unsigned char *inbuf,
     avcodec_close(c);
     av_free(c);
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1) // FIXED: 'void avcodec_free_frame(AVFrame**)' is deprecated
+    av_frame_free(&decoded_frame);
+#else
     avcodec_free_frame(&decoded_frame);
+#endif
 }
 
 /*
@@ -137,7 +152,7 @@ int main(int argc, char **argv)
 {
     const char *output_type;
 
-    // register all the codecs //FIXED: "/*" within comment
+    // register all the codecs //FIXED: * within comment
 //    avcodec_register_all();
 
     if (argc < 2) {

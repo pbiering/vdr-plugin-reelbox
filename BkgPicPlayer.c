@@ -41,7 +41,7 @@ namespace Reel
 
     BkgPicPlayer::BkgPicPlayer(ReelBoxDevice &device)
     :   device_(device), stop_(false),
-        lastPicTime_(0), nextPic_(0), picInterval_(15), running_(false)
+        nextPic_(0), picInterval_(15), lastPicTime_(0), running_(false) // FIXED: will be initialized after
     {
 #if VDRVERSNUM >= 10716
         picBase=0;

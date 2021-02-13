@@ -44,7 +44,7 @@ extern "C" {
 }
 
 #ifndef PIX_FMT_RGBA32
-#warning "Using new ffmpeg..."
+// #warning "Using new ffmpeg..." // FIXED: disable message
 #define PIX_FMT_RGBA32  PIX_FMT_RGB32
 #endif
 
@@ -97,7 +97,7 @@ namespace Reel
 		AVCodec *av_codec;
 		AVCodecContext *av_context;
 		AVFrame *decoded_frame;
-		uint dec_width, dec_height;
+		int dec_width, dec_height; // FIXED: comparison of integer expressions of different signedness
 		uint dec_num, dec_den;
 
 		AVFrame *rgb_frame[PICS_BUF];
@@ -161,10 +161,18 @@ namespace Reel
 			printf("could not open codec\n");
 			return;
 		}
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1) // FIXED: 'AVFrame* avcodec_alloc_frame()' is deprecated
+		decoded_frame = av_frame_alloc();
+#else
 		decoded_frame = avcodec_alloc_frame();
+#endif
 
 		for(int n=0;n<PICS_BUF;n++) {
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1) // FIXED: 'AVFrame* avcodec_alloc_frame()' is deprecated
+			rgb_frame[n] = av_frame_alloc();
+#else
 			rgb_frame[n] = avcodec_alloc_frame();
+#endif
 			rgb_buffer[n] = (uchar*)malloc(720*576*4);
 		}
 		    
@@ -508,10 +516,10 @@ namespace Reel
 #if LIBAVCODEC_VERSION_INT < ((53<<16)+0+0)
 		len = avcodec_decode_video(av_context, decoded_frame, &gotPicture, (uint8_t*)esbuf+esdec, eslen-esdec);	    
 #else
-		AVPacket *avpkt;
-		avpkt->data = (uint8_t*)esbuf+esdec;
-		avpkt->size = eslen-esdec;
-		len = avcodec_decode_video2(av_context, decoded_frame, &gotPicture, avpkt);	    
+		AVPacket avpkt; // FIXED: 'avpkt' is used uninitialized in this function
+		avpkt.data = (uint8_t*)esbuf+esdec;
+		avpkt.size = eslen-esdec;
+		len = avcodec_decode_video2(av_context, decoded_frame, &gotPicture, &avpkt);
 #endif
 		if (len>0)
 			esdec+=len;
