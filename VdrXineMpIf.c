@@ -266,7 +266,8 @@ namespace Reel
         //End by Klaus 
     };
 
-    ::VdrXineMpIf /*const*/ *GetVdrXineMpIf() NO_THROW
+    // ::VdrXineMpIf /*const*/ *GetVdrXineMpIf() NO_THROW
+    ::VdrXineMpIf const *GetVdrXineMpIf() NO_THROW // FIXED: violates the C++ One Definition Rule
     {
         return &vdrXineMpIf_;
     }

@@ -414,13 +414,13 @@ namespace Reel
         hdcmd_osd_draw8_t bco2;
 
         UInt bcosize = sizeof(hdcmd_osd_draw8_t);
-        UInt payloadsize = bitmap.Width() * bitmap.Height();
+        // UInt payloadsize = bitmap.Width() * bitmap.Height(); // FIXED: unused variable 'payloadsize'
         UInt maxpayloadsize = HD_MAX_DGRAM_SIZE - bcosize;
-        UInt maxheight = maxpayloadsize / bitmap.Width();
+        int maxheight = maxpayloadsize / bitmap.Width(); // FIXED: narrowing conversion
         if (maxheight > bitmap.Height())
             maxheight = bitmap.Height();
 
-        UInt height = 0;
+        int height = 0; // FIXED: narrowing conversion
 
         while (maxheight)
         {
@@ -516,10 +516,10 @@ namespace Reel
 	//esyslog("HdTrueColorOsd: DrawEllipse\n");
 
         hdcmd_osd_draw_ellipse const bco = {HDCMD_OSD_DRAW_ELLIPSE,
-                                             Left() + x1,
-                                             Top() + y1,
-                                             Left() + x2 + 1,
-                                             Top() + y2 + 1,
+                                             (unsigned int) Left() + x1,
+                                             (unsigned int) Top() + y1,
+                                             (unsigned int) Left() + x2 + 1,
+                                             (unsigned int) Top() + y2 + 1,
                                              color,
                                              quadrants};
 
@@ -587,11 +587,11 @@ namespace Reel
     {
 	//esyslog("HdTrueColorOsd: DrawRectangle\n");
 
-  hdcmd_osd_draw_rect const bco = {HDCMD_OSD_DRAW_RECT,
-                                          Left() + x1,
-                                          Top() + y1,
-                                          Left() + x2 + 1,
-                                          Top() + y2 + 1,
+        hdcmd_osd_draw_rect const bco = {HDCMD_OSD_DRAW_RECT,
+                                          (unsigned int) Left() + x1,
+                                          (unsigned int) Top() + y1,
+                                          (unsigned int) Left() + x2 + 1,
+                                          (unsigned int) Top() + y2 + 1,
                                           color};
 
         SendOsdCmd(bco);
@@ -605,11 +605,11 @@ namespace Reel
     {
 	//esyslog("HdTrueColorOsd: DrawRectangle\n");
 
-  hdcmd_osd_draw_rect2 const bco = {HDCMD_OSD_DRAW_RECT2,
-                                          Left() + x1,
-                                          Top() + y1,
-                                          Left() + x2 + 1,
-                                          Top() + y2 + 1,
+        hdcmd_osd_draw_rect2 const bco = {HDCMD_OSD_DRAW_RECT2,
+                                          (unsigned int) Left() + x1,
+                                          (unsigned int) Top() + y1,
+                                          (unsigned int) Left() + x2 + 1,
+                                          (unsigned int) Top() + y2 + 1,
                                           color,
                                           alphaGradH,
                                           alphaGradV,
@@ -755,32 +755,32 @@ if(0)
         // Send the palette indexes.
         SendOsdCmd(bco, sizeof(hdcmd_osd_palette_t) + payloadSize);
 
-cPixmapMemory *pm;
-cRect *rect;
+    cPixmapMemory *pm;
+    // cRect *rect; // FIXED: unused variable 'rect'
     LOCK_PIXMAPS;
     while (pm = (dynamic_cast < cPixmapMemory * >(RenderPixmaps()))) {
-int x;
-int y;
-int w;
-int h;
+	int x;
+	int y;
+	int w;
+	int h;
 
-x = Left() + pm->ViewPort().X();
-y = Top() + pm->ViewPort().Y();
-w = pm->ViewPort().Width();
-h = pm->ViewPort().Height();
-int d = w * sizeof(tColor);
-//OsdDrawARGB(x, y, w, h, pm->Data());
-esyslog("x %d y %d w %d h %d\n",x,y,w,h);
+	x = Left() + pm->ViewPort().X();
+	y = Top() + pm->ViewPort().Y();
+	w = pm->ViewPort().Width();
+	h = pm->ViewPort().Height();
+	int d = w * sizeof(tColor);
+	//OsdDrawARGB(x, y, w, h, pm->Data());
+	esyslog("x %d y %d w %d h %d\n",x,y,w,h);
         hdcmd_osd_draw8_t bco2;
 
         UInt bcosize = sizeof(hdcmd_osd_draw8_t);
-        UInt payloadsize = w * h *sizeof(tColor);
+        // UInt payloadsize = w * h *sizeof(tColor); // FIXED: unused variable 'payloadsize'
         UInt maxpayloadsize = HD_MAX_DGRAM_SIZE - bcosize;
-        UInt maxheight = maxpayloadsize / w / sizeof(tColor);
+        int maxheight = maxpayloadsize / w / sizeof(tColor); // FIXED: narrowing conversion
         if (maxheight > h)
             maxheight = h;
 
-        UInt height = 0;
+        int height = 0; // FIXED: narrowing conversion
 
         while (maxheight)
         {
@@ -1099,13 +1099,13 @@ DestroyPixmap(pm);
         eOsdError ret = CanHandleAreas(areas, numAreas);
         if (ret == oeOk)
         {
-            int l = areas->x1;
-            int t = areas->y1;
-            int r = areas->x2 + 1;
-            int b = areas->y2 + 1;
+            // int l = areas->x1;
+            // int t = areas->y1;     // FIXED: variable 't' set but not used
+            // int r = areas->x2 + 1; // FIXED: unused variable 'r'
+            // int b = areas->y2 + 1; // FIXED: unused variable 'b'
 
-            l = std::max(0, l);
-            t = std::max(0, l);
+            // l = std::max(0, l);
+            // t = std::max(0, l);
 //          width = r - l;
 //          height = b - t;
 //          width = std::max(1, width);
