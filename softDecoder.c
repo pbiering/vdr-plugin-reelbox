@@ -137,8 +137,8 @@ int main(int argc, char **argv)
 {
     const char *output_type;
 
-    /* register all the codecs */
-/*    avcodec_register_all();
+    // register all the codecs //FIXED: "/*" within comment
+//    avcodec_register_all();
 
     if (argc < 2) {
         printf("usage: %s output_type\n"

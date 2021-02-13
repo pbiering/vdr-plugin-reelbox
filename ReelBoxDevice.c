@@ -30,7 +30,9 @@
 #include "VideoPlayerHd.h"
 #include "VideoPlayerPipHd.h"
 
+#ifdef REELVDR
 #include "config.h"
+#endif
 
 #include <vdr/dvbspu.h>
 #include <vdr/channels.h>
@@ -651,9 +653,9 @@ namespace Reel
     {;
         CHECK_CONCURRENCY;
 
+#if VDRVERSNUM < 10704
         const tTrackId *trackId = GetTrack(GetCurrentAudioTrack());
         
-#if VDRVERSNUM < 10704
         if (!trackId || trackId->id != id)
         {
             return length;
@@ -1324,7 +1326,11 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
         snd_mixer_elem_t *elem;
         snd_mixer_selem_id_t *sid;
         snd_mixer_selem_id_alloca(&sid);
+#ifdef __x86_64
+        unsigned int channels = ~0U;
+#else
         unsigned int channels = ~0UL;
+#endif
         snd_mixer_selem_channel_id_t chn;
 
         snd_mixer_selem_id_set_name(sid, device);

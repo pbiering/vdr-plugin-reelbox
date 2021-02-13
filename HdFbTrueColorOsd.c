@@ -659,7 +659,7 @@ void HdFbTrueColorOsd::new_osd() {
         //printf("HDCMD_OSD_DRAW8_OVERLAY\n");
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
         unsigned char const *xs;
-        static unsigned int qx, qy, xt1, yt1, x, y, w, h, *px, line, row;
+        static unsigned int qx, qy, xt1, /* yt1, */ x, y, w, h, *px, line, row; // FIXED: variable 'yt1' set but not used
         static unsigned int pxs;
 
         x = X + Left();
@@ -669,7 +669,7 @@ void HdFbTrueColorOsd::new_osd() {
         UpdateDirty(x, y, x+w, y+h);
 
         xt1 = x * osd->width;
-        yt1 = y * osd->height;
+        // yt1 = y * osd->height; // FIXED: variable 'yt1' set but not used
         qy = 0;
         
         for(line=0;line<h; y++) {
@@ -942,14 +942,14 @@ void HdFbTrueColorOsd::new_osd() {
 
         CachedImage const *img = cachedImages_[imageId];
         int m, n, h, v;
-        int width_;    
+        // int width_;    // FIXED: variable 'width_' set but not used
         int height_;    
         uint32_t const *srcPixels;
         int vertRepeat = 1;
         int horRepeat = 1;
 
         if (img) {
-            width_ = x1-x0;
+            // width_ = x1-x0; // FIXED: variable 'width_' set but not used
             height_ = y1-y0;
             if(img->height)
                 vertRepeat = (y1-y0)/img->height;
@@ -1195,9 +1195,9 @@ void HdFbTrueColorOsd::new_osd() {
            int symPitch = g->Pitch();
            if (limit && x + symWidth + symLeft + kerning - 1 > limit)
               break; // we don't draw partial characters
-           int px_tmp_sum = symLeft + kerning + x;
+           // int px_tmp_sum = symLeft + kerning + x; // FIXED: unused variable 'px_tmp_sum'
 //           int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
-           int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
+           // int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop); // FIXED: unused variable 'py_tmp_sum'
 
            if (x + symWidth + symLeft + kerning > 0) {
               for (int row = 0; row < g->Rows(); row++) {
@@ -1205,10 +1205,10 @@ void HdFbTrueColorOsd::new_osd() {
                       uchar bt = *(buffer + (row * symPitch + pitch));
                       if (AntiAliased) {
                          if (bt > 0x00) {
-                            int px = pitch + px_tmp_sum;
-                            int py = row + py_tmp_sum;
+                            // int px = pitch + px_tmp_sum;  // FIXED: unused variable 'px'
+                            // int py = row + py_tmp_sum;    // FIXED: unused variable 'py'
 
-                            uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (py+old_y) * osd->bpp  + (px+old_x) * osd->bpp );
+                            // uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (py+old_y) * osd->bpp  + (px+old_x) * osd->bpp ); // FIXED: unused variable 'dstPx'
 
 //                            if (bt == 0xFF)
 //                               *dstPx = colorFg;
@@ -1502,13 +1502,13 @@ void HdFbTrueColorOsd::new_osd() {
         eOsdError ret = CanHandleAreas(areas, numAreas);
         if (ret == oeOk)
         {
-            int l = areas->x1;
-            int t = areas->y1;
-            int r = areas->x2 + 1;
-            int b = areas->y2 + 1;
+            // int l = areas->x1;
+            // int t = areas->y1;     // FIXED: variable 't' set but not used
+            // int r = areas->x2 + 1; // FIXED: unused variable 'r'
+            // int b = areas->y2 + 1; // FIXED: unused variable 'b'
 
-            l = std::max(0, l);
-            t = std::max(0, l);
+            // l = std::max(0, l);
+            // t = std::max(0, l);
 //          width = r - l;
 //          height = b - t;
 //          width = std::max(1, width);
