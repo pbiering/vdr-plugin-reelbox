@@ -39,8 +39,8 @@ LOCDIR = $(DESTDIR)$(call PKGCFG,locdir)
 #
 
 ifdef VANILLAVDR
-	BSPSHM = ../../../utils/bspshm
-	HDSHM = ../../../utils/hdshm3/src
+  BSPSHM = ../../../utils/bspshm
+  HDSHM = ../../../utils/hdshm3/src
 endif
 
 TMPDIR ?= /tmp
@@ -50,8 +50,12 @@ HDSHM ?= ./utils/hdshm3/src
 
 BSPINCLUDE = -I$(BSPSHM) -I$(BSPSHM)/include
 HDINCLUDE = -I$(HDSHM) -I$(HDSHM)/include
+ifndef VANILLAVDR
 LIBMAD     ?= ../../../../temp/docimage/libs/libmad
 LIBASOUND  ?= ../../../../temp/docimage/libs/alsa-lib
+INCLUDES   += -I$(LIBASOUND)/include
+INCLUDES   += -I$(LIBMAD)
+endif
 
 ### Allow user defined options to overwrite defaults:
 export CFLAGS   = $(call PKGCFG,cflags)
@@ -69,8 +73,11 @@ export CXXFLAGS = $(call PKGCFG,cxxflags)
 
 ### Includes and Defines (add further entries here):
 #INCLUDES += -I$(VDRDIR)/include -I$(DVBDIR)/include
-INCLUDES += -I$(LIBASOUND)/include $(BSPINCLUDE) $(HDINCLUDE)
-INCLUDES += -I$(LIBMAD) `freetype-config --cflags`
+INCLUDES += $(BSPINCLUDE) $(HDINCLUDE)
+INCLUDES += `freetype-config --cflags`
+
+# default
+LIBPNG = -lpng
 
 ifeq ($(OS), Fedora)
 ifeq ($(VER), 33)
@@ -78,14 +85,13 @@ ifeq ($(VER), 33)
   INCLUDES += -I/usr/include/compat-ffmpeg28	# FIXED: libavutil/opt.h: No such file or directory
   # select libpng12
   DEFINES  += -DUSE_LIBPNG12			# FIXED: invalid use of incomplete type 'png_info'
+  LIBPNG   = -lpng12
 endif # Fedora 33
 endif # Fedora
-
 
 ifdef REELSKIN
   DEFINES += -DREELSKIN
   OBJS += BspTrueColorOsd.o ReelSkin.o
-  LIBS += -lpng
 else
   DEFINES += -DNOT_THEME_LIKE
 endif
@@ -94,11 +100,11 @@ DEFINES += -DPLAYER_VERSION=\"$(PLAYER_VERSION)\" -D__LINUX__
 
 ifdef REELVDR
   DEFINES += -DREELVDR
-  LIBS += -lasound -lmad -lpng  -lavcodec -lswscale -la52
 else
   DEFINES += -DNOT_THEME_LIKE
-  LIBS += -lasound -lmad -lpng  -lavcodec -lswscale -la52
 endif
+
+LIBS += -lasound -lmad $(LIBPNG) -lavcodec -lswscale -la52
 
 LDFLAGS += -L$(LIBASOUND)/src/.libs
 LDFLAGS += -L$(LIBMAD)/.libs
