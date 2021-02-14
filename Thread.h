@@ -81,7 +81,7 @@ namespace Reel
 #ifdef REEL_DEBUG
         int p;
 #endif
-        struct ::sched_param param;
+        struct ::sched_param param; // TODO: variable 'param' set but not used ???
         REEL_ASSERT(::pthread_getschedparam(threadId_, &p, &param) == 0);
         param.sched_priority = priority;
         REEL_ASSERT(::pthread_setschedparam(threadId_, policy, &param) == 0);
