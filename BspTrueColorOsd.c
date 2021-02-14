@@ -279,7 +279,7 @@ namespace Reel
 
         // Send the palette indexes.
 
-        bspcmd_osd_draw8_t bco2 = {BSPCMD_OSD_DRAW8, left + x, top + y, bitmap.Width(), bitmap.Height(), 0};
+        bspcmd_osd_draw8_t bco2 = {BSPCMD_OSD_DRAW8, Left() + x, Top() + y, bitmap.Width(), bitmap.Height(), 0}; // FIXED: is private within this context
 
         SendOsdCmd(&bco2, sizeof(bspcmd_osd_draw8_t), bitmap.Data(0, 0), bitmap.Width() * bitmap.Height());
         dirty_ = true;
@@ -303,11 +303,11 @@ namespace Reel
 
     /* override */ void BspTrueColorOsd::DrawEllipse(int x1, int y1, int x2, int y2, tColor color, int quadrants)
     {
-        bspcmd_osd_draw_ellipse const bco = {BSPCMD_OSD_DRAW_ELLIPSE,
-                                             left + x1,
-                                             top + y1,
-                                             left + x2 + 1,
-                                             top + y2 + 1,
+        bspcmd_osd_draw_ellipse const bco = {BSPCMD_OSD_DRAW_ELLIPSE, // FIXED: is private within this context
+                                             Left() + x1,
+                                             Top() + y1,
+                                             Left() + x2 + 1,
+                                             Top() + y2 + 1,
                                              color,
                                              quadrants};
 
@@ -323,9 +323,9 @@ namespace Reel
         if (ImageIdInRange(imageId))
         {
             CacheImage(imageId);
-            bspcmd_osd_draw_image const bco = {BSPCMD_OSD_DRAW_IMAGE,
+            bspcmd_osd_draw_image const bco = {BSPCMD_OSD_DRAW_IMAGE, // FIXED: is private within this context
                                                imageId,
-                                               left + x, top + y,
+                                               Left() + x, Top() + y,
                                                blend,
                                                horRepeat, vertRepeat};
     
@@ -345,11 +345,11 @@ namespace Reel
 
     /* override */ void BspTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-        bspcmd_osd_draw_rect const bco = {BSPCMD_OSD_DRAW_RECT,
-                                          left + x1,
-                                          top + y1,
-                                          left + x2 + 1,
-                                          top + y2 + 1,
+        bspcmd_osd_draw_rect const bco = {BSPCMD_OSD_DRAW_RECT, // FIXED: is private within this context
+                                          Left() + x1,
+                                          Top() + y1,
+                                          Left() + x2 + 1,
+                                          Top() + y2 + 1,
                                           color};
 
         SendOsdCmd(bco);
@@ -362,11 +362,11 @@ namespace Reel
     {
 	//esyslog("HdTrueColorOsd: DrawRectangle\n");
 
-    bspcmd_osd_draw_rect2 const bco = {BSPCMD_OSD_DRAW_RECT2,
-                                          left + x1,
-                                          top + y1,
-                                          left + x2 + 1,
-                                          top + y2 + 1,
+    bspcmd_osd_draw_rect2 const bco = {BSPCMD_OSD_DRAW_RECT2, // FIXED: is private within this context
+                                          Left() + x1,
+                                          Top() + y1,
+                                          Left() + x2 + 1,
+                                          Top() + y2 + 1,
                                           color,
                                           alphaGradH,
                                           alphaGradV,
@@ -402,8 +402,8 @@ namespace Reel
             int fontInd = CacheFont(*font);
             if (fontInd >= 0)
             {
-                bspcmd_osd_draw_text const bco = {BSPCMD_OSD_DRAW_TEXT,
-                                                  x + left, y + top,
+                bspcmd_osd_draw_text const bco = {BSPCMD_OSD_DRAW_TEXT, // FIXED: is private within this context
+                                                  x + Left(), y + Top(),
                                                   colorFg, colorBg,
                                                   fontInd,
                                                   width, height,
@@ -637,6 +637,7 @@ namespace Reel
         eOsdError ret = CanHandleAreas(areas, numAreas);
         if (ret == oeOk)
         {
+#ifdef REELVDR
             int l = areas->x1;
             int t = areas->y1;
             int r = areas->x2 + 1;
@@ -648,6 +649,7 @@ namespace Reel
             height = b - t;
             width = std::max(1, width);
             height = std::max(1, height);
+#endif
         }
         return ret;
     }
