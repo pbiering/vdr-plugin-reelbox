@@ -64,3 +64,8 @@ VDR plugin configuration file example: contrib/reelbox.conf
 **** NOTES ****
 
 $ make REELSKIN=1	-> not supported!
+
+**** TODO ****
+
+plugin skindesigner 	-> fix crash
+HD 1080 output		-> currently it looks like only 1080i is supported somehow

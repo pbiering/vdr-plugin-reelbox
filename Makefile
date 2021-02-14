@@ -19,6 +19,9 @@ VER=$(shell lsb_release -sr)
 # set it if you want to compile the plugin compiled in old reelbox source tree
 #REELVDR=1
 
+# disable SD
+HD_ONLY=1
+
 ### The object files (add further files here):
 
 OBJS = $(PLUGIN).o ac3.o AudioDecoder.o AudioDecoderIec60958.o AudioDecoderMpeg1.o \
@@ -39,7 +42,10 @@ OBJS = $(PLUGIN).o ac3.o AudioDecoder.o AudioDecoderIec60958.o AudioDecoderMpeg1
 PKGCFG = $(if $(VDRDIR),$(shell pkg-config --variable=$(1) $(VDRDIR)/vdr.pc),$(shell pkg-config --variable=$(1) vdr || pkg-config --variable=$(1) ../../../vdr.pc))
 LIBDIR = $(DESTDIR)$(call PKGCFG,libdir)
 LOCDIR = $(DESTDIR)$(call PKGCFG,locdir)
-#
+
+ifdef HD_ONLY
+  DEFINES=-DHD_ONLY=1
+endif
 
 ifdef REELVDR
   BSPSHM ?= ./utils/bspshm

@@ -297,7 +297,7 @@ namespace Reel
 
         void SetVideomode(int HDaspect)      // -1 is used on startup + by setup
         {
-            //printf("HdCommChannel::SetVideomode(%i)\n", HDaspect);
+            dsyslog_rb("HdCommChannel::SetVideomode(%i)", HDaspect);
            
             //printf (" %s \n", __PRETTY_FUNCTION__ );
             int width=0, height=0, interlaced=0, fps=0;
@@ -342,6 +342,16 @@ namespace Reel
 	    else if (RBSetup.HDaport == HD_APORT_SCART_V1)
 		    hda->video_mode.outputa|=HD_VM_OUTA_PORT_SCART_V1;
 
+            switch (RBSetup.HDintProg)
+            {
+                case 0:
+                    interlaced = 0;
+                    break;
+                case 1:
+                    interlaced = 1;
+                    break;
+            }
+
             switch (RBSetup.HDresolution)
             {
                 case HD_VM_RESOLUTION_1080:  //HD 1080
@@ -351,6 +361,7 @@ namespace Reel
                 case HD_VM_RESOLUTION_720:  //HD 720
                     width=1280;
                     height=720;
+                    interlaced = 0; // 720i is not defined
                     break;
                 case HD_VM_RESOLUTION_576:  // SD PAL
                     width=720;
@@ -363,16 +374,6 @@ namespace Reel
 		default:
 		    width=720;
                     height= 576;
-            }
-
-            switch (RBSetup.HDintProg)
-            {
-                case 0:
-                    interlaced = 0;
-                    break;
-                case 1:
-                    interlaced = 1;
-                    break;
             }
 
             switch (RBSetup.HDnorm)
@@ -395,9 +396,11 @@ namespace Reel
                 hda->video_mode.interlace=interlaced;
                 hda->video_mode.framerate=fps;
                 hda->video_mode.norm=RBSetup.HDresolution == 4 || RBSetup.HDnorm == 2 ? 1 : 0; //video_mode.norm not use in original hdplayer, used in my for auto framerate
+                dsyslog_rb("HdCommChannel::SetVideomode(%i) => width=%d height=%d interlaced=%d fps=%d", HDaspect, width, height, interlaced, fps);
             }
             hda->video_mode.deinterlacer=RBSetup.HDdeint;
             hda->video_mode.auto_format=RBSetup.HDauto_format;
+            dsyslog_rb("HdCommChannel::SetVideomode(%i) => deinterlacer=%d auto_format=%d", HDaspect, RBSetup.HDdeint, RBSetup.HDauto_format);
             hda->video_mode.changed++;
 
 	    SetAspect(HDaspect);
