@@ -102,6 +102,7 @@ namespace Reel
     
     namespace
     {
+	/* // defined but not used
         u_int CountBytes(const u_char *&data,
                         u_char *&line,
                         u_char &b,
@@ -131,6 +132,7 @@ namespace Reel
             }
             return c;
         }
+	*/
     }
 
     
