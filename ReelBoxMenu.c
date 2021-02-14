@@ -313,15 +313,18 @@ void cMenuVideoMode::Setup()
             if (rbSetup_.HDresolution == HD_VM_RESOLUTION_480) rbSetup_.HDnorm = 1;
             if (rbSetup_.HDresolution == HD_VM_RESOLUTION_AUTO) rbSetup_.HDnorm = 2;
 
-            // if (rbSetup_.HDresolution != HD_VM_RESOLUTION_1080)  // not 1080 // 1080 supports i/p
-            // {
+            if (rbSetup_.HDresolution != HD_VM_RESOLUTION_1080)  // not 1080
+            {
 		if (rbSetup_.HDresolution != HD_VM_RESOLUTION_720)
 			Add(new cMenuEditStraItem(tr("Progressive/Interlaced"), &rbSetup_.HDintProg, 2, showIntProg));
-            // }
-            // else
-            // {
-            //     rbSetup_.HDintProg = 1; // no 1080p yet
-            //}
+            }
+            else
+            {
+                if (expert_mode)
+			Add(new cMenuEditStraItem(tr("Progressive/Interlaced"), &rbSetup_.HDintProg, 2, showIntProg));
+		else
+			rbSetup_.HDintProg = 1; // no 1080p yet
+            }
 
 #ifndef HD_ONLY
             if (!((rbSetup_.HDresolution == HD_VM_RESOLUTION_576 || rbSetup_.HDresolution==HD_VM_RESOLUTION_480 || rbSetup_.HDresolution == HD_VM_RESOLUTION_AUTO)
