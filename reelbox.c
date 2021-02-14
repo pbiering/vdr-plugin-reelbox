@@ -59,7 +59,7 @@ namespace Reel
 
     namespace
     {
-        PCSTR VersionString     =  VERSION;
+        PCSTR VersionString     =  REELBOX_VERSION;
         PCSTR DescriptionString = "ReelBox plugin";
     }
 
@@ -218,7 +218,7 @@ namespace Reel
     const char *Plugin::CommandLineHelp(void)
     { 
         // return a string that describes all known command line options.
-        return "  --nofb           Do not use the framebuffer-based OSD-implementation.\n"
+        return "  --nofb          Do not use the framebuffer-based OSD-implementation.\n"
                "  --fbdev <dev>   Use <dev> as the framebuffer device (/dev/fb0)\n";
     }
 

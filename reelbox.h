@@ -32,6 +32,8 @@
 
 #include "Reel.h"
 
+#define REELBOX_VERSION "3.1.0.2021"
+
 namespace Reel
 {
     class Plugin /* final */ : public ::cPlugin
