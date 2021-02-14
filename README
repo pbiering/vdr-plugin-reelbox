@@ -39,11 +39,21 @@ Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 
 # building (currently)
 
-store reelbox utils directory outside VDR plugin tree
+store/softlink reelbox "utils" directory relative to VDR directory, e.g.
+
+$BASE/vdr/src/PLUGINS/vdr-plugin-reelbox
+$BASE/vdr/utils/hdshm3/
+$BASE/vdr/utils/bspshm/
+
 
 make:
 
-LC_ALL=C make VANILLAVDR=1
+$ LC_ALL=C make
 
 Currently tested:
 - Fedora 33 (using compat-ffmpeg28 and libpng12)
+
+
+**** NOTES ****
+
+$ make REELSKIN=1	-> not supported!
