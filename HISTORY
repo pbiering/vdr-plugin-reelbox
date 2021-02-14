@@ -1,0 +1,8 @@
+20210214/pbiering:
+- apply patch from ua0lnj for newer libpng
+
+20210213/pbiering:
+- import sources from https://bitbucket.org/ua0lnj/
+- fixed a lot of compilation warnings
+- fixed a bunch of compilation errors
+- 

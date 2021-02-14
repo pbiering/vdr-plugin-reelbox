@@ -54,6 +54,13 @@ Currently tested:
 - Fedora 33 (using compat-ffmpeg28 and libpng12)
 
 
+**** INSTALL ****
+
+TODO
+
+VDR plugin configuration file example: contrib/reelbox.conf
+
+
 **** NOTES ****
 
 $ make REELSKIN=1	-> not supported!
