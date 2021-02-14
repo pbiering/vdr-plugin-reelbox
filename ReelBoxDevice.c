@@ -30,9 +30,7 @@
 #include "VideoPlayerHd.h"
 #include "VideoPlayerPipHd.h"
 
-#ifdef REELVDR
 #include "config.h"
-#endif
 
 #include <vdr/dvbspu.h>
 #include <vdr/channels.h>
@@ -45,7 +43,7 @@
 #include "BspOsdProvider.h"
 #include "HdOsdProvider.h"
 #include "fs453settings.h"
-#include "softDecoder.c"
+// #include "softDecoder.c" // defined but not used
 //#define DEBUG_DEVICE(format, args...) printf (format, ## args)
 #define DEBUG_DEVICE(format, args...)
 
