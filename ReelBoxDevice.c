@@ -43,7 +43,6 @@
 #include "BspOsdProvider.h"
 #include "HdOsdProvider.h"
 #include "fs453settings.h"
-// #include "softDecoder.c" // defined but not used
 //#define DEBUG_DEVICE(format, args...) printf (format, ## args)
 #define DEBUG_DEVICE(format, args...)
 
