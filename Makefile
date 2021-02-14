@@ -16,6 +16,9 @@ VER=$(shell lsb_release -sr)
 # set it if you want to compile the skin for use with the reelbox
 #REELSKIN=1
 
+# set it if you want to compile the plugin compiled in old reelbox source tree
+#REELVDR=1
+
 ### The object files (add further files here):
 
 OBJS = $(PLUGIN).o ac3.o AudioDecoder.o AudioDecoderIec60958.o AudioDecoderMpeg1.o \
@@ -38,19 +41,19 @@ LIBDIR = $(DESTDIR)$(call PKGCFG,libdir)
 LOCDIR = $(DESTDIR)$(call PKGCFG,locdir)
 #
 
-ifdef VANILLAVDR
+ifdef REELVDR
+  BSPSHM ?= ./utils/bspshm
+  HDSHM ?= ./utils/hdshm3/src
+else
   BSPSHM = ../../../utils/bspshm
   HDSHM = ../../../utils/hdshm3/src
 endif
 
 TMPDIR ?= /tmp
 
-BSPSHM ?= ./utils/bspshm
-HDSHM ?= ./utils/hdshm3/src
-
 BSPINCLUDE = -I$(BSPSHM) -I$(BSPSHM)/include
 HDINCLUDE = -I$(HDSHM) -I$(HDSHM)/include
-ifndef VANILLAVDR
+ifdef REELBUILD
 LIBMAD     ?= ../../../../temp/docimage/libs/libmad
 LIBASOUND  ?= ../../../../temp/docimage/libs/alsa-lib
 INCLUDES   += -I$(LIBASOUND)/include
@@ -82,7 +85,8 @@ INCLUDES += `freetype-config --cflags`
 LIBPNG = -lpng
 
 ifeq ($(OS), Fedora)
-ifeq ($(VER), 33)
+ifeq ($(shell test $(VER) -ge 33; echo $$?),0)
+  # Fedora >= 33
   # select ffmpeg28
   INCLUDES += -I/usr/include/compat-ffmpeg28	# FIXED: libavutil/opt.h: No such file or directory
   LDFLAGS  += -L/usr/lib64/compat-ffmpeg28
@@ -107,7 +111,7 @@ else
   DEFINES += -DNOT_THEME_LIKE
 endif
 
-LIBS += -lasound -lmad $(LIBPNG) -lavcodec -lswscale -la52
+LIBS += -lasound -lmad $(LIBPNG) -lavcodec -lswscale -la52 -lpng
 
 ### The version number of this plugin (taken from the main source file):
 
