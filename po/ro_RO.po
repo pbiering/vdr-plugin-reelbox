@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2017-01-13 15:31+1000\n"
+"POT-Creation-Date: 2021-02-14 08:09+0100\n"
 "PO-Revision-Date: 2009-03-03 16:36+0200\n"
 "Last-Translator: Iacobescu Marian\n"
 "Language-Team: independent <vdr@linuxtv.org>\n"
@@ -19,6 +19,30 @@ msgstr ""
 "X-Poedit-Language: Romanian\n"
 "X-Poedit-Country: ROMANIA\n"
 "X-Poedit-SourceCharset: utf-8\n"
+
+msgid "brightness"
+msgstr "Stralucire"
+
+msgid "contrast"
+msgstr "contrast"
+
+msgid "colour"
+msgstr "culoare"
+
+msgid "sharpness"
+msgstr "claritate"
+
+msgid "gamma cor."
+msgstr "corectie gamma"
+
+msgid "flicker"
+msgstr "licărire"
+
+msgid "Reset to default"
+msgstr "Revenire la initial"
+
+msgid "Picture Settings"
+msgstr "Setari imagine"
 
 msgid "Fill to Screen"
 msgstr "Umple ecran"
@@ -269,30 +293,6 @@ msgstr "Mix Analog"
 
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Repornesc ReelBox acum ? Va rog asteptati 2 minute !"
-
-msgid "Picture Settings"
-msgstr "Setari imagine"
-
-msgid "brightness"
-msgstr "Stralucire"
-
-msgid "contrast"
-msgstr "contrast"
-
-msgid "colour"
-msgstr "culoare"
-
-msgid "sharpness"
-msgstr "claritate"
-
-msgid "gamma cor."
-msgstr "corectie gamma"
-
-msgid "flicker"
-msgstr "licărire"
-
-msgid "Reset to default"
-msgstr "Revenire la initial"
 
 #~ msgid "Reel"
 #~ msgstr "Reel"

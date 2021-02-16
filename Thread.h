@@ -24,6 +24,7 @@
 #define THREAD_H_INCLUDED
 
 #include "Reel.h"
+#include "logging.h"
 
 #include <pthread.h>
 
@@ -93,7 +94,7 @@ namespace Reel
         obj_ = &obj;
         memFunc_ = memFunc;
         REEL_VERIFY(::pthread_create(&threadId_, 0, &StartProc, this) == 0);
-        ::printf (" Start Thread ID: %d \n",(int) threadId_);
+        isyslog_rb("Start Thread ID: %d \n",(int) threadId_);
     }
 
     template<typename T>

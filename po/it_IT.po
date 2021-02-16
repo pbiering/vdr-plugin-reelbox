@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2017-01-13 15:31+1000\n"
+"POT-Creation-Date: 2021-02-14 08:09+0100\n"
 "PO-Revision-Date: 2009-06-20 22:52+0100\n"
 "Last-Translator: Spaeleus <spaeleus@croci.org>\n"
 "Language-Team: www.linsat.net - Italy <spaeleus@croci.org>\n"
@@ -22,6 +22,30 @@ msgstr ""
 "X-Poedit-Language: Italian\n"
 "X-Poedit-Country: ITALY\n"
 "X-Poedit-SourceCharset: utf-8\n"
+
+msgid "brightness"
+msgstr "Luminosità"
+
+msgid "contrast"
+msgstr "Contrasto"
+
+msgid "colour"
+msgstr "Colore"
+
+msgid "sharpness"
+msgstr "Nitidezza"
+
+msgid "gamma cor."
+msgstr "Corr. gamma"
+
+msgid "flicker"
+msgstr "Sfarfallamento"
+
+msgid "Reset to default"
+msgstr "Ripristinare predefiniti"
+
+msgid "Picture Settings"
+msgstr "Configurazione immagine"
 
 msgid "Fill to Screen"
 msgstr "Adattare allo schermo"
@@ -272,30 +296,6 @@ msgstr "Mix analogico"
 
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Riavviare il ReelBox? Attendere 2 minuti!"
-
-msgid "Picture Settings"
-msgstr "Configurazione immagine"
-
-msgid "brightness"
-msgstr "Luminosità"
-
-msgid "contrast"
-msgstr "Contrasto"
-
-msgid "colour"
-msgstr "Colore"
-
-msgid "sharpness"
-msgstr "Nitidezza"
-
-msgid "gamma cor."
-msgstr "Corr. gamma"
-
-msgid "flicker"
-msgstr "Sfarfallamento"
-
-msgid "Reset to default"
-msgstr "Ripristinare predefiniti"
 
 #~ msgid "Reel"
 #~ msgstr "Reel"

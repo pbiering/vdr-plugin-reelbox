@@ -36,6 +36,7 @@
 #include <png.h>
 
 #include "font_helper.h"
+#include "logging.h"
 
 namespace Reel
 {
@@ -342,7 +343,7 @@ void HdFbTrueColorOsd::new_osd() {
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     void HdFbTrueColorOsd::SetActive(bool On)
     {
-        esyslog("%s On=%i\n", __PRETTY_FUNCTION__, On);
+        isyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
         if (On != Active())
         {
             cOsd::SetActive(On);

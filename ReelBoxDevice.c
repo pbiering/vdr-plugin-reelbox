@@ -43,6 +43,7 @@
 #include "BspOsdProvider.h"
 #include "HdOsdProvider.h"
 #include "fs453settings.h"
+#include "logging.h"
 //#define DEBUG_DEVICE(format, args...) printf (format, ## args)
 #define DEBUG_DEVICE(format, args...)
 
@@ -802,7 +803,7 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 
                if(pid != playVideoPid_)
                {
-                       printf("PlayTsVideo: new Vpid: %i\n", pid);
+                       dsyslog_rb("PlayTsVideo: new Vpid: %i", pid);
                        playVideoPid_ = pid;
 
                        bkgPicPlayer_.PlayedVideo();
@@ -823,7 +824,7 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 
                if(pid != playAudioPid_)
                {
-                       printf("PlayTsAudio: new Apid: %i\n", pid);
+                       dsyslog_rb("PlayTsAudio: new Apid: %i", pid);
                        playAudioPid_ = pid;
 
 #if 1

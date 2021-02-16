@@ -22,10 +22,12 @@
 
 #include "HdOsd.h"
 #include "HdTrueColorOsd.h"
+#include "logging.h"
 
 #include <string.h>
 #include <cstring>
 #include <unistd.h>
+
 
 namespace Reel
 {
@@ -289,7 +291,7 @@ namespace Reel
                 Flush();
         }
 
-    printf("%s On=%i\n", __PRETTY_FUNCTION__, On);
+    isyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
     }
 #endif
 

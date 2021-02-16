@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2017-01-13 15:31+1000\n"
+"POT-Creation-Date: 2021-02-14 08:09+0100\n"
 "PO-Revision-Date: 2008-09-26 12:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -15,6 +15,30 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+msgid "brightness"
+msgstr "яркость"
+
+msgid "contrast"
+msgstr "контрастность"
+
+msgid "colour"
+msgstr "цветность"
+
+msgid "sharpness"
+msgstr "чёткость"
+
+msgid "gamma cor."
+msgstr "гамма кор."
+
+msgid "flicker"
+msgstr "мерцание"
+
+msgid "Reset to default"
+msgstr "Сброс по умолч."
+
+msgid "Picture Settings"
+msgstr "Установки картинки"
 
 msgid "Fill to Screen"
 msgstr "Растянуть по экрану"
@@ -261,27 +285,3 @@ msgstr ""
 
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr ""
-
-msgid "Picture Settings"
-msgstr "Установки картинки"
-
-msgid "brightness"
-msgstr "яркость"
-
-msgid "contrast"
-msgstr "контрастность"
-
-msgid "colour"
-msgstr "цветность"
-
-msgid "sharpness"
-msgstr "чёткость"
-
-msgid "gamma cor."
-msgstr "гамма кор."
-
-msgid "flicker"
-msgstr "мерцание"
-
-msgid "Reset to default"
-msgstr "Сброс по умолч."
