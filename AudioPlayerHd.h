@@ -24,6 +24,7 @@
 #define AUDIO_PLAYER_HD_H_INCLUDED
 
 #include "AudioPlayer.h"
+#include "logging.h"
 
 #include "HdCommChannel.h"
 
@@ -181,7 +182,7 @@ namespace Reel
 
     inline bool AudioPlayerHd::Flush()
     {
-        ::printf("AudioPlayerHd::Flush()\n");
+        dsyslog_rb("AudioPlayerHd::Flush()\n");
         return true;
     }
 

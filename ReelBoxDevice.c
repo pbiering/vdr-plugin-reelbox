@@ -1522,7 +1522,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 
 	while(!HdCommChannel::hda->hdp_running){
 		HdCommChannel::hda->hdp_enable = 1;
-		dsyslog_rb("hda->hdp_running\n");
+		//dsyslog_rb("hda->hdp_running: %d\n", hda->hdp_running);
 		usleep(10000);
 	}
 //	if (!HdCommChannel::hda->hdp_running)

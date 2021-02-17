@@ -22,6 +22,7 @@
  
 #include "AudioOut.h"
 #include "ReelBoxDevice.h"
+#include "logging.h"
 
 #include <vdr/tools.h>
 
@@ -162,10 +163,10 @@ namespace Reel
         snd_pcm_sframes_t r = snd_pcm_writei(pcmHandle_, frames, numFrames);
         if (r == -EPIPE)
         {
-            ::printf("PcmPlay, ALSA pcm underrun\n");
+            esyslog_rb("PcmPlay, ALSA pcm underrun\n");
             // An underflow occured. This should normally never happen (we are realtime).
             REEL_VERIFY(snd_pcm_prepare(pcmHandle_) == 0);
-            syslog(LOG_ERR, "ALSA pcm underrun");
+            esyslog_rb("ALSA pcm underrun");
             // Drop the data and then sleep to let other system threads run.
             StopPlayback();
             ::usleep(200000); // 200 ms
@@ -247,7 +248,7 @@ namespace Reel
 
         if (packet->GetGeneration() != fullQueue_.GetGeneration())
         {
-            ::printf("Stale packet!\n");
+            esyslog_rb("Stale packet!\n");
 
             // Packet stale, discard.
             fullQueue_.Pop();

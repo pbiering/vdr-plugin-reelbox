@@ -93,13 +93,13 @@ namespace Reel
 
     static void AoClose()
     {
-        ::printf("AoClose()\n");
+        dsyslog_rb("AoClose()\n");
     }
     
     static int AoControl(::VdrXineMpAoCtrl ctrlCmd)
     {
         // TODO: implement
-        ::printf("AoControl(%d)\n", ctrlCmd);
+        dsyslog_rb("AoControl(%d)\n", ctrlCmd);
         if (ctrlCmd == VdrXineMpAoCtrlFlushBuffers)
         {
             if (ReelBoxDevice::Instance())
@@ -121,7 +121,7 @@ namespace Reel
     {
         bufferPtsMap_.Clear();
 
-        ::printf("AoOpen() mode = %d, bits = %d, rate = %d\n", mode, bits, rate);
+        dsyslog_rb("AoOpen() mode = %d, bits = %d, rate = %d\n", mode, bits, rate);
 
         if (bits != 16)
         {
@@ -138,7 +138,7 @@ namespace Reel
         ReelBoxDevice::Instance()->SetDigitalAudioDevice(mode == VdrXineMpAoCapModeA52);
         if (hz)
         {
-            ::printf("hz = %d\n", hz);
+            dsyslog_rb("hz = %d\n", hz);
             // Ok, no resampling necessary.
             return hz;
         }
@@ -208,12 +208,12 @@ namespace Reel
 
     static void VdDiscontinuity()
     {
-        ::printf("VdDiscontinuity()\n");
+        dsyslog_rb("VdDiscontinuity()\n");
     }
 
     static void VdFlush()
     {
-        ::printf("VdFlush()\n");
+        dsyslog_rb("VdFlush()\n");
         //ReelBoxDevice *device = ReelBoxDevice::Instance();
         //device->Flush(5000);
     }
@@ -222,7 +222,7 @@ namespace Reel
     {
         //ReelBoxDevice *device = ReelBoxDevice::Instance();
         //device->Clear();
-        ::printf("VdReset()\n");
+        dsyslog_rb("VdReset()\n");
     }
 
     //Start by Klaus

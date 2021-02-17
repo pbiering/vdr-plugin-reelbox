@@ -1251,7 +1251,7 @@ void HdFbTrueColorOsd::new_osd() {
        // {
         //    static int flushCount = 1;
 
-            // ::printf("HdFbTrueColorOsd::Flush()\n");
+            // dsyslog_rb("HdFbTrueColorOsd::Flush()\n");
 
         //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
 
@@ -1350,7 +1350,7 @@ void HdFbTrueColorOsd::new_osd() {
         png_set_sig_bytes(png_ptr, 8);
 
         if (setjmp(png_jmpbuf(png_ptr))) {
-            ::printf("setjmp err\n");
+            dsyslog_rb("setjmp err\n");
             png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
             fclose(fp);
             return false;
