@@ -44,8 +44,6 @@
 #include "HdOsdProvider.h"
 #include "fs453settings.h"
 #include "logging.h"
-//#define DEBUG_DEVICE(format, args...) printf (format, ## args)
-#define DEBUG_DEVICE(format, args...)
 
 #define BP  //
 //#define BP
@@ -90,17 +88,17 @@ namespace Reel
         needRestart(false),
         normalPlay(false)
     {
-        DEBUG_DEVICE("[reelbox] %s  \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox] %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         instance_ = this;
 
+        dsyslog_rb("%s EXEC 'iecset audio on'\n", __PRETTY_FUNCTION__);
         SystemExec("iecset audio on");
+        dsyslog_rb("%s EXEC 'iecset audio on' DONE\n", __PRETTY_FUNCTION__);
 
         if (useHDExtension_)
         {
             // HD
-            DEBUG_DEVICE("[reelbox] use hdextension AoHDMO ? %s \n", audioOverHDMI_?"YES":"NO" );
-            //esyslog("[reelbox] use hdextension AoHDMO ? %s \n", audioOverHDMI_?"YES":"NO" );
+            dsyslog("use hdextension AudioOverHDMI ? %s \n", audioOverHDMI_?"YES":"NO" );
             VideoPlayerHd::Create();
             VideoPlayerPipHd::Create();
             tmpHDaspect = -1;
@@ -124,8 +122,7 @@ namespace Reel
         else
         {
             // BSP
-            DEBUG_DEVICE("[reelbox] BSP only \n");
-            //esyslog("[reelbox] BSP only \n");
+            dsyslog("%s BSP only\n", __PRETTY_FUNCTION__);
             audioOverHDMI_ = false; // for save
             VideoPlayerBsp::Create();
             AudioPlayerBsp::Create();
@@ -156,8 +153,7 @@ namespace Reel
 
     ReelBoxDevice::~ReelBoxDevice()
     {
-        DEBUG_DEVICE("[reelbox] %s  \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox] %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         instance_ = 0;
 
 #if VDRVERSNUM >= 10716
@@ -181,7 +177,7 @@ namespace Reel
 
     Int ReelBoxDevice::AudioDelay() const
     {
-        DEBUG_DEVICE("[reelbox]  %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         if (audioPlayerHd_)
         {
             return audioPlayerHd_->Delay();
@@ -197,8 +193,7 @@ namespace Reel
     {
         audioOverHDMI_ = RBSetup.audio_over_hdmi;
         audioOverHd_ = RBSetup.audio_over_hd;
-        DEBUG_DEVICE("RestartAudio, audioOverHDMI_ = %d, digitalAudio_ = %d, audioOverHd = %d\n", (int) audioOverHDMI_, (int)digitalAudio_, (int)audioOverHd_ );
-        //esyslog("RestartAudio, audioOverHDMI_ = %d, digitalAudio_ = %d, audioOverHd = %d\n", (int) audioOverHDMI_, (int)digitalAudio_, (int)audioOverHd_ );
+        dsyslog_rb("RestartAudio, audioOverHDMI_ = %d, digitalAudio_ = %d, audioOverHd = %d\n", (int) audioOverHDMI_, (int)digitalAudio_, (int)audioOverHd_ );
         bool switchToBspAudio = false;
         bool switchToHdAudio = false;
 
@@ -314,8 +309,7 @@ namespace Reel
     void ReelBoxDevice::Restart()
     {
         needRestart = false;
-        DEBUG_DEVICE("[reelbox]  !!! %s  !!!  \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox]  !!! %s  !!! \n", __PRETTY_FUNCTION__);
+        dsyslog("%s\n", __PRETTY_FUNCTION__);
         digitalAudio_ = false; pipActive_ = false; audioChannel_ = 0;
 #if VDRVERSNUM < 10716
         audioPlayback_ = 0; videoPlayback_ = 0;
@@ -355,25 +349,23 @@ namespace Reel
         instance_ = 0; //? dangerous ?
 
         SystemExec("iecset audio on");
-        DEBUG_DEVICE("[reelbox] !! %s  %d !! \n", __PRETTY_FUNCTION__,RBSetup.usehdext);
-        //esyslog("[reelbox] !! %s  %d !! \n", __PRETTY_FUNCTION__,RBSetup.usehdext);
+        dsyslog_rb("%s RBSetup.usehdext=%d\n", __PRETTY_FUNCTION__,RBSetup.usehdext);
         // }
         //
         //void ReelBoxDevice::Start() {
 
         if (useHDExtension_)
         {
-            DEBUG_DEVICE("[reelbox] !!  USE HD-Extension  !! \n");
-            //esyslog("[reelbox] !!  USE HD-Extension  !! \n");
+            dsyslog_rb("USE HD-Extension\n");
             // HD
             //usleep(1000*1000);
             if (restartVideo)
             {
                 Bsp::BspCommChannel::Destroy();
-                DEBUG_DEVICE("[reelbox] !!  :BspCommChannel::Destroy() ed  !! \n");
+                dsyslog_rb("%s :BspCommChannel::Destroy()\n", __PRETTY_FUNCTION__);
                 usleep(1000*1000);
                 Reel::HdCommChannel::Init();
-                DEBUG_DEVICE("[reelbox] !!  :HdCommChannel::Init() ed  !! \n");
+                dsyslog_rb("%s :HdCommChannel::Init()\n", __PRETTY_FUNCTION__);
                 //Reel::HdCommChannel::InitHda();
 	            usleep(1000*1000);
             }
@@ -381,13 +373,13 @@ namespace Reel
             //audioPlayerBsp_ = &AudioPlayer::InstanceBsp();
             if (!audioOverHd_ && !digitalAudio_ )
             {
-                DEBUG_DEVICE("[reelbox] !! NO  Audio Over HDMI_  !! \n");
+                dsyslog_rb("%s NO Audio Over HDMI_\n", __PRETTY_FUNCTION__);
                 AudioPlayerBsp::Create();
                 audioPlayerBsp_ = &AudioPlayer::InstanceBsp();
             }
             else
             {
-                DEBUG_DEVICE("[reelbox] !!  AudioOverHDMI_  !! \n");
+                dsyslog_rb("%s AudioOverHDMI_\n", __PRETTY_FUNCTION__);
                 AudioPlayerHd::Create();
                 audioPlayerHd_ = &AudioPlayer::InstanceHd();
             }
@@ -403,8 +395,7 @@ namespace Reel
             // BSP
             if (restartVideo)
             {
-                DEBUG_DEVICE("[reelbox] !!  USE BSP!! \n");
-                //esyslog("[reelbox] !!  USE BSP!! \n");
+                dsyslog_rb("%s USE BSP\n", __PRETTY_FUNCTION__);
                 HdCommChannel::Exit();
                 usleep(1000*1000);
                 Bsp::BspCommChannel::Create();
@@ -426,7 +417,7 @@ namespace Reel
 
         if (audioPlayerBsp_)
         {
-            DEBUG_DEVICE("[reelbox] !!  audioPlayerBsp_->SetAVSyncListener(videoPlayer_)   !! \n");
+            dsyslog_rb("%s audioPlayerBsp_->SetAVSyncListener(videoPlayer_)\n", __PRETTY_FUNCTION__);
             audioPlayerBsp_->SetAVSyncListener(videoPlayer_);
         }
 
@@ -458,20 +449,18 @@ namespace Reel
 	  }
 	}
 
-        DEBUG_DEVICE("[reelbox] !!  %s  SUCCESS   !! \n",__PRETTY_FUNCTION__);
-        //esyslog("[reelbox] !!  %s  SUCCESS   !! \n",__PRETTY_FUNCTION__);
+        dsyslog_rb("%s SUCCESS\n",__PRETTY_FUNCTION__);
     }
 
     void ReelBoxDevice::AudioUnderflow()
     {
-        DEBUG_DEVICE("[reelbox]  %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
     }
 
     void ReelBoxDevice::Clear()
     {
         CHECK_CONCURRENCY;
-        DEBUG_DEVICE("[reelbox]:  %s  \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox]:  %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         try
         {
             cDevice::Clear();
@@ -490,8 +479,7 @@ namespace Reel
     void ReelBoxDevice::Freeze()
     {
         CHECK_CONCURRENCY;
-        DEBUG_DEVICE("[reelbox]:  %s  \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox]:  %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         try
         {
             cDevice::Freeze();
@@ -551,8 +539,7 @@ namespace Reel
     bool ReelBoxDevice::Flush(Int timeoutMs)
     {
         // This function will be called by the vdr concurrently to the other functions.
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("[reelbox] %s \n", __PRETTY_FUNCTION__);
         bool ret = false;
         for (;;)
         {
@@ -577,7 +564,7 @@ namespace Reel
 
     void ReelBoxDevice::FlushAudio()
     {
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         if (audioPlayerHd_)
         {
           while (audioPlayerHd_ && !audioPlayerHd_->Flush())
@@ -592,21 +579,20 @@ namespace Reel
 
     int ReelBoxDevice::GetAudioChannelDevice()
     {
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         return audioChannel_;
     }
 
     void ReelBoxDevice::Mute()
     {
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         cDevice::Mute();
     }
 
     void ReelBoxDevice::Play()
     {
         CHECK_CONCURRENCY;
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
-        //esyslog("[reelbox] %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         try
         {
             cDevice::Play();
@@ -621,7 +607,7 @@ namespace Reel
                 audioPlayerBsp_->Play();
             }
 
-            DEBUG_DEVICE("[reelbox] %s --- videoPlayer_->Play(() \n", __PRETTY_FUNCTION__);
+            dsyslog_rb("%s --- videoPlayer_->Play(() \n", __PRETTY_FUNCTION__);
             videoPlayer_->Play();
         }
         catch (std::exception const &e)
@@ -738,7 +724,7 @@ soft_decode((uchar*)data,length,(uchar*)Data,len,AV_CODEC_ID_EAC3);
     void ReelBoxDevice::PlayAudioRaw(AudioFrame const *frames, Int numFrames,
                                     SampleRate sampleRate, UInt pts)
     {
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
 #if VDRVERSNUM < 10716
         audioPlayback_ = 200;
 
@@ -1109,7 +1095,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 
     void ReelBoxDevice::SetAudioChannelDevice(int audioChannel)
     {
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         audioChannel_ = audioChannel;
         AudioChannel channel = IsMute() ? AudioChannelMute : AudioChannel(audioChannel_);
         if (audioPlayerHd_)
@@ -1120,12 +1106,12 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
         {
            audioPlayerBsp_->SetChannel(channel);
         }
-        DEBUG_DEVICE("[reelbox] %s \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
     }
 
     void ReelBoxDevice::SetDigitalAudioDevice(bool on)
     {
-        DEBUG_DEVICE("[reelbox] %s  ON? %s \n", __PRETTY_FUNCTION__, on?"YES":"NO");
+        dsyslog_rb("%s ON? %s \n", __PRETTY_FUNCTION__, on?"YES":"NO");
         if (digitalAudio_ != on)
         {
             if (digitalAudio_)
@@ -1172,8 +1158,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
     bool ReelBoxDevice::SetPlayMode(ePlayMode playMode)
     {
         CHECK_CONCURRENCY;
-        DEBUG_DEVICE("[reelbox] %s  Playmode? %d \n", __PRETTY_FUNCTION__, playMode);
-        //esyslog("[reelbox]  %s  Playmode? %d \n", __PRETTY_FUNCTION__, playMode);
+        dsyslog_rb("%s Playmode? %d \n", __PRETTY_FUNCTION__, playMode);
         bool ret = true;
         try
         {
@@ -1260,7 +1245,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 
     void ReelBoxDevice::SetVolumeDevice(int volume)
     {
-        DEBUG_DEVICE("[reelbox] %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         AudioChannel channel = volume ? AudioChannel(audioChannel_) : AudioChannelMute;
         if(audioPlayerHd_)
         {
@@ -1317,7 +1302,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 
     void ReelBoxDevice::SetVolume(int Volume, const char *device)
     {
-        DEBUG_DEVICE("[reelbox] %s  \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         int err;
         snd_mixer_t *handle;
         const char *card= "default";

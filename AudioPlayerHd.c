@@ -21,11 +21,10 @@
 // AudioPlayerHd.c
 
 #include "AudioPlayerHd.h"
+#include "logging.h"
 
 #include "HdCommChannel.h"
 #include <vdr/tools.h>
-//#define DEBUG_AUDIO_HD(format, args...) printf (format, ## args)
-#define DEBUG_AUDIO_HD(format, args...) 
 
 #include "AudioDecoderPcm.h"
 #include "AudioDecoderNull.h"
@@ -36,7 +35,7 @@ namespace Reel
 
     void AudioPlayerHd::Create()
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         if (!instanceHd_)
         {
             instanceHd_ = new AudioPlayerHd;
@@ -50,7 +49,7 @@ namespace Reel
     :   hdPlayer_(HdCommChannel::hda->player[0]), frameNr_(0),
         freeze_(false), rawaudio_(false)
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         CreateAudioDecoders();
         for (AudioDecoders::Iterator audioDecoder = AudioDecoders::Begin();
                                      audioDecoder != AudioDecoders::End();
@@ -72,24 +71,24 @@ namespace Reel
 
     AudioPlayerHd::~AudioPlayerHd() NO_THROW
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         //lastDecoder_->Reset(&emptyQueue_);
         DestroyAudioDecoders();
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  END \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void AudioPlayerHd::Clear()
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void AudioPlayerHd::Freeze()
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         freeze_ = true;
     }
 
@@ -97,7 +96,7 @@ namespace Reel
 
     void AudioPlayerHd::Play()
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         freeze_ = false;
         SynchronizeClockInitial();
         currentSampleRate_ = 0;
@@ -106,7 +105,7 @@ namespace Reel
 //--------------------------------------------------------------------------------------------------------------
     void AudioPlayerHd::SetCorrectionBase(uint sampleRate)
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         unsigned long long correction_base = SyncClock::GetSysTime() * (sampleRate / 100);
         hdPlayer_.correction_base_low = LowWord(correction_base);
         hdPlayer_.correction_base_high = HighWord(correction_base);
@@ -132,7 +131,7 @@ namespace Reel
         struct timeval tv1,tv2;
 	ULLong t1,t2;
 	return; // GA
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
 	gettimeofday(&tv1, 0);
 	t1=ULLong(tv1.tv_sec) * 1000000 + tv1.tv_usec;
         while(1) {
@@ -143,7 +142,7 @@ namespace Reel
 		if ((t2-t1)>SYNC_INITIAL_MS*1000LL)
 			break;		
 	}
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  END\033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -258,18 +257,18 @@ namespace Reel
 
     void AudioPlayerHd::Start()
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  \033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         SynchronizeClockInitial();
         currentSampleRate_ = 0;
         freeze_ = 0;
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  END\033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void AudioPlayerHd::Stop()
     {
-        DEBUG_AUDIO_HD("\033[0;43m [reelbox] %s  END\033\[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
     }
 
     //--------------------------------------------------------------------------------------------------------------
