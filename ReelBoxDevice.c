@@ -284,7 +284,7 @@ namespace Reel
         Width = HdCommChannel::hda->player_status[0].w;
         Height = HdCommChannel::hda->player_status[0].h;
       } else {
-        printf("ERROR: Not implement yet: ReelBoxDevice::GetVideoSize for bspd");
+        esyslog_rb("ERROR: Not implement yet: ReelBoxDevice::GetVideoSize for bspd\n");
       }
       Aspect = 1.0;
       switch(GetAspectRatio()) {
@@ -775,7 +775,7 @@ soft_decode((uchar*)data,length,(uchar*)Data,len,AV_CODEC_ID_EAC3);
        if(player && oldAudioIndex != audioIndex)
 		player->IncGen();
        oldAudioIndex = audioIndex;
-       printf("SetAudioTrack: %i\n", index);
+       dsyslog_rb("SetAudioTrack: %i\n", index);
   }
 
 #if VDRVERSNUM < 20301
@@ -803,7 +803,7 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 
                if(pid != playVideoPid_)
                {
-                       dsyslog_rb("PlayTsVideo: new Vpid: %i", pid);
+                       dsyslog_rb("PlayTsVideo: new Vpid: %i\n", pid);
                        playVideoPid_ = pid;
 
                        bkgPicPlayer_.PlayedVideo();
@@ -824,7 +824,7 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 
                if(pid != playAudioPid_)
                {
-                       dsyslog_rb("PlayTsAudio: new Apid: %i", pid);
+                       dsyslog_rb("PlayTsAudio: new Apid: %i\n", pid);
                        playAudioPid_ = pid;
 
 #if 1
@@ -867,7 +867,7 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
         catch (std::exception const &e)
         {
             REEL_LOG_EXCEPTION(e);
-            printf("PlayTsAudio: exception caught \n");
+            esyslog_rb("PlayTsAudio: exception caught\n");
         }
                return Length;
        }
@@ -1333,28 +1333,28 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 
         snd_mixer_selem_id_set_name(sid, device);
         if ((err = snd_mixer_open(&handle, 0)) < 0) {
-            printf("Mixer %s open error: %s\n", card, snd_strerror(err));
+            esyslog_rb("Mixer %s open error: %s\n", card, snd_strerror(err));
             return;
         }
         if ((err = snd_mixer_attach(handle, card)) < 0) {
-            printf("Mixer attach %s error: %s", card, snd_strerror(err));
+            esyslog_rb("Mixer attach %s error: %s\n", card, snd_strerror(err));
             snd_mixer_close(handle);
             return;
         }
         if ((err = snd_mixer_selem_register(handle, NULL, NULL)) < 0) {
-            printf("Mixer register error: %s", snd_strerror(err));
+            esyslog_rb("Mixer register error: %s\n", snd_strerror(err));
             snd_mixer_close(handle);
             return;
         }
         err = snd_mixer_load(handle);
         if (err < 0) {
-            printf("Mixer %s load error: %s", card, snd_strerror(err));
+            esyslog_rb("Mixer %s load error: %s\n", card, snd_strerror(err));
             snd_mixer_close(handle);
             return;
         }
         elem = snd_mixer_find_selem(handle, sid);
         if (!elem) {
-            printf("Unable to find simple control '%s',%i\n", snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid));
+            esyslog_rb("Unable to find simple control '%s',%i\n", snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid));
             snd_mixer_close(handle);
             return;
         }
@@ -1514,17 +1514,17 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
     {
 	if(needRestart)
 	{
-Restart();
-Reel::HdCommChannel::SetAspect();
+		Restart();
+		Reel::HdCommChannel::SetAspect();
+	}
 
-}
-//dsyslog("===========SetPlayModeOn needRestart \n");
-while(!HdCommChannel::hda->hdp_running){
-HdCommChannel::hda->hdp_enable = 1;
-//dsyslog("===========hda->hdp_running \n");
-usleep(10000);
+	dsyslog_rb("SetPlayModeOn needRestart\n");
 
-}
+	while(!HdCommChannel::hda->hdp_running){
+		HdCommChannel::hda->hdp_enable = 1;
+		dsyslog_rb("hda->hdp_running\n");
+		usleep(10000);
+	}
 //	if (!HdCommChannel::hda->hdp_running)
 //	{
 //dsyslog("===========hda->hdp_running \n");
@@ -1542,12 +1542,12 @@ usleep(10000);
 
         if (audioPlayerHd_)
         {
-            //printf ("[reelbox] audioPlayerHd_->Start() \n");
+            dsyslog_rb("audioPlayerHd_->Start()\n");
             audioPlayerHd_->Start();
         }
         if (audioPlayerBsp_)
         {
-            //printf ("[reelbox] !!! NO audioPlayerHd_ !! \n");
+            dsyslog_rb("NO audioPlayerHd\n");
             audioPlayerBsp_->Start();
         }
 
@@ -1557,6 +1557,7 @@ usleep(10000);
 //            Reel::HdCommChannel::SetVideomode();
         }
 
+	dsyslog_rb("Call videoPlayer_->Start()\n");
         videoPlayer_->Start();
     }
 

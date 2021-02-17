@@ -63,7 +63,7 @@ namespace Reel
     template<typename T>
     inline Thread<T>::~Thread()
     {
-        ::printf (" ~Thread  ID: %d \n",(int) threadId_);
+        dsyslog_rb("~Thread  ID: %d\n",(int) threadId_);
         REEL_ASSERT(!obj_);
     }
 
@@ -71,7 +71,7 @@ namespace Reel
     inline void Thread<T>::Join()
     {
         REEL_ASSERT(obj_);
-        ::printf (" Join ID: %d \n",(int) threadId_);
+        dsyslog_rb("Join ID: %d\n",(int) threadId_);
         REEL_VERIFY(::pthread_join(threadId_, 0) == 0);
         obj_ = 0;
     }
@@ -94,7 +94,7 @@ namespace Reel
         obj_ = &obj;
         memFunc_ = memFunc;
         REEL_VERIFY(::pthread_create(&threadId_, 0, &StartProc, this) == 0);
-        isyslog_rb("Start Thread ID: %d \n",(int) threadId_);
+        dsyslog_rb("Start Thread ID: %d \n",(int) threadId_);
     }
 
     template<typename T>

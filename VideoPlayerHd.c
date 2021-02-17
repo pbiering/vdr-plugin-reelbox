@@ -24,6 +24,7 @@
 #include <vdr/remux.h>
 #include "ReelBoxDevice.h"
 #include "fs453settings.h"
+#include "logging.h"
 
 namespace Reel
 {
@@ -32,7 +33,7 @@ namespace Reel
 		int n;
 		for ( n=0;n<len;n+=16 )
 		{
-			printf ( "%p: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+			dsyslog_rb( "%p: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 			         x,x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],
 			         x[8],x[9],x[10],x[11],x[12],x[13],x[14],x[15] );
 			x+=16;
@@ -52,7 +53,7 @@ namespace Reel
 	//--------------------------------------------------------------------------------------------------------------
 	void VideoPlayerHd::Clear()
 	{
-		//printf ( "VideoPlayerHd::Clear()\n" );
+		dsyslog_rb("VideoPlayerHd::Clear()\n");
 		hdPlayer_.decoder_frames=0;
 		++ generation_;
 	}
@@ -75,7 +76,7 @@ namespace Reel
 	bool VideoPlayerHd::Flush()
 	{
 		hd_packet_clear_t packet;
-		//printf ( "VideoPlayerHd::Flush()\n" );
+		dsyslog_rb( "VideoPlayerHd::Flush()\n");
 		static int waitAproxFramesInQueue = 0;
 		static int lastAproxFramesInQueue = 0;
 		int aproxFramesInQueue = AproxFramesInQueue();
@@ -96,7 +97,7 @@ namespace Reel
 
 	void VideoPlayerHd::Freeze()
 	{
-		//printf ( "VideoPlayerHd::Freeze()\n" );
+		dsyslog_rb("VideoPlayerHd::Freeze()\n");
 		freeze_ = true;
 		hdPlayer_.pause=1;
 	}
@@ -105,7 +106,7 @@ namespace Reel
 
 	void VideoPlayerHd::Play()
 	{
-		//printf("VideoPlayerHd::Play()\n");
+		dsyslog_rb("VideoPlayerHd::Play()\n");
 		Trickmode ( 0 );
 		hdPlayer_.pause=0;
 
@@ -206,7 +207,7 @@ namespace Reel
 
 	void VideoPlayerHd::StillPicture ( Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode )
 	{
-		//printf("VideoPlayerHd::StillPicture()\n");
+		dsyslog_rb("VideoPlayerHd::StillPicture()\n");
 		/* TB: resend picture settings, auto format may have resetted them */
                 Reel::HdCommChannel::SetPicture(&RBSetup);
 //		const UInt repeat = 40; //send the frame several times (still frame prob with hdext)
@@ -239,7 +240,7 @@ namespace Reel
 		memset(&packet, 0, sizeof(packet));
 		HdCommChannel::chStream1.SendPacket ( HD_PACKET_RPC_DONE, packet, 0, 0);
 		if (RBSetup.usehdext && ((RBSetup.brightness > 255 || RBSetup.contrast > 255 || RBSetup.gamma > 195) || (RBSetup.brightness == 0 || RBSetup.contrast == 0 || RBSetup.gamma == 0))) {
-			esyslog("ERROR: Picture settings out of range. Resetting to factory default.\n");
+			esyslog_rb("ERROR: Picture settings out of range. Resetting to factory default.\n");
 			RBSetup.brightness = fs453_defaultval_tab0_HD;
 			RBSetup.contrast   = fs453_defaultval_tab1_HD;
 			RBSetup.colour     = fs453_defaultval_tab4_HD;
@@ -248,7 +249,7 @@ namespace Reel
 			RBSetup.flicker    = fs453_defaultval_tab5_HD;
 		}
 		else
-			dsyslog("Picture settings OK.");
+			dsyslog_rb("Picture settings OK.\n");
 
                 /* TB: resend picture settings, auto format may have resetted them */
 		Reel::HdCommChannel::SetPicture(&RBSetup);
@@ -259,7 +260,7 @@ namespace Reel
 
 	void VideoPlayerHd::Stop()
 	{
-		//printf ( "VideoPlayerHd::Stop()\n" );
+		dsyslog_rb("VideoPlayerHd::Stop()\n");
 		hd_channel_invalidate ( HdCommChannel::chStream1.ch_, 1 );
 		Clear();
 
@@ -271,7 +272,7 @@ namespace Reel
 
 	void VideoPlayerHd::Trickmode ( UInt trickSpeed )
 	{
-		//printf ( "VideoPlayerHd::Trickmode(%d)\n", trickSpeed );
+		dsyslog_rb("VideoPlayerHd::Trickmode(%d)\n", trickSpeed);
 		bool iFramesOnly = trickSpeed != 2 && trickSpeed != 4 && trickSpeed != 8;
 		// HACK: VDR will uses these trick speeds for "slow forward", the only trickmode with all frame types.
 		hdPlayer_.pause=0;

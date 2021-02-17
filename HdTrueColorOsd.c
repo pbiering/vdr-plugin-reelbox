@@ -22,6 +22,7 @@
 
 
 #include "HdTrueColorOsd.h"
+#include "logging.h"
 
 #include <vdr/tools.h>
 
@@ -165,7 +166,7 @@ namespace Reel
         }
         if (fontHeight > 32)
         {
-            esyslog("ERROR: HdTrueColorOsd font height > 32\n");
+            esyslog_rb("HdTrueColorOsd font height > 32\n");
             return -1;
         }
         // Font not in cache.
@@ -275,7 +276,7 @@ namespace Reel
 
         if (path.empty())
         {
-            esyslog("ERROR: HdTrueColorOsd Image id %u: No path set.\n", imageId);
+            esyslog_rb("HdTrueColorOsd Image id %u: No path set.\n", imageId);
             return;
         }
 
@@ -293,7 +294,7 @@ namespace Reel
         }
         else
         {
-            esyslog("ERROR: HdTrueColorOsd Image id %u: Unable to load image '%s'.\n", imageId, path.c_str());
+            esyslog_rb("HdTrueColorOsd Image id %u: Unable to load image '%s'.\n", imageId, path.c_str());
         }
         imageDirty_[imageId] = false;
 
@@ -495,14 +496,14 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::HdTrueColorOsd::DrawBitmapHor(int x, int y, int w, const cBitmap &bitmap)
     {
-        esyslog("ERROR: HdTrueColorOsd::DrawBitmapHor not supported\n");
+        esyslog_rb("HdTrueColorOsd::DrawBitmapHor not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
 
     /* override */ void HdTrueColorOsd::DrawBitmapVert(int x, int y, int h, const cBitmap &bitmap)
     {
-        esyslog("ERROR: HdTrueColorOsd::DrawBitmapVert not supported\n");
+        esyslog_rb("HdTrueColorOsd::DrawBitmapVert not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -574,7 +575,7 @@ namespace Reel
     /* override */ void HdTrueColorOsd::DrawPixel(int x, int y, tColor color)
     {
 	//esyslog("HdTrueColorOsd: DrawPixel\n");
-        esyslog("ERROR: HdTrueColorOsd::DrawPixel not supported\n");
+        esyslog_rb("HdTrueColorOsd::DrawPixel not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -621,7 +622,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawSlope(int x1, int y1, int x2, int y2, tColor color, int type)
     {
-        esyslog("ERROR: HdTrueColorOsd::DrawSlope not supported\n");
+        esyslog_rb("HdTrueColorOsd::DrawSlope not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -839,7 +840,7 @@ DestroyPixmap(pm);
 #if 1
         return bitmaps[area];
 #endif
-        esyslog("ERROR: HdTrueColorOsd::GetBitmap not supported\n");
+        esyslog_rb("HdTrueColorOsd::GetBitmap not supported\n");
         return 0;
     }
     
@@ -850,7 +851,7 @@ DestroyPixmap(pm);
 
         if (imageId > MaxImageId)
         {
-            esyslog("ERROR: HdTrueColorOsd Image id %u: Out of range.\n", imageId);
+            esyslog_rb("HdTrueColorOsd Image id %u: Out of range.\n", imageId);
             return false;
         }
         else
@@ -1074,7 +1075,7 @@ DestroyPixmap(pm);
         static char buffer[HD_MAX_DGRAM_SIZE];
 
         if(bcoSize + payloadSize > HD_MAX_DGRAM_SIZE){
-		esyslog("HD_MAX_DGRAM_SIZE !!! %d\n",bcoSize + payloadSize);
+		esyslog_rb("HD_MAX_DGRAM_SIZE !!! %d\n",bcoSize + payloadSize);
 		return;
 	}
 #if 0
@@ -1127,7 +1128,7 @@ DestroyPixmap(pm);
 
     /* override */ eOsdError HdTrueColorOsd::SetPalette(const cPalette &palette, int area)
     {
-        esyslog("ERROR: HdTrueColorOsd::SetPalette not supported\n");
+        esyslog_rb("HdTrueColorOsd::SetPalette not supported\n");
         return oeOk;
     }
 

@@ -26,6 +26,7 @@
 #include "VideoPlayer.h"
 
 #include "HdCommChannel.h"
+#include "logging.h"
 
 namespace Reel
 {
@@ -95,7 +96,7 @@ namespace Reel
 
     inline VideoPlayerHd::~VideoPlayerHd() NO_THROW
     {
-        printf ("\033[0;36m %s \033[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         // Do nothing.
     }
 

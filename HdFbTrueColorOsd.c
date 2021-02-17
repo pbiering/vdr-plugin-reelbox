@@ -292,7 +292,7 @@ void HdFbTrueColorOsd::new_osd() {
  
         osd->data = (unsigned char*) mmap(0, osd->bpp * osd->width * osd->height, PROT_READ|PROT_WRITE, MAP_SHARED, osd->fd, 0);
         if(osd->data == MAP_FAILED ) {
-          esyslog("fb mmap failed, allocating dummy storage via malloc\n");
+          esyslog_rb("fb mmap failed, allocating dummy storage via malloc\n");
           osd->bpp = 4;
           osd->width = 800;
           osd->height = 576;
@@ -343,7 +343,7 @@ void HdFbTrueColorOsd::new_osd() {
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     void HdFbTrueColorOsd::SetActive(bool On)
     {
-        isyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
+        dsyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
         if (On != Active())
         {
             cOsd::SetActive(On);
@@ -414,7 +414,7 @@ void HdFbTrueColorOsd::new_osd() {
         }
         if (fontHeight > 32)
         {
-            esyslog("ERROR: HdFbTrueColorOsd font height > 32\n");
+            esyslog_rb("HdFbTrueColorOsd font height > 32\n");
             return -1;
         }
 
@@ -517,12 +517,12 @@ void HdFbTrueColorOsd::new_osd() {
     {
 /*
         if (numAreas != 1) {
-            esyslog("ERROR: HdFbTrueColorOsd::CanHandleAreas numAreas = %d\n", numAreas);
+            esyslog_rb("HdFbTrueColorOsd::CanHandleAreas numAreas = %d\n", numAreas);
             return oeTooManyAreas;
         }
 
         if (areas[0].bpp != 32) {
-            esyslog("ERROR: HdFbTrueColorOsd::CanHandleAreas bpp = %d\n", areas[0].bpp);
+            esyslog_rb("HdFbTrueColorOsd::CanHandleAreas bpp = %d\n", areas[0].bpp);
             return oeBppNotSupported;
         }
 
@@ -571,7 +571,7 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend)
     {
-    esyslog("HdFbTrueColorOsd: DrawBitmap\n");
+    esyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
 
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
         unsigned char const *xs;
@@ -651,7 +651,7 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend, int width, int height)
     {
-        esyslog("HdFbTrueColorOsd: DrawBitmap\n");
+        esyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
 
         //printf("HDCMD_OSD_DRAW8_OVERLAY\n");
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
@@ -705,21 +705,21 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::HdFbTrueColorOsd::DrawBitmapHor(int x, int y, int w, const cBitmap &bitmap)
     {
-        esyslog("ERROR: HdFbTrueColorOsd::DrawBitmapHor not supported\n");
+        esyslog_rb("HdFbTrueColorOsd::DrawBitmapHor not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
 
     /* override */ void HdFbTrueColorOsd::DrawBitmapVert(int x, int y, int h, const cBitmap &bitmap)
     {
-        esyslog("ERROR: HdFbTrueColorOsd::DrawBitmapVert not supported\n");
+        esyslog_rb("HdFbTrueColorOsd::DrawBitmapVert not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
 
     /* override */ void HdFbTrueColorOsd::DrawEllipse(int X1, int Y1, int X2, int Y2, tColor color, int quadrants)
     {
-    esyslog("HdFbTrueColorOsd: DrawEllipse\n");
+    esyslog_rb("HdFbTrueColorOsd: DrawEllipse\n");
 
         unsigned int l, t, r, b;
         l = /*Left() +*/ X1;
@@ -833,7 +833,7 @@ void HdFbTrueColorOsd::new_osd() {
     /* override */ void HdFbTrueColorOsd::DrawHdImage(UInt imageId, int x, int y, bool blend,
                                                    int horRepeat, int vertRepeat)
     {
-    esyslog("HdFbTrueColorOsd: DrawHdImage\n");
+    esyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
 
         if (ImageIdInRange(imageId))
             LoadImage(imageId);
@@ -924,7 +924,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawCropImage(UInt imageId, int x, int y, int x0, int y0, int x1, int y1, bool blend)
     {
-    esyslog("HdFbTrueColorOsd: DrawHdImage\n");
+    esyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
 
     if (ImageIdInRange(imageId)) {
         LoadImage(imageId);
@@ -996,7 +996,7 @@ void HdFbTrueColorOsd::new_osd() {
     /* override */ void HdFbTrueColorOsd::DrawPixel(int x, int y, tColor color)
     {
     //esyslog("HdFbTrueColorOsd: DrawPixel\n");
-        esyslog("ERROR: HdFbTrueColorOsd::DrawPixel not supported\n");
+        esyslog_rb("HdFbTrueColorOsd::DrawPixel not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -1005,7 +1005,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-    esyslog("HdFbTrueColorOsd: DrawRectangle\n");
+    esyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
 
         unsigned int l, t, r, b;
         l = Left() + x1;
@@ -1041,7 +1041,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-    esyslog("HdFbTrueColorOsd: DrawRectangle\n");
+    esyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
 
         dirty_ = true;
 
@@ -1078,7 +1078,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawSlope(int x1, int y1, int x2, int y2, tColor color, int type)
     {
-        esyslog("ERROR: HdFbTrueColorOsd::DrawSlope not supported\n");
+        esyslog_rb("HdFbTrueColorOsd::DrawSlope not supported\n");
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -1284,7 +1284,7 @@ void HdFbTrueColorOsd::new_osd() {
 #if 1
         return bitmaps[area];
 #endif
-        esyslog("ERROR: HdFbTrueColorOsd::GetBitmap not supported\n");
+        esyslog_rb("HdFbTrueColorOsd::GetBitmap not supported\n");
         return 0;
     }
     
@@ -1294,7 +1294,7 @@ void HdFbTrueColorOsd::new_osd() {
     {
 
         if (imageId > MaxImageId) {
-            esyslog("ERROR: HdFbTrueColorOsd Image id %u: Out of range.\n", imageId);
+            esyslog_rb("HdFbTrueColorOsd Image id %u: Out of range.\n", imageId);
             return false;
         } else {
             return true;
@@ -1531,7 +1531,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ eOsdError HdFbTrueColorOsd::SetPalette(const cPalette &palette, int area)
     {
-        esyslog("ERROR: HdFbTrueColorOsd::SetPalette not supported\n");
+        esyslog_rb("HdFbTrueColorOsd::SetPalette not supported\n");
         return oeOk;
     }
 

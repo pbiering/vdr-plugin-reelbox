@@ -291,7 +291,7 @@ namespace Reel
                 Flush();
         }
 
-    isyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
+    dsyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
     }
 #endif
 

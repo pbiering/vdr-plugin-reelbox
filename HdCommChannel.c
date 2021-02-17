@@ -190,13 +190,13 @@ namespace Reel
 		return 1;
             };
 
-            dsyslog_rb("HDE: call chStream1.Open(%d)", HDCH_STREAM1);
+            dsyslog_rb("HDE: call chStream1.Open(%d)\n", HDCH_STREAM1);
             chStream1.Open(HDCH_STREAM1);
-            dsyslog_rb("HDE: call chStream1.Open(%d) returned", HDCH_STREAM1);
-            dsyslog_rb("HDE: call chOsd.Open(%d)", HDCH_OSD);
+            dsyslog_rb("HDE: call chStream1.Open(%d) returned\n", HDCH_STREAM1);
+            dsyslog_rb("HDE: call chOsd.Open(%d)\n", HDCH_OSD);
             chOsd.Open(HDCH_OSD);
-            dsyslog_rb("HDE: call chOsd.Open(%d) returned", HDCH_OSD);
-            dsyslog_rb("HDE: start successful");
+            dsyslog_rb("HDE: call chOsd.Open(%d) returned\n", HDCH_OSD);
+            dsyslog_rb("HDE: start successful\n");
             return 0;
         }
 
@@ -297,7 +297,7 @@ namespace Reel
 
         void SetVideomode(int HDaspect)      // -1 is used on startup + by setup
         {
-            dsyslog_rb("HdCommChannel::SetVideomode(%i)", HDaspect);
+            dsyslog_rb("HdCommChannel::SetVideomode(%i)\n", HDaspect);
            
             //printf (" %s \n", __PRETTY_FUNCTION__ );
             int width=0, height=0, interlaced=0, fps=0;
@@ -396,11 +396,11 @@ namespace Reel
                 hda->video_mode.interlace=interlaced;
                 hda->video_mode.framerate=fps;
                 hda->video_mode.norm=RBSetup.HDresolution == 4 || RBSetup.HDnorm == 2 ? 1 : 0; //video_mode.norm not use in original hdplayer, used in my for auto framerate
-                dsyslog_rb("HdCommChannel::SetVideomode(%i) => width=%d height=%d interlaced=%d fps=%d", HDaspect, width, height, interlaced, fps);
+                dsyslog_rb("HdCommChannel::SetVideomode(%i) => width=%d height=%d interlaced=%d fps=%d\n", HDaspect, width, height, interlaced, fps);
             }
             hda->video_mode.deinterlacer=RBSetup.HDdeint;
             hda->video_mode.auto_format=RBSetup.HDauto_format;
-            dsyslog_rb("HdCommChannel::SetVideomode(%i) => deinterlacer=%d auto_format=%d", HDaspect, RBSetup.HDdeint, RBSetup.HDauto_format);
+            dsyslog_rb("HdCommChannel::SetVideomode(%i) => deinterlacer=%d auto_format=%d\n", HDaspect, RBSetup.HDdeint, RBSetup.HDauto_format);
             hda->video_mode.changed++;
 
 	    SetAspect(HDaspect);
@@ -408,7 +408,7 @@ namespace Reel
 
         int InitHda()
         {
-            dsyslog_rb("HDE: start");
+            dsyslog_rb("HDE: start\n");
             ::hdshm_area_t *area;
 
             if (::hd_init(0) != 0)

@@ -21,6 +21,7 @@
 // VideoPlayer.c
  
 #include "VideoPlayer.h"
+#include "logging.h"
 
 namespace Reel
 {
@@ -28,7 +29,7 @@ namespace Reel
 
     void VideoPlayer::Destroy() NO_THROW
     {
-        printf ("\033[0;36m %s \033[0m\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         delete instance_;
         instance_ = 0;
     }
