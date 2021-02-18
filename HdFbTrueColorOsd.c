@@ -571,7 +571,7 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend)
     {
-    esyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
+	dsyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
 
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
         unsigned char const *xs;
@@ -651,7 +651,7 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend, int width, int height)
     {
-        esyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
+        dsyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
 
         //printf("HDCMD_OSD_DRAW8_OVERLAY\n");
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
@@ -719,7 +719,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawEllipse(int X1, int Y1, int X2, int Y2, tColor color, int quadrants)
     {
-    esyslog_rb("HdFbTrueColorOsd: DrawEllipse\n");
+	dsyslog_rb("HdFbTrueColorOsd: DrawEllipse\n");
 
         unsigned int l, t, r, b;
         l = /*Left() +*/ X1;
@@ -833,7 +833,7 @@ void HdFbTrueColorOsd::new_osd() {
     /* override */ void HdFbTrueColorOsd::DrawHdImage(UInt imageId, int x, int y, bool blend,
                                                    int horRepeat, int vertRepeat)
     {
-    esyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
+	dsyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
 
         if (ImageIdInRange(imageId))
             LoadImage(imageId);
@@ -924,7 +924,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawCropImage(UInt imageId, int x, int y, int x0, int y0, int x1, int y1, bool blend)
     {
-    esyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
+    dsyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
 
     if (ImageIdInRange(imageId)) {
         LoadImage(imageId);
@@ -1005,7 +1005,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-    esyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
+	dsyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
 
         unsigned int l, t, r, b;
         l = Left() + x1;
@@ -1041,7 +1041,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-    esyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
+	dsyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
 
         dirty_ = true;
 
