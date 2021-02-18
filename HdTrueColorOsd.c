@@ -917,7 +917,7 @@ DestroyPixmap(pm);
 
         if (setjmp(png_jmpbuf(png_ptr)))
         {
-            ::printf("setjmp err\n");
+            printf("setjmp err\n");
             png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
             fclose(fp);
             return false;
