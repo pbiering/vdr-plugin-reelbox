@@ -43,9 +43,24 @@ extern "C" {
 #endif
 }
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,18,102)
+#define CODEC_ID_MPEG2VIDEO AV_CODEC_ID_MPEG2VIDEO
+#define PIX_FMT_YUV420P AV_PIX_FMT_YUV420P
+#define PIX_FMT_RGB32 AV_PIX_FMT_RGB32
+#endif
+
 #ifndef PIX_FMT_RGBA32
 // #warning "Using new ffmpeg..." // FIXED: disable message
 #define PIX_FMT_RGBA32  PIX_FMT_RGB32
+#endif
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(58,7,100)
+#define CODEC_FLAG_TRUNCATED AV_CODEC_FLAG_TRUNCATED
+
+#endif
+
+#if LIBSWSCALE_VERSION_MAJOR >= 3
+#define SWS_CPU_CAPS_MMX AV_CPU_FLAG_MMX
 #endif
 
 // I like standards...
