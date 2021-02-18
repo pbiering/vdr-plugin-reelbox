@@ -91,9 +91,13 @@ namespace Reel
         dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
         instance_ = this;
 
+#ifndef HDMI_ONLY
         dsyslog_rb("%s EXEC 'iecset audio on'\n", __PRETTY_FUNCTION__);
+	printf("--- output is caused by SystemExec begin ---\n");
         SystemExec("iecset audio on");
+	printf("--- output is caused by SystemExec end   ---\n");
         dsyslog_rb("%s EXEC 'iecset audio on' DONE\n", __PRETTY_FUNCTION__);
+#endif
 
         if (useHDExtension_)
         {

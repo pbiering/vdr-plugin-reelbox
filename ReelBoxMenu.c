@@ -98,10 +98,12 @@ cMenuVideoMode::cMenuVideoMode(cPlugin *Plugin, bool isVideoMode)
     deint[2] = tr("On");
 
     output[0] = tr("HDMI");
+#ifndef HDMI_ONLY
     output[1] = tr("DVI");
     output[2] = tr("SCART");
     output[3] = tr("Mini-DIN");
     output[4] = tr("Analog+digital");
+#endif
 
     menu_mode= isVideoMode?video_mode:audio_mode;
 
@@ -166,7 +168,11 @@ void cMenuVideoMode::Setup()
          if (rbSetup_.usehdext)
          {
 	    //int numberOutputs = expert_mode ? 5 : 4;
+#ifndef HDMI_ONLY
 	    int numberOutputs = 4;
+#else
+	    int numberOutputs = 1;
+#endif
 
 	    /* TB: check it output has been changed */
 	    if ( rbSetup_.HDoutput != old_output ) {
@@ -184,7 +190,11 @@ void cMenuVideoMode::Setup()
 	    } else
 		output_changed = false;
 
+#ifndef HDMI_ONLY
             Add(new cMenuEditStraItem(tr("Output"), &rbSetup_.HDoutput, numberOutputs, output));
+#else
+            Add(new cMenuEditStraItem(tr("Output (HDMI_ONLY active)"), &rbSetup_.HDoutput, numberOutputs, output));
+#endif
 	    /*
 	    if (rbSetup_.HDoutput == HD_OUTPUT_BOTH) {
 	        if (output_changed)
@@ -295,7 +305,7 @@ void cMenuVideoMode::Setup()
 #ifndef HD_ONLY
                 Add(new cMenuEditStraItem(tr("Resolution"), &rbSetup_.HDresolution, 5, showResolution));
 #else
-                Add(new cMenuEditStraItem(tr("Resolution"), &rbSetup_.HDresolution, 2, showResolution));
+                Add(new cMenuEditStraItem(tr("Resolution (HD_ONLY active)"), &rbSetup_.HDresolution, 2, showResolution));
 #endif
 
 	    if (rbSetup_.HDresolution == HD_VM_RESOLUTION_576 || rbSetup_.HDresolution == HD_VM_RESOLUTION_480 || rbSetup_.HDresolution == HD_VM_RESOLUTION_AUTO)
@@ -489,8 +499,13 @@ void cMenuVideoMode::Setup()
 #else // non RB
             if (rbSetup_.usehdext && rbSetup_.HDdmode == HD_DMODE_HDMI)
             {
+#ifndef HDMI_ONLY
                 Add (new cMenuEditBoolItem(tr(" Output Dolby D/dts on"),      &rbSetup_.audio_over_hdmi,
                                            tr("Soundcard"), tr("HDMI")));
+#else
+        	Add(new cOsdItem(tr("Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"), osUnknown, false));
+		rbSetup_.audio_over_hdmi = 1;
+#endif
 //                if (rbSetup_.audio_over_hdmi)
 //                {
                     Add (new cMenuEditBoolItem(tr(" Output as"), &rbSetup_.ac3,
@@ -518,7 +533,12 @@ void cMenuVideoMode::Setup()
         Add(new cMenuEditBoolItem(tr("Analog Audio on"), &rbSetup_.audio_over_hd, tr("TRS (3.5mm phone jack)"), tr("HDMI/SCART/RCA jack")));
         Add(new cMenuEditBoolItem(tr("Analog Mix"), &rbSetup_.audiomix, tr("Off"), tr("On")));
 #else
+#ifndef HDMI_ONLY
         Add(new cMenuEditBoolItem(tr("Analog Audio on"), &rbSetup_.audio_over_hd, tr("Soundcard"), tr("HDMI")));
+#else
+        Add(new cOsdItem(tr("Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"), osUnknown, false));
+	rbSetup_.audio_over_hd = 1;
+#endif
 #endif
 #endif
 
