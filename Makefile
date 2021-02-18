@@ -19,8 +19,15 @@ VER=$(shell lsb_release -sr)
 # set it if you want to compile the plugin compiled in old reelbox source tree
 #REELVDR=1
 
+
+## Customizing since 3.1
+
 # disable SD
 HD_ONLY=1
+
+# disable non-HDMI output related code (video+audio)
+HDMI_ONLY=1
+
 
 ### The object files (add further files here):
 
@@ -45,6 +52,10 @@ LOCDIR = $(DESTDIR)$(call PKGCFG,locdir)
 
 ifdef HD_ONLY
   DEFINES=-DHD_ONLY=1
+endif
+
+ifdef HDMI_ONLY
+  DEFINES=-DHDMI_ONLY=1
 endif
 
 ifdef REELVDR
