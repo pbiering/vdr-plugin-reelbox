@@ -40,6 +40,8 @@ extern "C" {
 #else
 #include <libswscale/swscale.h>
 #include <libavcodec/avcodec.h>
+#include <libavutil/avutil.h>
+#include <libavutil/imgutils.h>
 #endif
 }
 
@@ -500,8 +502,12 @@ namespace Reel
 //			printf("PiP Error initializing swscale context.\n");
 			return -1;
 		}
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(51,63,100)
 		avpicture_fill((AVPicture *) rgb_frame[qi], rgb_buffer[qi],
 			       PIX_FMT_RGBA32, width, height);
+#else
+		av_image_fill_arrays(rgb_frame[qi]->data, rgb_frame[qi]->linesize, rgb_buffer[qi], PIX_FMT_RGBA32, width, height, 1);
+#endif
 
 		// Security check...
 		if (decoded_frame->data && decoded_frame->linesize && rgb_frame[qi]->data && rgb_frame[qi]->linesize)
@@ -534,7 +540,17 @@ namespace Reel
 		AVPacket avpkt; // FIXED: 'avpkt' is used uninitialized in this function
 		avpkt.data = (uint8_t*)esbuf+esdec;
 		avpkt.size = eslen-esdec;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(57,106,102)
 		len = avcodec_decode_video2(av_context, decoded_frame, &gotPicture, &avpkt);
+#else
+		len = avcodec_receive_frame(av_context, decoded_frame);
+		if (len == 0)
+			gotPicture = 1;
+		if (len == AVERROR(EAGAIN))
+			len = 0;
+		if (len == 0)
+			len = avcodec_send_packet(av_context, &avpkt);
+#endif
 #endif
 		if (len>0)
 			esdec+=len;
@@ -586,7 +602,10 @@ namespace Reel
 #if LIBAVCODEC_VERSION_INT < ((54<<16)+0+0)
 	    avcodec_init();
 #endif
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58,10,100)
+	    // av_register_all() has been deprecated in ffmpeg 4.0 
 	    avcodec_register_all();
+#endif
         }
     }
 

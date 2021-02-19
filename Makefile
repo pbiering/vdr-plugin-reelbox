@@ -104,9 +104,8 @@ LIBPNG = -lpng
 ifeq ($(OS), Fedora)
 ifeq ($(shell test $(VER) -ge 33; echo $$?),0)
   # Fedora >= 33
-  # select ffmpeg28
-  INCLUDES += -I/usr/include/compat-ffmpeg28	# FIXED: libavutil/opt.h: No such file or directory
-  LDFLAGS  += -L/usr/lib64/compat-ffmpeg28
+  INCLUDES += -I/usr/include/ffmpeg
+  DEFINES  += -DNEW_FFMPEG
   # select libpng12
   DEFINES  += -DUSE_LIBPNG12			# FIXED: invalid use of incomplete type 'png_info'
   LIBPNG   = -lpng12
