@@ -1129,7 +1129,7 @@ void HdFbTrueColorOsd::new_osd() {
 //        if((colorBg >> 24) != 0) /* not transparent */
 //            DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
 
-//        esyslog("DrawText: %s colorFg: %#08x colorBg: %#08x x: %i y: %i w: %i h: %i\n", s_in, colorFg, colorBg, x, y, w, h);
+        dsyslog_rb("DrawText: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, w, h, s_in);
 
         int old_x = x; int old_y = y; y=0; x=0;
 
