@@ -21,4 +21,6 @@
 
 #endif
 
+#define DEBUG_RB_OSD(...)	{ }
+
 #endif

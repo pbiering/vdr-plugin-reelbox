@@ -719,7 +719,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawEllipse(int X1, int Y1, int X2, int Y2, tColor color, int quadrants)
     {
-	dsyslog_rb("HdFbTrueColorOsd: DrawEllipse\n");
+	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawEllipse\n");
 
         unsigned int l, t, r, b;
         l = /*Left() +*/ X1;
@@ -833,7 +833,7 @@ void HdFbTrueColorOsd::new_osd() {
     /* override */ void HdFbTrueColorOsd::DrawHdImage(UInt imageId, int x, int y, bool blend,
                                                    int horRepeat, int vertRepeat)
     {
-	dsyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
+	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawHdImage\n");
 
         if (ImageIdInRange(imageId))
             LoadImage(imageId);
@@ -924,7 +924,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawCropImage(UInt imageId, int x, int y, int x0, int y0, int x1, int y1, bool blend)
     {
-    dsyslog_rb("HdFbTrueColorOsd: DrawHdImage\n");
+    DEBUG_RB_OSD("HdFbTrueColorOsd: DrawHdImage\n");
 
     if (ImageIdInRange(imageId)) {
         LoadImage(imageId);
@@ -1005,7 +1005,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-	dsyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
+	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawRectangle\n");
 
         unsigned int l, t, r, b;
         l = Left() + x1;
@@ -1041,7 +1041,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-	dsyslog_rb("HdFbTrueColorOsd: DrawRectangle\n");
+	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawRectangle\n");
 
         dirty_ = true;
 
