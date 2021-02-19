@@ -159,11 +159,19 @@ namespace Reel
     bool Plugin::Initialize() NO_THROW
     {
         // Open communications to the BSP
+        if (useFb == 0) {
+	    isyslog_rb("initializing without OSD framebuffer device\n");
+	} else {
+	    isyslog_rb("initializing with OSD framebuffer device: %s\n", fbdev);
+	};
 
         if (RBSetup.usehdext)
         {
-            if (HdCommChannel::Init())
+            if (HdCommChannel::Init()) {
+		    esyslog_rb("eHD selected but HdCommChannel::Init was not successful\n");
 		    return false;
+            };
+	    dsyslog_rb("eHD selected and HdCommChannel::Init was successful\n");
             Reel::HdCommChannel::SetVideomode();
 	    Reel::HdCommChannel::SetPicture(&RBSetup);
 	    Reel::HdCommChannel::SetHWControl(&RBSetup);
