@@ -19,6 +19,12 @@ VER=$(shell lsb_release -sr)
 # set it if you want to compile the plugin compiled in old reelbox source tree
 #REELVDR=1
 
+# detect FFMPEG > 2.8
+NEW_FFMPEG ?= $(shell pkg-config --exists "libavutil > 54" && echo 1)
+
+# detect libpng > 1.2
+NEW_LIBPNG ?= $(shell pkg-config --exists "libpng > 1.2" && echo 1)
+
 
 ## Customizing since 3.1
 
@@ -101,16 +107,16 @@ INCLUDES += `freetype-config --cflags`
 # default
 LIBPNG = -lpng
 
-ifeq ($(OS), Fedora)
-ifeq ($(shell test $(VER) -ge 33; echo $$?),0)
-  # Fedora >= 33
-  INCLUDES += -I/usr/include/ffmpeg
+ifeq ($(NEW_FFMPEG),1)
+  INCLUDES += -I$(shell pkg-config --variable=includedir "libavutil > 54")
   DEFINES  += -DNEW_FFMPEG
-  # select libpng12
+endif
+
+ifeq ($(NEW_LIBPNG),1)
+  # enable fallback to 1.2
   DEFINES  += -DUSE_LIBPNG12			# FIXED: invalid use of incomplete type 'png_info'
   LIBPNG   = -lpng12
-endif # Fedora 33
-endif # Fedora
+endif
 
 ifdef REELSKIN
   DEFINES += -DREELSKIN
