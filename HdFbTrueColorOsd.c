@@ -571,7 +571,7 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend)
     {
-	dsyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
+	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawBitmap\n");
 
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
         unsigned char const *xs;
@@ -651,7 +651,7 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend, int width, int height)
     {
-        dsyslog_rb("HdFbTrueColorOsd: DrawBitmap\n");
+        DEBUG_RB_OSD("HdFbTrueColorOsd: DrawBitmap\n");
 
         //printf("HDCMD_OSD_DRAW8_OVERLAY\n");
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
@@ -1005,7 +1005,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawRectangle\n");
+	DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x\n", x1, y1, x2, y2, color);
 
         unsigned int l, t, r, b;
         l = Left() + x1;
@@ -1041,7 +1041,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawRectangle\n");
+	DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x alphaGradH=%d alphaGradV=%d, alphaGradStepH=%d alphaGradStepV=%d\n", x1, y1, x2, y2, color, alphaGradH, alphaGradV, alphaGradStepH, alphaGradStepV);
 
         dirty_ = true;
 
@@ -1088,6 +1088,8 @@ void HdFbTrueColorOsd::new_osd() {
     {
 
     if (s_in) {
+        DEBUG_RB_OSD("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, w, h, s_in);
+
         /* adjust coordinates with global OSD-margins */        
         x+=Left();
         y+=Top();
@@ -1129,7 +1131,6 @@ void HdFbTrueColorOsd::new_osd() {
 //        if((colorBg >> 24) != 0) /* not transparent */
 //            DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
 
-        dsyslog_rb("DrawText: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, w, h, s_in);
 
         int old_x = x; int old_y = y; y=0; x=0;
 
@@ -1167,6 +1168,7 @@ void HdFbTrueColorOsd::new_osd() {
             }
 
          bool AntiAliased = Setup.AntiAlias;
+         AntiAliased = false; // TODO: not supported by code so far, see below...
          bool TransparentBackground = (colorBg == clrTransparent);
          static int16_t BlendLevelIndex[MAX_BLEND_LEVELS]; // tIndex is 8 bit unsigned, so a negative value can be used to mark unused entries
          if (AntiAliased && !TransparentBackground)
@@ -1531,7 +1533,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ eOsdError HdFbTrueColorOsd::SetPalette(const cPalette &palette, int area)
     {
-        esyslog_rb("HdFbTrueColorOsd::SetPalette not supported\n");
+        dsyslog_rb("TrueColor OSD does not need to set palette for area=%d\n", area);
         return oeOk;
     }
 
