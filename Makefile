@@ -22,9 +22,6 @@ VER=$(shell lsb_release -sr)
 # detect FFMPEG > 2.8
 NEW_FFMPEG ?= $(shell pkg-config --exists "libavutil > 54" && echo 1)
 
-# detect libpng > 1.2
-NEW_LIBPNG ?= $(shell pkg-config --exists "libpng > 1.2" && echo 1)
-
 
 ## Customizing since 3.1
 
@@ -110,12 +107,6 @@ LIBPNG = -lpng
 ifeq ($(NEW_FFMPEG),1)
   INCLUDES += -I$(shell pkg-config --variable=includedir "libavutil > 54")
   DEFINES  += -DNEW_FFMPEG
-endif
-
-ifeq ($(NEW_LIBPNG),1)
-  # enable fallback to 1.2
-  DEFINES  += -DUSE_LIBPNG12			# FIXED: invalid use of incomplete type 'png_info'
-  LIBPNG   = -lpng12
 endif
 
 ifdef REELSKIN
