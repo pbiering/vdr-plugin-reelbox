@@ -263,7 +263,7 @@ namespace Reel
 
     void HdTrueColorOsd::CacheImage(UInt imageId)
     {
-	//esyslog("HdTrueColorOsd: CacheImage()\n");
+        DEBUG_RB_OSD("HdTrueColorOsd: CacheImage()\n");
 
         if (cachedImages_[imageId] && !imageDirty_[imageId])
         {
@@ -364,9 +364,9 @@ namespace Reel
                                                     bool replacePalette,
                                                     bool blend)
     {
-	//esyslog("HdTrueColorOsd: DrawBitmap\n");
+        DEBUG_RB_OSD("HdTrueColorOsd: DrawBitmap\n");
 
-       REEL_ASSERT(!overlay);
+        REEL_ASSERT(!overlay);
 
         // Send the palette.
         int numColors;
@@ -444,7 +444,7 @@ namespace Reel
                                                     bool replacePalette,
                                                     bool blend, int width, int height)
     {
-	//esyslog("HdTrueColorOsd: DrawBitmap\n");
+	    DEBUG_RB_OSD("HdTrueColorOsd: DrawBitmap\n");
 
         // Send the palette.
         int numColors;
@@ -510,7 +510,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawEllipse(int x1, int y1, int x2, int y2, tColor color, int quadrants)
     {
-	//esyslog("HdTrueColorOsd: DrawEllipse\n");
+        DEBUG_RB_OSD("HdTrueColorOsd: DrawEllipse\n");
 
         hdcmd_osd_draw_ellipse const bco = {HDCMD_OSD_DRAW_ELLIPSE,
                                              (unsigned int) Left() + x1,
@@ -531,7 +531,7 @@ namespace Reel
     /* override */ void HdTrueColorOsd::DrawHdImage(UInt imageId, int x, int y, bool blend,
                                                    int horRepeat, int vertRepeat)
     {
-	//esyslog("HdTrueColorOsd: DrawHdImage\n");
+	DEBUG_RB_OSD("HdTrueColorOsd: DrawHdImage\n");
 
         if (ImageIdInRange(imageId))
         {
@@ -552,7 +552,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawCropImage(UInt imageId, int x, int y, int x0, int y0, int x1, int y1, bool blend)
     {
-	//esyslog("HdTrueColorOsd: DrawHdImage\n");
+	DEBUG_RB_OSD("HdTrueColorOsd: DrawHdImage\n");
 
         if (ImageIdInRange(imageId))
         {
@@ -574,7 +574,6 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawPixel(int x, int y, tColor color)
     {
-	//esyslog("HdTrueColorOsd: DrawPixel\n");
         esyslog_rb("HdTrueColorOsd::DrawPixel not supported\n");
     }
     
@@ -582,7 +581,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-	//esyslog("HdTrueColorOsd: DrawRectangle\n");
+        DEBUG_RB_OSD("HdTrueColorOsd: DrawRectangle\n");
 
         hdcmd_osd_draw_rect const bco = {HDCMD_OSD_DRAW_RECT,
                                           (unsigned int) Left() + x1,
@@ -600,7 +599,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-	//esyslog("HdTrueColorOsd: DrawRectangle\n");
+	DEBUG_RB_OSD("HdTrueColorOsd: DrawRectangle\n");
 
         hdcmd_osd_draw_rect2 const bco = {HDCMD_OSD_DRAW_RECT2,
                                           (unsigned int) Left() + x1,
@@ -767,7 +766,7 @@ if(0)
 	h = pm->ViewPort().Height();
 	int d = w * sizeof(tColor);
 	//OsdDrawARGB(x, y, w, h, pm->Data());
-	esyslog("x %d y %d w %d h %d\n",x,y,w,h);
+	DEBUG_RB_OSD("x %d y %d w %d h %d\n",x,y,w,h);
         hdcmd_osd_draw8_t bco2;
 
         UInt bcosize = sizeof(hdcmd_osd_draw8_t);
@@ -1147,3 +1146,5 @@ DestroyPixmap(pm);
 
     //--------------------------------------------------------------------------------------------------------------
 }
+
+// vim: ts=4 sw=4 et

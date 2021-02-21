@@ -83,7 +83,7 @@ namespace Reel
         playMode_(pmNone),
         bkgPicPlayer_(*this),
         useHDExtension_(RBSetup.usehdext),
-        audioOverHDMI_(0),//RBSetup.audio_over_hdmi)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        audioOverHDMI_(RBSetup.audio_over_hdmi),
         audioOverHd_(RBSetup.audio_over_hd),
         needRestart(false),
         normalPlay(false)
@@ -102,7 +102,11 @@ namespace Reel
         if (useHDExtension_)
         {
             // HD
-            dsyslog("use hdextension AudioOverHDMI ? %s \n", audioOverHDMI_?"YES":"NO" );
+#ifdef RBLITE
+            dsyslog_rb("use hdextension AudioOverHDMI:%s \n", audioOverHDMI_?"YES":"NO" );
+#else
+            dsyslog_rb("use hdextension AudioOverHd:%s \n", audioOverHd_?"YES":"NO" );
+#endif
             VideoPlayerHd::Create();
             VideoPlayerPipHd::Create();
             tmpHDaspect = -1;
@@ -197,7 +201,7 @@ namespace Reel
     {
         audioOverHDMI_ = RBSetup.audio_over_hdmi;
         audioOverHd_ = RBSetup.audio_over_hd;
-        dsyslog_rb("RestartAudio, audioOverHDMI_ = %d, digitalAudio_ = %d, audioOverHd = %d\n", (int) audioOverHDMI_, (int)digitalAudio_, (int)audioOverHd_ );
+        dsyslog_rb("RestartAudio, audioOverHDMI_=%d, digitalAudio_=%d, audioOverHd=%d\n", (int) audioOverHDMI_, (int)digitalAudio_, (int)audioOverHd_ );
         bool switchToBspAudio = false;
         bool switchToHdAudio = false;
 
@@ -1505,9 +1509,8 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 	{
 		Restart();
 		Reel::HdCommChannel::SetAspect();
+		dsyslog_rb("SetPlayModeOn needRestart\n");
 	}
-
-	dsyslog_rb("SetPlayModeOn needRestart\n");
 
 	while(!HdCommChannel::hda->hdp_running){
 		HdCommChannel::hda->hdp_enable = 1;
@@ -1520,23 +1523,23 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 //	    HdCommChannel::hda->hdp_enable = 1;
 //	    Reel::HdCommChannel::SetAspect();
 //        }
-        //dsyslog("===========SetPlayModeOn \n");
-//        printf ("[reelbox] SetPlayModeOn() \n");
+//
+        dsyslog_rb("===========SetPlayModeOn\n");
 
 #if VDRVERSNUM < 10716
         audioPlayback_ = 100;
         videoPlayback_ = 10;
 #endif
-	normalPlay = true;
+        normalPlay = true;
 
         if (audioPlayerHd_)
         {
-            dsyslog_rb("audioPlayerHd_->Start()\n");
+            dsyslog_rb("Call audioPlayerHd_->Start()\n");
             audioPlayerHd_->Start();
         }
         if (audioPlayerBsp_)
         {
-            dsyslog_rb("NO audioPlayerHd\n");
+            dsyslog_rb("Call audioPlayerBsp_->Start()\n");
             audioPlayerBsp_->Start();
         }
 
@@ -1546,7 +1549,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 //            Reel::HdCommChannel::SetVideomode();
         }
 
-	dsyslog_rb("Call videoPlayer_->Start()\n");
+        dsyslog_rb("Call videoPlayer_->Start()\n");
         videoPlayer_->Start();
     }
 
@@ -1566,3 +1569,5 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
        }
     }
 }
+
+// vim: ts=4 sw=4 et

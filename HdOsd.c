@@ -76,6 +76,7 @@ namespace Reel
     
     void HdOsd::Clear(int x, int y, int x1, int y1)
     {
+        DEBUG_RB_OSD("called\n");
         hdcmd_osd_clear_t buffer;
         buffer.cmd=HDCMD_OSD_CLEAR;
         buffer.x=x;
@@ -154,12 +155,13 @@ namespace Reel
     
     void HdOsd::FlushBitmap(cBitmap &bitmap, bool full)
     {        
-
 	    int x1 = 0;
 	    int y1 = 0;
 	    int x2 = bitmap.Width() - 1;
 	    int y2 = bitmap.Height() - 1;
         
+        DEBUG_RB_OSD("called x1=%d y1=%d x2=%d y2=%d full=%d\n", x1, y1, x2, y2, full);
+
 	    if (full || bitmap.Dirty(x1, y1, x2, y2))
 	    {
             if (x1 < 0) x1 = 0;
@@ -191,19 +193,19 @@ namespace Reel
 
 		    if (numColors!=last_numColors || memcmp(palette,last_palette,sizeof(int)*numColors)) {
 			    hdcmd_osd_palette_t *bco;
-                            void *buff = malloc( sizeof(hdcmd_osd_palette_t)+numColors*sizeof(int));
+                void *buff = malloc( sizeof(hdcmd_osd_palette_t)+numColors*sizeof(int));
 
-                            bco = static_cast<hdcmd_osd_palette_t *>(buff);
+                bco = static_cast<hdcmd_osd_palette_t *>(buff);
 			    bco->cmd=HDCMD_OSD_PALETTE;
 			    bco->count=numColors;
 
-                            for(n=0;n<numColors;n++)
-                                    bco->palette[n]=palette[n];
+                for(n=0;n<numColors;n++)
+                    bco->palette[n]=palette[n];
 
 			    SendOsdCmd(bco, sizeof(hdcmd_osd_palette_t)+numColors*sizeof(int)); 
 			    last_numColors=numColors;
 			    memcpy(last_palette,palette,sizeof(int)*numColors);
-                            free(buff);
+                free(buff);
 		    }		  
 #define BLOCK_HEIGHT 16
 
@@ -265,6 +267,7 @@ namespace Reel
 
     void HdOsd::SendOsdCmd(void const *bco, UInt bcoSize, void const *payload, UInt payloadSize)
     {
+        DEBUG_RB_OSD("called with bcoSize=%d payloadSize=%d\n", bcoSize, payloadSize);
         void *buffer = (void*)malloc(payloadSize + bcoSize);
 
         std::memcpy(buffer, bco, bcoSize);
@@ -291,7 +294,7 @@ namespace Reel
                 Flush();
         }
 
-    dsyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
+	DEBUG_RB_OSD("On=%i\n", On);
     }
 #endif
 
@@ -314,3 +317,5 @@ namespace Reel
     }
 
 }
+
+// vim: ts=4 sw=4 et

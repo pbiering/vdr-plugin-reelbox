@@ -25,6 +25,7 @@
 #include "HdOsd.h"
 #include "HdTrueColorOsd.h"
 #include "HdFbTrueColorOsd.h"
+#include "logging.h"
 
 namespace Reel
 {
@@ -39,7 +40,8 @@ namespace Reel
 #else
     cOsd *HdOsdProvider::CreateOsd(int left, int top)
     {
-	if (RBSetup.TRCLosd == 0){
+	    if (RBSetup.TRCLosd == 0){
+            DEBUG_RB_OSD("create 8-bit color OSD");
     	    HdOsd *hdOsd = new HdOsd(left, top);
 #endif
 #if 0 
@@ -57,17 +59,29 @@ namespace Reel
     {
 
         if(useFb)
+        {
+            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device");
             return new HdFbTrueColorOsd(left, top, level);
+        }
         else
+        {
+            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device");
             return new HdTrueColorOsd(left, top, level);
+        };
     }
 #else
 //    cOsd *HdOsdProvider::CreateTrueColorOsd(int left, int top)
     {
         if(useFb)
+        {
+            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device");
             return new HdFbTrueColorOsd(left, top);
+        }
         else
+        {
+            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device");
             return new HdTrueColorOsd(left, top);
+        };
     }
 #endif
 }
@@ -92,4 +106,6 @@ bool HdOsdProvider::ProvidesTrueColor(void)
     return RBSetup.TRCLosd;
 }
 
-}
+} // end of namespace
+
+// vim: ts=4 sw=4 et

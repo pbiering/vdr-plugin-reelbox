@@ -43,6 +43,8 @@
 Reel::ReelSkin *skin;
 #endif
 
+int m_debugmask = 0;
+
 typedef struct imgSize {
         int slot;
 	int width;
@@ -226,8 +228,9 @@ namespace Reel
     const char *Plugin::CommandLineHelp(void)
     { 
         // return a string that describes all known command line options.
-        return "  --nofb          Do not use the framebuffer-based OSD-implementation.\n"
-               "  --fbdev <dev>   Use <dev> as the framebuffer device (/dev/fb0)\n";
+        return "  --nofb         Do not use the framebuffer-based OSD-implementation.\n"
+               "  --fbdev <dev>  Use <dev> as the framebuffer device (/dev/fb0)\n"
+               "  --debugmask <int|hexint>  Enable debugmask\n";
     }
 
     bool Plugin::ProcessArgs(int argc, char *argv[]) NO_THROW
@@ -240,6 +243,17 @@ namespace Reel
             else if(strcmp(argv[n], "--fbdev")==0) {
                 fbdev = strdup(argv[n+1]);
                 n++;
+            }
+            else if(strcmp(argv[n], "--debugmask")==0) {
+			if ((strlen(argv[n+1]) > 2) && (strncasecmp(argv[n+1], "0x", 2) == 0)) {
+				// hex conversion
+				if (sscanf(argv[n+1] + 2, "%x", &m_debugmask) == 0) {
+					esyslog("reelbox::%s: can't parse hexadecimal debug mask (skip): %s", __FUNCTION__, argv[n+1]);
+				};
+			} else {
+				m_debugmask = atoi (argv[n+1]);
+			};
+			dsyslog("reelbox::%s: enable debug mask: %d (0x%02x)", __FUNCTION__, m_debugmask, m_debugmask);
             }
         }
         return true;
@@ -469,3 +483,5 @@ namespace Reel
 }
 
 VDRPLUGINCREATOR(Reel::Plugin); // Don't touch this!
+
+// vim: ts=4 sw=4 et
