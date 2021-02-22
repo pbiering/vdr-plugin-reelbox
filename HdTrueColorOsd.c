@@ -638,7 +638,7 @@ namespace Reel
     {
       if (s_in)
       {
-          DEBUG_RB_OSD("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, width, height, s_in);
+          DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, width, height, s_in);
         /* check for empty string */
         unsigned int i;
 
