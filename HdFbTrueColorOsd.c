@@ -1515,20 +1515,19 @@ void HdFbTrueColorOsd::new_osd() {
         eOsdError ret = CanHandleAreas(areas, numAreas);
         if (ret == oeOk)
         {
-            // int l = areas->x1;
-            // int t = areas->y1;     // FIXED: variable 't' set but not used
-            // int r = areas->x2 + 1; // FIXED: unused variable 'r'
-            // int b = areas->y2 + 1; // FIXED: unused variable 'b'
+            int l = areas->x1;
+            int t = areas->y1;
+            int r = areas->x2 + 1;
+            int b = areas->y2 + 1;
 
-            // l = std::max(0, l);
-            // t = std::max(0, l);
-//          width = r - l;
-//          height = b - t;
-//          width = std::max(1, width);
-//          height = std::max(1, height);
+            l = std::max(0, l);
+            t = std::max(0, l);
+            width = r - l;
+            height = b - t;
+            width = std::max(1, width);
+            height = std::max(1, height);
         }
         return ret;
-
     }
 
     //--------------------------------------------------------------------------------------------------------------

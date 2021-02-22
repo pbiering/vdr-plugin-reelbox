@@ -147,6 +147,8 @@ static unsigned char *mySavedRegion = NULL;
         HdFbTrueColorOsd(const HdFbTrueColorOsd &);
         HdFbTrueColorOsd &operator=(const HdFbTrueColorOsd &);
 
+	int left, top, width, height;
+
         int CacheFont(cFont const &font);
         void ClosePngFile();
         static bool ImageIdInRange(UInt imageId);

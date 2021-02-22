@@ -127,6 +127,8 @@ namespace Reel
         HdTrueColorOsd(const HdTrueColorOsd &);
         HdTrueColorOsd &operator=(const HdTrueColorOsd &);
 
+	int left, top, width, height;
+
         int CacheFont(cFont const &font);
         void CacheImage(UInt imageId);
         void ClosePngFile();
