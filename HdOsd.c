@@ -294,13 +294,14 @@ namespace Reel
                 Flush();
         }
 
-	DEBUG_RB_OSD("On=%i\n", On);
+        DEBUG_RB_OSD("On=%i\n", On);
     }
 #endif
 
 
     eOsdError HdOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
+        DEBUG_RB_OSD("called numAreas=%i\n", numAreas);
 
         eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
         if (Result == oeOk)
@@ -308,9 +309,15 @@ namespace Reel
             for (int i = 0; i < numAreas; i++)
             {
                 if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8)
+                {
+                    DEBUG_RB_OSD("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
                     return oeBppNotSupported;
+                };
                 if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
+                {
+                    DEBUG_RB_OSD("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
                     return oeWrongAreaSize;
+                };
             }
         }
         return Result;
