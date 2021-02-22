@@ -1088,7 +1088,11 @@ void HdFbTrueColorOsd::new_osd() {
     {
 
     if (s_in) {
-        DEBUG_RB_OSD("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, w, h, s_in);
+        DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i Setup.AntiAlias=%d '%s'\n", colorFg, colorBg, x, y, w, h, Setup.AntiAlias, s_in);
+        if (x < 0 || y < 0) {
+            esyslog_rb("HdFbTrueColorOsd::DrawText out-of-range: x=%i y=%i w=%i h=%i '%s'\n", x, y, w, h, s_in);
+            return;
+        };
 
         /* adjust coordinates with global OSD-margins */        
         x+=Left();
@@ -1104,8 +1108,8 @@ void HdFbTrueColorOsd::new_osd() {
                 break;
         }
 
-	if(i == strlen(s_in))
-		return;
+        if(i == strlen(s_in))
+		    return;
 
         if(w == 0) w = font->Width(s_in);
         if(h == 0) h = font->Height();
@@ -1168,7 +1172,6 @@ void HdFbTrueColorOsd::new_osd() {
             }
 
          bool AntiAliased = Setup.AntiAlias;
-         AntiAliased = false; // TODO: not supported by code so far, see below...
          bool TransparentBackground = (colorBg == clrTransparent);
          static int16_t BlendLevelIndex[MAX_BLEND_LEVELS]; // tIndex is 8 bit unsigned, so a negative value can be used to mark unused entries
          if (AntiAliased && !TransparentBackground)
@@ -1194,9 +1197,9 @@ void HdFbTrueColorOsd::new_osd() {
            int symPitch = g->Pitch();
            if (limit && x + symWidth + symLeft + kerning - 1 > limit)
               break; // we don't draw partial characters
-           // int px_tmp_sum = symLeft + kerning + x; // FIXED: unused variable 'px_tmp_sum'
+           int px_tmp_sum = symLeft + kerning + x;
 //           int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
-           // int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop); // FIXED: unused variable 'py_tmp_sum'
+           int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
 
            if (x + symWidth + symLeft + kerning > 0) {
               for (int row = 0; row < g->Rows(); row++) {
@@ -1204,23 +1207,23 @@ void HdFbTrueColorOsd::new_osd() {
                       uchar bt = *(buffer + (row * symPitch + pitch));
                       if (AntiAliased) {
                          if (bt > 0x00) {
-                            // int px = pitch + px_tmp_sum;  // FIXED: unused variable 'px'
-                            // int py = row + py_tmp_sum;    // FIXED: unused variable 'py'
+                            int px = pitch + px_tmp_sum;
+                            int py = row + py_tmp_sum;
 
-                            // uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (py+old_y) * osd->bpp  + (px+old_x) * osd->bpp ); // FIXED: unused variable 'dstPx'
+                            uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (py+old_y) * osd->bpp  + (px+old_x) * osd->bpp );
 
-//                            if (bt == 0xFF)
-//                               *dstPx = colorFg;
-//                            else if (TransparentBackground)
-//                               *dstPx = palette.Blend(colorFg, *dstPx, bt);
-//                            else if (BlendLevelIndex[bt] >= 0)
-//                               *dstPx = palette.Blend(palette.Color(BlendLevelIndex[bt]), *dstPx, bt);
-//                            else
-//                               *dstPx = palette.Blend(colorFg, *dstPx, bt);
+                            if (bt == 0xFF)
+                               *dstPx = colorFg;
+                            else if (TransparentBackground)
+                               *dstPx = palette.Blend(colorFg, *dstPx, bt);
+                            else if (BlendLevelIndex[bt] >= 0)
+                               *dstPx = palette.Blend(palette.Color(BlendLevelIndex[bt]), *dstPx, bt);
+                            else
+                               *dstPx = palette.Blend(colorFg, *dstPx, bt);
                             }
-                         }
-                      else { //monochrome rendering
-
+                      }
+                      else
+                      { //monochrome rendering
                          for (int col = 0; col < 8 && col + pitch * 8 <= symWidth; col++) {
 
                              if (bt & 0x80) {
@@ -1229,18 +1232,17 @@ void HdFbTrueColorOsd::new_osd() {
                                 *dstPx = colorFg;
                              }
                              bt <<= 1;
-                             }
                          }
                       }
                   }
               }
+           } // if
            x += g->AdvanceX() + kerning;
            if (x > w - 1)
               break;
-           }
-
-      }
-    }
+         } // while
+    } // if
+    } // function
    
     //--------------------------------------------------------------------------------------------------------------
 
@@ -1551,3 +1553,5 @@ void HdFbTrueColorOsd::new_osd() {
 
     //--------------------------------------------------------------------------------------------------------------
 }
+
+// vim: ts=4 sw=4 et
