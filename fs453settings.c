@@ -16,6 +16,7 @@
 #include "reelbox.h"
 #include "ReelBoxMenu.h"
 #include <math.h>
+#include "logging.h"
 
 #define MAXVAL 40
 
@@ -189,6 +190,7 @@ void cFs453Settings::Show(void)
         int totalHeight = helper * lineHeight + (helper + 1) * (lineHeight / 2);
         osd = cOsdProvider::NewOsd(Setup.OSDLeft, Setup.OSDTop + Setup.OSDHeight - totalHeight, 0);
         tArea Areas[] = { { 0, 0, Setup.OSDWidth - 1, totalHeight - 1 , 8 } };
+	DEBUG_RB_PICT("OSD area with x0=%d y0=%d, w=%d h=%d", 0, 0, Setup.OSDWidth - 1, totalHeight - 1);
         osd->SetAreas(Areas, sizeof(Areas) / sizeof(tArea));
         osd->DrawRectangle(0, 0,Setup.OSDWidth - 1, totalHeight - 1, backgroundColor); 
         int offset = 0;
@@ -203,6 +205,7 @@ void cFs453Settings::Show(void)
             displayBars[i]->Update(currentval[i], currentset == i, i); 
             SendFS453Cmd(i, currentval[i]);
         } 
+	DEBUG_RB_PICT("display text offset=%d height=%d", offset, (helper-1) * lineHeight + (helper) * lineHeight/2);
         displayBars[helper-1] = new cSkinDisplayButton(osd, offset, (helper-1) * lineHeight + (helper) * lineHeight/2, tr("Reset to default"));
     }
     else
