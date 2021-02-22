@@ -6,7 +6,8 @@
 
 extern int m_debugmask;
 
-#define DEBUG_MASK_RB_OSD	0x00010000
+#define DEBUG_MASK_RB_OSD	0x00010000	// OSD general
+#define DEBUG_MASK_RB_OSD_DT	0x00020000	// OSD draw text
 
 #if 1
 
@@ -25,6 +26,7 @@ extern int m_debugmask;
 
 #endif
 
-#define DEBUG_RB_OSD	if (m_debugmask & DEBUG_MASK_RB_OSD) dsyslog_rb
+#define DEBUG_RB_OSD	if (m_debugmask & DEBUG_MASK_RB_OSD)    dsyslog_rb
+#define DEBUG_RB_OSD_DT	if (m_debugmask & DEBUG_MASK_RB_OSD_DT) dsyslog_rb
 
 #endif
