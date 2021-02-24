@@ -53,7 +53,7 @@ namespace Reel
         
         /* override */ eOsdError CanHandleAreas(const tArea *areas, int numAreas);
         
-        /* override */ eOsdError SetAreas(const tArea *areas, int numAreas);
+        /* override */ // NO-LONGER-REQUIRED eOsdError SetAreas(const tArea *areas, int numAreas);
         
         /* override */ void SaveRegion(int x1, int y1, int x2, int y2);
         
@@ -121,13 +121,10 @@ namespace Reel
 
         /* override */ void SetImagePath(UInt imageId, char const *path);
 
-        
     private:
         // No assigning or copying
         HdTrueColorOsd(const HdTrueColorOsd &);
         HdTrueColorOsd &operator=(const HdTrueColorOsd &);
-
-	int left, top, width, height;
 
         int CacheFont(cFont const &font);
         void CacheImage(UInt imageId);
@@ -171,3 +168,5 @@ namespace Reel
 }
 
 #endif // HD_TRUE_COLOR_OSD_H_INCLUDED
+
+// vim: ts=4 sw=4 et

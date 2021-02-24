@@ -82,7 +82,7 @@ static unsigned char *mySavedRegion = NULL;
         
         /* override */ eOsdError CanHandleAreas(const tArea *areas, int numAreas);
         
-        /* override */ eOsdError SetAreas(const tArea *areas, int numAreas);
+        /* override */ // NO-LONGER-REQUIRED eOsdError SetAreas(const tArea *areas, int numAreas);
         
         /* override */ void SaveRegion(int x1, int y1, int x2, int y2);
         
@@ -146,8 +146,6 @@ static unsigned char *mySavedRegion = NULL;
         // No assigning or copying
         HdFbTrueColorOsd(const HdFbTrueColorOsd &);
         HdFbTrueColorOsd &operator=(const HdFbTrueColorOsd &);
-
-	int left, top, width, height;
 
         int CacheFont(cFont const &font);
         void ClosePngFile();

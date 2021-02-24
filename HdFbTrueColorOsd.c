@@ -1509,7 +1509,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    /* override */ eOsdError HdFbTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
+    /* override */ /* NO-LONGER-REQUIRED eOsdError HdFbTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
     {
 
         eOsdError ret = CanHandleAreas(areas, numAreas);
@@ -1529,6 +1529,7 @@ void HdFbTrueColorOsd::new_osd() {
         }
         return ret;
     }
+    */
 
     //--------------------------------------------------------------------------------------------------------------
 

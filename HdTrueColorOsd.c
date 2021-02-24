@@ -636,25 +636,38 @@ namespace Reel
                                                   int height,
                                                   int alignment)
     {
-      if (s_in)
-      {
-          DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, width, height, s_in);
+        if (!s_in) return;
+
+        DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, width, height, s_in);
+
+        if (x < 0) {
+            esyslog_rb("HdTrueColorOsd::DrawText: PROBLEM(x<0 => x=0) colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, width, height, s_in);
+            x = 0;
+        };
+        if (y < 0) {
+            esyslog_rb("HdTrueColorOsd::DrawText: PROBLEM(y<0 => y=0) colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i '%s'\n", colorFg, colorBg, x, y, width, height, s_in);
+            y = 0;
+        };
+
         /* check for empty string */
         unsigned int i;
 
-	for(i=0; i<strlen(s_in); i++){
-		if(s_in[i] == ' ')
-			continue;
-		else
-			break;
-	}
-	if(i == strlen(s_in))
-		return;
+        for(i=0; i<strlen(s_in); i++){
+            if(s_in[i] == ' ')
+                continue;
+            else
+                break;
+        }
+
+        if(i == strlen(s_in))
+            return;
+
         if(width==0) {
-		width = font->Width(s_in);
-	}
+            width = font->Width(s_in);
+        }
+
         if(height == 0)
-	     height=font->Height();
+            height=font->Height();
 
         cacheBitmap->SetSize(width, height);
 
@@ -669,7 +682,6 @@ namespace Reel
 //        DrawBitmap32(x, y, *cacheBitmap, colorFg, /*colorBg*/ clrTransparent, false, false, width, height);
         DrawBitmap(x, y, *cacheBitmap, colorFg, colorBg/*clrTransparent*/, false, false);
         //printf("DrawText: %s colorFg: %#08x colorBg: %#08x x: %i y: %i w: %i h: %i\n", s, colorFg, colorBg, x, y, width, height);
-      }
     }
    
 //    /* override */ void HdTrueColorOsd::DrawText32(int x,
@@ -1102,7 +1114,7 @@ DestroyPixmap(pm);
 
     //--------------------------------------------------------------------------------------------------------------
 
-    /* override */ eOsdError HdTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
+    /* override */ /* NO-LONGER-REQUIRED eOsdError HdTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
     {
 
         eOsdError ret = CanHandleAreas(areas, numAreas);
@@ -1119,9 +1131,11 @@ DestroyPixmap(pm);
             height = b - t;
             width = std::max(1, width);
             height = std::max(1, height);
+            DEBUG_RB_OSD("w=%d h=%d\n", width, height);
         }
         return ret;
     }
+    */
 
     //--------------------------------------------------------------------------------------------------------------
 
