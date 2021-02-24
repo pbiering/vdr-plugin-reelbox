@@ -189,9 +189,14 @@ void cFs453Settings::Show(void)
         int helper = RBSetup.usehdext ? 3+1 : FS453_SETTINGS+1;
         int totalHeight = helper * lineHeight + (helper + 1) * (lineHeight / 2);
         osd = cOsdProvider::NewOsd(Setup.OSDLeft, Setup.OSDTop + Setup.OSDHeight - totalHeight, 0);
+        if (!osd) {
+            esyslog("cFs453Settings::Show: can't create OSD");
+	        return;
+	    };
+        DEBUG_RB_PICT("new OSD with x0=%d y0=%d", osd->Left(), osd->Top());
         tArea Areas[] = { { 0, 0, Setup.OSDWidth - 1, totalHeight - 1 , 8 } };
-	DEBUG_RB_PICT("OSD area with x0=%d y0=%d, w=%d h=%d", 0, 0, Setup.OSDWidth - 1, totalHeight - 1);
         osd->SetAreas(Areas, sizeof(Areas) / sizeof(tArea));
+        DEBUG_RB_PICT("OSD area with x0=%d y0=%d, w=%d h=%d osd->Width=%d osd->Height=%d", 0, 0, Setup.OSDWidth - 1, totalHeight - 1, osd->Width(), osd->Height());
         osd->DrawRectangle(0, 0,Setup.OSDWidth - 1, totalHeight - 1, backgroundColor); 
         int offset = 0;
         for (int j = 0; fs453_settings_tab[j] && j < FS453_SETTINGS; j++)
@@ -205,7 +210,7 @@ void cFs453Settings::Show(void)
             displayBars[i]->Update(currentval[i], currentset == i, i); 
             SendFS453Cmd(i, currentval[i]);
         } 
-	DEBUG_RB_PICT("display text offset=%d height=%d", offset, (helper-1) * lineHeight + (helper) * lineHeight/2);
+        DEBUG_RB_PICT("display 'Reset to default' text offset=%d height=%d", offset, (helper-1) * lineHeight + (helper) * lineHeight/2);
         displayBars[helper-1] = new cSkinDisplayButton(osd, offset, (helper-1) * lineHeight + (helper) * lineHeight/2, tr("Reset to default"));
     }
     else
@@ -344,7 +349,7 @@ cSkinDisplayProgbar::cSkinDisplayProgbar(cOsd* Osd, int Xpos, int Ypos, const ch
     length =  MAXVAL * barwidth;
 #ifdef NOT_THEME_LIKE
     backgroundColor = clrGray50;
-    textColor = clrYellow;
+    textColor = clrWhite;
     upperBarColor = 0xFF248024;
     lowerBarColor = 0xFFBC8024;
     fgColor = clrBlue;
@@ -379,11 +384,13 @@ void cSkinDisplayProgbar::Flush()
 
 void cSkinDisplayProgbar::Update(int currentval, bool active, int set)
 {
+    int clrThemeYellow = clrYellow;
 #ifdef NOT_THEME_LIKE
     if(active)
         lowerBarColor = clrYellow;
     else
         lowerBarColor = 0xFFBC8024; 
+    textColor = clrWhite;
 #else
     if(active) {
         lowerBarColor = Skins.Current()->Theme()->Color("clrButtonYellowBg");
@@ -392,6 +399,8 @@ void cSkinDisplayProgbar::Update(int currentval, bool active, int set)
         lowerBarColor = Skins.Current()->Theme()->Color("clrButtonRedBg");
         if(!lowerBarColor) lowerBarColor = 0xFFBC8024;
     }
+    textColor = Skins.Current()->Theme()->Color("clrWhiteText");
+    clrThemeYellow = Skins.Current()->Theme()->Color("clrButtonYellowBg");
 #endif
 
     int s = barwidth;
@@ -408,7 +417,7 @@ void cSkinDisplayProgbar::Update(int currentval, bool active, int set)
         sprintf(buf,"%-1.2f ",0.005+((float)currentval)/fs453_scaling_tab[set]); //??? div by zero when !RBSetup.usehdext?
 
     osd->DrawRectangle(xpos-cFont::GetFont(fontSml)->Width("100000"), ypos, xpos, ypos+cFont::GetFont(fontSml)->Height(), backgroundColor);
-    osd->DrawText(xpos-cFont::GetFont(fontSml)->Width("100000"), ypos, buf, textColor , backgroundColor, font);  
+    osd->DrawText(xpos-cFont::GetFont(fontSml)->Width("100000"), ypos, buf, (active ? clrThemeYellow : textColor), backgroundColor, font);
 
     if (active) // mark at right side
         osd->DrawEllipse(xpos + length + height / 2, ypos, xpos + length + height, ypos + height - 1, lowerBarColor , 5);
@@ -439,7 +448,7 @@ cSkinDisplayButton::cSkinDisplayButton(cOsd* Osd, int Xpos, int Ypos, const char
     height = font->Height();
 #ifdef NOT_THEME_LIKE
     backgroundColor = clrGray50;
-    textColor = clrYellow;
+    textColor = clrWhite;
 #else
     backgroundColor = Skins.Current()->Theme()->Color("clrBackground");
     textColor = Skins.Current()->Theme()->Color("clrWhiteText");
@@ -449,7 +458,9 @@ cSkinDisplayButton::cSkinDisplayButton(cOsd* Osd, int Xpos, int Ypos, const char
 
 void cSkinDisplayButton::Draw()
 {
-    osd->DrawText(height / 2 + osd->Width()/2 - cFont::GetFont(fontSml)->Width(prompt)/2, ypos, prompt, textColor , backgroundColor, font);  
+    int xpos = osd->Width()/2 - cFont::GetFont(fontSml)->Width(prompt)/2;
+    DEBUG_RB_PICT("call DrawText with xpos=%d ypos=%d textColor=%08x text='%s' (osd->Width=%d)", xpos, ypos, textColor, prompt, osd->Width());
+    osd->DrawText(xpos, ypos, prompt, textColor , backgroundColor, font);
     Flush();
 }
 
@@ -459,8 +470,10 @@ void cSkinDisplayButton::Update(int currentval, bool active, int set)
 #ifndef NOT_THEME_LIKE
     clrThemeYellow = Skins.Current()->Theme()->Color("clrButtonYellowBg");
 #endif
- 
-    osd->DrawText(height / 2 + osd->Width()/2 - cFont::GetFont(fontSml)->Width(prompt)/2, ypos, prompt, (active ? clrThemeYellow : textColor) , backgroundColor, font);  
+    int xpos = osd->Width()/2 - cFont::GetFont(fontSml)->Width(prompt)/2;
+    int color = (active ? clrThemeYellow : textColor);
+    DEBUG_RB_PICT("call DrawText with xpos=%d ypos=%d textColor=%08x active=%d text='%s' (osd->Width=%d)", xpos, ypos, color, active, prompt, osd->Width());
+    osd->DrawText(xpos, ypos, prompt, color, backgroundColor, font);
     Flush();
 }
 
@@ -469,3 +482,4 @@ void cSkinDisplayButton::Flush(void)
     osd->Flush();
 }
 
+// vim: ts=4 sw=4 et
