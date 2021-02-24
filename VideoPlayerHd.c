@@ -33,7 +33,7 @@ namespace Reel
 		int n;
 		for ( n=0;n<len;n+=16 )
 		{
-			dsyslog_rb( "%p: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
+			DEBUG_RB_VPHD( "%p: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x\n",
 			         x,x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],
 			         x[8],x[9],x[10],x[11],x[12],x[13],x[14],x[15] );
 			x+=16;
@@ -53,7 +53,7 @@ namespace Reel
 	//--------------------------------------------------------------------------------------------------------------
 	void VideoPlayerHd::Clear()
 	{
-		dsyslog_rb("VideoPlayerHd::Clear()\n");
+		DEBUG_RB_VPHD("VideoPlayerHd::Clear()\n");
 		hdPlayer_.decoder_frames=0;
 		++ generation_;
 	}
@@ -76,7 +76,7 @@ namespace Reel
 	bool VideoPlayerHd::Flush()
 	{
 		hd_packet_clear_t packet;
-		dsyslog_rb( "VideoPlayerHd::Flush()\n");
+		DEBUG_RB_VPHD( "VideoPlayerHd::Flush()\n");
 		static int waitAproxFramesInQueue = 0;
 		static int lastAproxFramesInQueue = 0;
 		int aproxFramesInQueue = AproxFramesInQueue();
@@ -97,7 +97,7 @@ namespace Reel
 
 	void VideoPlayerHd::Freeze()
 	{
-		dsyslog_rb("VideoPlayerHd::Freeze()\n");
+		DEBUG_RB_VPHD("VideoPlayerHd::Freeze()\n");
 		freeze_ = true;
 		hdPlayer_.pause=1;
 	}
@@ -106,7 +106,7 @@ namespace Reel
 
 	void VideoPlayerHd::Play()
 	{
-		dsyslog_rb("VideoPlayerHd::Play()\n");
+		DEBUG_RB_VPHD("VideoPlayerHd::Play()\n");
 		Trickmode ( 0 );
 		hdPlayer_.pause=0;
 
@@ -207,7 +207,7 @@ namespace Reel
 
 	void VideoPlayerHd::StillPicture ( Mpeg::EsPacket const esPackets[], UInt packetCount, bool tsMode )
 	{
-		dsyslog_rb("VideoPlayerHd::StillPicture()\n");
+		DEBUG_RB_VPHD("called with: packetCount=%d tsMode=%d\n", packetCount, tsMode);
 		/* TB: resend picture settings, auto format may have resetted them */
                 Reel::HdCommChannel::SetPicture(&RBSetup);
 //		const UInt repeat = 40; //send the frame several times (still frame prob with hdext)
@@ -216,8 +216,9 @@ namespace Reel
 #if VDRVERSNUM < 10716
 		const UInt repeat = 6; //send the frame several times (still frame prob with hdext) - increased again due to fade-in
 #else
-		const UInt repeat = (tsMode?10:10); //send the frame several times (still frame prob with hdext)
+		const UInt repeat = (tsMode?10:20); //send the frame several times (still frame prob with hdext)
 #endif
+		DEBUG_RB_VPHD("repeat=%d\n", repeat);
 		for ( UInt rep = 0; rep < repeat; ++rep )
 		{
 			for ( UInt n = 0; n < packetCount; ++n )
@@ -249,7 +250,7 @@ namespace Reel
 			RBSetup.flicker    = fs453_defaultval_tab5_HD;
 		}
 		else
-			dsyslog_rb("Picture settings OK.\n");
+			DEBUG_RB_VPHD("Picture settings OK.\n");
 
                 /* TB: resend picture settings, auto format may have resetted them */
 		Reel::HdCommChannel::SetPicture(&RBSetup);
@@ -260,7 +261,7 @@ namespace Reel
 
 	void VideoPlayerHd::Stop()
 	{
-		dsyslog_rb("VideoPlayerHd::Stop()\n");
+		DEBUG_RB_VPHD("VideoPlayerHd::Stop()\n");
 		hd_channel_invalidate ( HdCommChannel::chStream1.ch_, 1 );
 		Clear();
 
@@ -272,7 +273,7 @@ namespace Reel
 
 	void VideoPlayerHd::Trickmode ( UInt trickSpeed )
 	{
-		dsyslog_rb("VideoPlayerHd::Trickmode(%d)\n", trickSpeed);
+		DEBUG_RB_VPHD("VideoPlayerHd::Trickmode(%d)\n", trickSpeed);
 		bool iFramesOnly = trickSpeed != 2 && trickSpeed != 4 && trickSpeed != 8;
 		// HACK: VDR will uses these trick speeds for "slow forward", the only trickmode with all frame types.
 		hdPlayer_.pause=0;
