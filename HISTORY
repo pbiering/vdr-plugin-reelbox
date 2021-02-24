@@ -1,3 +1,7 @@
+20210224/pbiering:
+- fix improper working of HdFbTrueColorOsd HdTrueColorOsd
+- fix improper working of PictureAdjustment menu
+
 20210214/pbiering:
 - apply patch from ua0lnj for newer libpng
 
