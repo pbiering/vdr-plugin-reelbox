@@ -44,6 +44,7 @@ Reel::ReelSkin *skin;
 #endif
 
 int m_debugmask = 0;
+int m_truecolor = -1;
 
 typedef struct imgSize {
         int slot;
@@ -107,8 +108,8 @@ namespace Reel
         RBSetup.HDintProg       = 1; // interlaced
         RBSetup.HDdisplay_type  = 1; // 16:9
         RBSetup.HDdeint  = HD_VM_DEINT_AUTO;
-	RBSetup.HDauto_format = HD_VM_AUTO_OFF;
-	RBSetup.HDoverscan      = 0;
+        RBSetup.HDauto_format = HD_VM_AUTO_OFF;
+        RBSetup.HDoverscan      = 0;
         RBSetup.audio_over_hdmi = 1;
         RBSetup.audio_over_hd   = 1;
         RBSetup.ac3             = 0;
@@ -230,7 +231,8 @@ namespace Reel
         // return a string that describes all known command line options.
         return "  --nofb         Do not use the framebuffer-based OSD-implementation.\n"
                "  --fbdev <dev>  Use <dev> as the framebuffer device (/dev/fb0)\n"
-               "  --debugmask <int|hexint>  Enable debugmask\n";
+               "  --debugmask <int|hexint>  Enable debugmask\n"
+               "  --truecolor <int> Override TrueColor OSD settings\n";
     }
 
     bool Plugin::ProcessArgs(int argc, char *argv[]) NO_THROW
@@ -245,15 +247,19 @@ namespace Reel
                 n++;
             }
             else if(strcmp(argv[n], "--debugmask")==0) {
-			if ((strlen(argv[n+1]) > 2) && (strncasecmp(argv[n+1], "0x", 2) == 0)) {
-				// hex conversion
-				if (sscanf(argv[n+1] + 2, "%x", &m_debugmask) == 0) {
-					esyslog("reelbox::%s: can't parse hexadecimal debug mask (skip): %s", __FUNCTION__, argv[n+1]);
-				};
-			} else {
-				m_debugmask = atoi (argv[n+1]);
-			};
-			dsyslog("reelbox::%s: enable debug mask: %d (0x%02x)", __FUNCTION__, m_debugmask, m_debugmask);
+			    if ((strlen(argv[n+1]) > 2) && (strncasecmp(argv[n+1], "0x", 2) == 0)) {
+				    // hex conversion
+                    if (sscanf(argv[n+1] + 2, "%x", &m_debugmask) == 0) {
+                        esyslog("reelbox::%s: can't parse hexadecimal debug mask (skip): %s", __FUNCTION__, argv[n+1]);
+                    };
+                } else {
+				    m_debugmask = atoi(argv[n+1]);
+                };
+			    dsyslog("reelbox::%s: enable debug mask: %d (0x%02x)", __FUNCTION__, m_debugmask, m_debugmask);
+            }
+            else if(strcmp(argv[n], "--truecolor")==0) {
+                m_truecolor = atoi(argv[n+1]);
+			    dsyslog("reelbox::%s: enforce TrueColor OSD to: %s", __FUNCTION__, (m_truecolor > 0) ? "ENABLED" : "DISABLED");
             }
         }
         return true;
@@ -459,6 +465,11 @@ namespace Reel
         else if (!strcasecmp(Name, "AudioMix"))  RBSetup.audiomix = atoi(Value);
         else
            res = false;
+
+        if (m_truecolor > -1) {
+            // enforce command line option
+            RBSetup.TRCLosd = (m_truecolor > 0) ? 1 : 0;
+        }
 
         return res;
     }
