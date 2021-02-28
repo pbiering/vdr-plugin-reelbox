@@ -14,6 +14,7 @@ extern int m_debugmask;
 #define DEBUG_MASK_RB_OSD_AC	0x01000000	// OSD active
 #define DEBUG_MASK_RB_PICT	0x10000000	// fs453settings
 #define DEBUG_MASK_VPHD		0x00001000	// VideoPlayerHd
+#define DEBUG_MASK_PLAYTS	0x00000010	// PlayTS
 
 #if 1
 
@@ -40,5 +41,6 @@ extern int m_debugmask;
 #define DEBUG_RB_OSD_AC	if (m_debugmask & DEBUG_MASK_RB_OSD_AC) dsyslog_rb
 #define DEBUG_RB_PICT	if (m_debugmask & DEBUG_MASK_RB_PICT)   dsyslog_rb
 #define DEBUG_RB_VPHD	if (m_debugmask & DEBUG_MASK_VPHD)	dsyslog_rb
+#define DEBUG_RB_PLAYTS	if (m_debugmask & DEBUG_MASK_PLAYTS)	dsyslog_rb
 
 #endif

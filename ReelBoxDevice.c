@@ -76,7 +76,8 @@ namespace Reel
     uchar pesbuffer;
 
     ReelBoxDevice::ReelBoxDevice()
-    :   digitalAudio_(false), pipActive_(false), audioChannel_(0),
+    :   ringBuffer(NULL), ringBuffer1(NULL),
+        digitalAudio_(false), pipActive_(false), audioChannel_(0),
 #if VDRVERSNUM < 10716
         audioPlayback_(0), videoPlayback_(0),
 #endif
@@ -177,10 +178,10 @@ namespace Reel
         AudioPlayerBsp::Destroy();
         AudioPlayerHd::Destroy();
         VideoPlayer::Destroy();
-	if(ringBuffer) {
-	    ringBuffer->Clear();
-    	    delete ringBuffer;
-	};
+        if(ringBuffer) {
+	        ringBuffer->Clear();
+            delete ringBuffer;
+        };
     }
 
     Int ReelBoxDevice::AudioDelay() const
@@ -801,8 +802,10 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
                        playVideoPid_ = pid;
 
                        bkgPicPlayer_.PlayedVideo();
-                       if(ringBuffer)
-                               ringBuffer->Clear();
+                       if(ringBuffer) {
+                            DEBUG_RB_PLAYTS("clear existing ringBuffer\n");
+                            ringBuffer->Clear();
+                       };
                }
 
                PlayAudioVideoTS(Data,length);
@@ -868,8 +871,10 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 
        void ReelBoxDevice::PlayAudioVideoTS(const uchar *data, int length)
        {
-               if(!ringBuffer)
-                       ringBuffer = new cRingBufferLinear(RINGBUFSIZE, BUFFEREDTSPACKETSSIZE, false, "PlayTsBuffer");
+               if(!ringBuffer) {
+                    DEBUG_RB_PLAYTS("request new RingBufferLinear\n");
+                    ringBuffer = new cRingBufferLinear(RINGBUFSIZE, BUFFEREDTSPACKETSSIZE, false, "PlayTsBuffer");
+               };
 
                ringBuffer->Put(data, length);
 
