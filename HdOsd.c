@@ -160,7 +160,7 @@ namespace Reel
 	    int x2 = bitmap.Width() - 1;
 	    int y2 = bitmap.Height() - 1;
         
-        DEBUG_RB_OSD("called x1=%d y1=%d x2=%d y2=%d full=%d\n", x1, y1, x2, y2, full);
+        DEBUG_RB_OSD_BM("called with x1=%d y1=%d x2=%d y2=%d full=%d\n", x1, y1, x2, y2, full);
 
 	    if (full || bitmap.Dirty(x1, y1, x2, y2))
 	    {
@@ -285,6 +285,7 @@ namespace Reel
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     void HdOsd::SetActive(bool On)
     {
+        DEBUG_RB_OSD_AC("called with On=%i\n", On);
         if( On != Active())
         {
             cOsd::SetActive(On);
@@ -293,33 +294,33 @@ namespace Reel
             if(On) 
                 Flush();
         }
-
-        DEBUG_RB_OSD("On=%i\n", On);
     }
 #endif
 
 
     eOsdError HdOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
-        DEBUG_RB_OSD("called numAreas=%i\n", numAreas);
+        DEBUG_RB_OSD_AR("called with numAreas=%i\n", numAreas);
 
         eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
         if (Result == oeOk)
         {
             for (int i = 0; i < numAreas; i++)
             {
+                DEBUG_RB_OSD_AR("check: area=%i bpp=%d x1=%d y1=%d x2=%d y2=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].y1, areas[i].x2, areas[i].y2, areas[i].Width(), areas[i].Height());
                 if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8)
                 {
-                    DEBUG_RB_OSD("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
+                    DEBUG_RB_OSD_AR("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
                     return oeBppNotSupported;
                 };
                 if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
                 {
-                    DEBUG_RB_OSD("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
+                    DEBUG_RB_OSD_AR("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
                     return oeWrongAreaSize;
                 };
             }
         }
+        DEBUG_RB_OSD_AR("Result=%d\n", Result);
         return Result;
     }
 
