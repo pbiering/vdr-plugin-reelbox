@@ -739,6 +739,8 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::Flush()
     {
+        DEBUG_RB_OSD_BM("called\n");
+
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
@@ -825,8 +827,6 @@ namespace Reel
         if (dirty_)
         {
             static int flushCount = 1;
-
-            DEBUG_RB_OSD_BM("called\n");
 
             //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
 
