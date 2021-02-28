@@ -73,7 +73,7 @@ namespace Reel
 #endif
         numBitmaps = 0;
 
-	cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
+        cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
 
 //HdCommChannel::hda->plane[0].mode = 0x41;
 //HdCommChannel::hda->plane[0].changed++;
@@ -100,8 +100,7 @@ namespace Reel
         SendOsdCmd(bco);
 #endif
 
-        delete cacheBitmap;
-
+        // delete cacheBitmap; // FIXED: avoid crash by not deleting
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -110,7 +109,7 @@ namespace Reel
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     void HdTrueColorOsd::SetActive(bool On)
     {
-        //printf("%s On=%i\n", __PRETTY_FUNCTION__, On);
+        DEBUG_RB_OSD_AC("called with On=%i\n", On);
         if (On != Active())
         {
             cOsd::SetActive(On);
@@ -305,20 +304,29 @@ namespace Reel
 
     /* override */ eOsdError HdTrueColorOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
+        DEBUG_RB_OSD_AR("called with numAreas=%i\n", numAreas);
 
-    eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
-    if (Result == oeOk)
-    {
-        for (int i = 0; i < numAreas; i++)
+        eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
+        if (Result == oeOk)
         {
-            if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8
-                && (areas[i].bpp != 32 || !RBSetup.TRCLosd))
-                return oeBppNotSupported;
-            if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
-                return oeWrongAreaSize;
+            for (int i = 0; i < numAreas; i++)
+            {
+                DEBUG_RB_OSD_AR("check: area=%i bpp=%d x1=%d y1=%d x2=%d y2=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].y1, areas[i].x2, areas[i].y2, areas[i].Width(), areas[i].Height());
+                if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8
+                    && (areas[i].bpp != 32 || !RBSetup.TRCLosd))
+                {
+                    DEBUG_RB_OSD_AR("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
+                    return oeBppNotSupported;
+                };
+                if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
+                {
+                    DEBUG_RB_OSD_AR("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
+                    return oeWrongAreaSize;
+                };
+            }
         }
-    }
-    return Result;
+        DEBUG_RB_OSD_AR("Result=%d\n", Result);
+        return Result;
 
 /*
         if (numAreas != 1)
@@ -734,11 +742,9 @@ namespace Reel
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
-if(0)
-{
-
+#if 0
         int numColors = 256;
-//        tColor const *colors = bitmap.Colors(numColors);
+        // tColor const *colors = bitmap.Colors(numColors);
 
         UInt const payloadSize = numColors * sizeof(UInt);
 
@@ -752,34 +758,34 @@ if(0)
         for (int n = 0; n < numColors; ++n)
         {
             bco->palette[n] = n<<24|n<<16|n<<8|n;
-//esyslog("palette %x\n",bco->palette[n]);
-//            if (n == 0)
-//                bco->palette[n] = clrBlack;
-//            else if (n == 1)
-//                bco->palette[n] = clrBlack;
+            // esyslog("palette %x\n",bco->palette[n]);
+            // if (n == 0)
+            //    bco->palette[n] = clrBlack;
+            // else if (n == 1)
+            //    bco->palette[n] = clrBlack;
         }
 
-//        ::hd_channel_write_finish(osdChannel_, bufferSize);
+        // ::hd_channel_write_finish(osdChannel_, bufferSize);
 
         // Send the palette indexes.
         SendOsdCmd(bco, sizeof(hdcmd_osd_palette_t) + payloadSize);
 
-    cPixmapMemory *pm;
-    // cRect *rect; // FIXED: unused variable 'rect'
-    LOCK_PIXMAPS;
-    while (pm = (dynamic_cast < cPixmapMemory * >(RenderPixmaps()))) {
-	int x;
-	int y;
-	int w;
-	int h;
+        cPixmapMemory *pm;
+        // cRect *rect; // FIXED: unused variable 'rect'
+        LOCK_PIXMAPS;
+        while (pm = (dynamic_cast < cPixmapMemory * >(RenderPixmaps()))) {
+        int x;
+        int y;
+        int w;
+        int h;
 
-	x = Left() + pm->ViewPort().X();
-	y = Top() + pm->ViewPort().Y();
-	w = pm->ViewPort().Width();
-	h = pm->ViewPort().Height();
-	int d = w * sizeof(tColor);
-	//OsdDrawARGB(x, y, w, h, pm->Data());
-	DEBUG_RB_OSD("x %d y %d w %d h %d\n",x,y,w,h);
+        x = Left() + pm->ViewPort().X();
+        y = Top() + pm->ViewPort().Y();
+        w = pm->ViewPort().Width();
+        h = pm->ViewPort().Height();
+        int d = w * sizeof(tColor);
+        //OsdDrawARGB(x, y, w, h, pm->Data());
+        DEBUG_RB_OSD("x %d y %d w %d h %d\n",x,y,w,h);
         hdcmd_osd_draw8_t bco2;
 
         UInt bcosize = sizeof(hdcmd_osd_draw8_t);
@@ -796,8 +802,8 @@ if(0)
             bco2 = {/*HDCMD_OSD_DRAW8_OVERLAY :*/ HDCMD_OSD_DRAW8, x, y+height ,w, maxheight};
 
 
-           SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), pm->Data()+height*d, d * maxheight);
-//            SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), (uint32_t *)bitmapData, w * maxheight * 4);
+            SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), pm->Data()+height*d, d * maxheight);
+            // SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), (uint32_t *)bitmapData, w * maxheight * 4);
 
             if (h == maxheight )
                 break;
@@ -807,22 +813,22 @@ if(0)
                 maxheight = h - height;
         }
 
-//    hdcmd_osd_draw8_t bco2 = {HDCMD_OSD_DRAW8_OVERLAY, x, y, w, h, false};
-//    SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), pm->Data(), w * h);
+        // hdcmd_osd_draw8_t bco2 = {HDCMD_OSD_DRAW8_OVERLAY, x, y, w, h, false};
+        // SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), pm->Data(), w * h);
 
-DestroyPixmap(pm);
-}
+        DestroyPixmap(pm);
+#endif
 
         dirty_ = true;
-}
+// }
 
         if (dirty_)
         {
             static int flushCount = 1;
 
-            // ::printf("HdTrueColorOsd::Flush()\n");
+            DEBUG_RB_OSD_BM("called\n");
 
-        //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
+            //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
 
             hdcmd_osd_flush const bco = {HDCMD_OSD_FLUSH, flushCount};
 
