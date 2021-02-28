@@ -120,15 +120,20 @@ namespace Reel
 
     static inline void FlushOsd(osd_t *osd) {
         if (HdCommChannel::hda->osd_dont_touch&~4) {
-            //DDD("FlushOSD BLOCKED!\n");
+            DEBUG_RB_OSD_BM("blocked by 'dont-touch' bit active");
             return;
-	}
+        }
         //HdCommChannel::hda->plane[2].alpha = 255;
         //HdCommChannel::hda->plane[2].changed++;                
 
-        int lines = dirtyArea_.y1 - dirtyArea_.y0;    
+        int lines = dirtyArea_.y1 - dirtyArea_.y0;
         int pixels = dirtyArea_.x1 - dirtyArea_.x0;
         int rest = pixels%4;
+        if (lines < 0 || pixels < 0) {
+            DEBUG_RB_OSD_BM("called but nothing dirty to flush");
+            return;
+        };
+        DEBUG_RB_OSD_BM("called and flush dirty area x0=%d y0=%d x1=%d y1=%d w=%d h=%d\n", dirtyArea_.x0, dirtyArea_.y0, dirtyArea_.x1, dirtyArea_.y1, pixels, lines);
         //printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FlushOSD %d %d/%d-%d/%d w %d h %d\n", HdCommChannel::hda->osd_hidden, dirtyArea_.x0, dirtyArea_.y0, dirtyArea_.x1, dirtyArea_.y1, pixels, lines);
         if (pixels>0)
             pixels+=4-rest;
@@ -156,11 +161,12 @@ namespace Reel
                     *(dst+j) = *(src+j);
 #endif
             }
+        // reset dirty area to "nothing"
         dirtyArea_.x0 = osd->width-1;
         dirtyArea_.y0 = osd->height-1;
         dirtyArea_.x1 = 0;
         dirtyArea_.y1 = 0;
-}
+    }
 
 static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigned  int *r,unsigned  int *b) {
     if (*r >= osd->width) {
@@ -251,6 +257,7 @@ void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
             HdCommChannel::hda->plane[2].changed++;                
         }
 
+        // reset dirty area to "nothing"
         dirtyArea_.x0 = osd->width-1;
         dirtyArea_.y0 = osd->height-1;
         dirtyArea_.x1 = 0;
@@ -343,7 +350,7 @@ void HdFbTrueColorOsd::new_osd() {
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     void HdFbTrueColorOsd::SetActive(bool On)
     {
-        dsyslog_rb("%s On=%i\n", __PRETTY_FUNCTION__, On);
+        DEBUG_RB_OSD_AC("called with On=%i\n", On);
         if (On != Active())
         {
             cOsd::SetActive(On);
@@ -369,6 +376,7 @@ void HdFbTrueColorOsd::new_osd() {
     //--------------------------------------------------------------------------------------------------------------
     /** Mark the rectangle between (x0, y0) and (x1, y1) as an area that has changed */
     void HdFbTrueColorOsd::UpdateDirty(int x0, int y0, int x1, int y1) {
+        DEBUG_RB_OSD_BM("called with x0=%d y0=%d x1=%d y1=%d osd->width=%d osd->heigth=%d\n", x0, y0, x1, y1, osd->width, osd->height);
         if(x0 >= (int)osd->width)  x0 = osd->width-1;
         if(x1 >= (int)osd->width)  x1 = osd->width-1;
         if(y0 >= (int)osd->height) y0 = osd->height-1;
@@ -515,6 +523,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ eOsdError HdFbTrueColorOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
+        DEBUG_RB_OSD_AR("called with numAreas=%i\n", numAreas);
 /*
         if (numAreas != 1) {
             esyslog_rb("HdFbTrueColorOsd::CanHandleAreas numAreas = %d\n", numAreas);
@@ -528,21 +537,26 @@ void HdFbTrueColorOsd::new_osd() {
 
         return oeOk;
 */
- eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
-    if (Result == oeOk)
-    {
-        for (int i = 0; i < numAreas; i++)
+        eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
+        if (Result == oeOk)
         {
-            if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8
-                && (areas[i].bpp != 32 || !RBSetup.TRCLosd))
-                return oeBppNotSupported;
-            if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
-                return oeWrongAreaSize;
+            for (int i = 0; i < numAreas; i++)
+            {
+                if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8
+                    && (areas[i].bpp != 32 || !RBSetup.TRCLosd))
+                {
+                    DEBUG_RB_OSD_AR("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
+                    return oeBppNotSupported;
+                }
+                if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
+                {
+                    DEBUG_RB_OSD_AR("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
+                    return oeWrongAreaSize;
+                }
+            }
         }
-    }
-    return Result;
-
-
+        DEBUG_RB_OSD_AR("Result=%d\n", Result);
+        return Result;
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -571,8 +585,6 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend)
     {
-	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawBitmap\n");
-
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
         unsigned char const *xs;
         unsigned int qx, qy, xt1, yt1, xt, yt, vfx, vfy, vfw, vfh, x, y, w, h, m, *px, n;
@@ -582,8 +594,13 @@ void HdFbTrueColorOsd::new_osd() {
         w = bitmap.Width();
         h = bitmap.Height();
 
-        if (w+x>=osd->width || y+h>=osd->height)
+        DEBUG_RB_OSD_BM("called with X=%d Y=%d w=%d h=%d colorFg=0x%08x colorBg=0x%08x blend=%d\n", X, Y, w, h, colorFg, colorBg, blend);
+
+        if (w+x>osd->width || y+h>osd->height)
+        {
+            DEBUG_RB_OSD_BM("bitmap out-of-OSD-range: x=%d w=%d osd->width=%d y=%d h=%d osd->height=%d", x, w, osd->width, y, h, osd->height);
             return;
+        };
 
         UpdateDirty(x, y, x+w, y+h);
 
@@ -1248,6 +1265,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::Flush()
     {
+        DEBUG_RB_OSD_BM("called\n");
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
