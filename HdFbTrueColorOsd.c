@@ -130,7 +130,7 @@ namespace Reel
         int pixels = dirtyArea_.x1 - dirtyArea_.x0;
         int rest = pixels%4;
         if (lines < 0 || pixels < 0) {
-            DEBUG_RB_OSD_BM("called but nothing dirty to flush");
+            DEBUG_RB_OSD_BM("called but nothing dirty to flush\n");
             return;
         };
         DEBUG_RB_OSD_BM("called and flush dirty area x0=%d y0=%d x1=%d y1=%d w=%d h=%d\n", dirtyArea_.x0, dirtyArea_.y0, dirtyArea_.x1, dirtyArea_.y1, pixels, lines);
