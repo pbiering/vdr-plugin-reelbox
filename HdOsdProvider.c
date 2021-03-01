@@ -41,7 +41,7 @@ namespace Reel
     cOsd *HdOsdProvider::CreateOsd(int left, int top)
     {
 	    if (RBSetup.TRCLosd == 0){
-            DEBUG_RB_OSD("create 8-bit color OSD");
+            DEBUG_RB_OSD("create 8-bit color OSD\n");
     	    HdOsd *hdOsd = new HdOsd(left, top);
 #endif
 #if 0 
@@ -60,12 +60,12 @@ namespace Reel
 
         if(useFb)
         {
-            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device");
+            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device\n");
             return new HdFbTrueColorOsd(left, top, level);
         }
         else
         {
-            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device");
+            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device\n");
             return new HdTrueColorOsd(left, top, level);
         };
     }
@@ -74,12 +74,12 @@ namespace Reel
     {
         if(useFb)
         {
-            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device");
+            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device\n");
             return new HdFbTrueColorOsd(left, top);
         }
         else
         {
-            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device");
+            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device\n");
             return new HdTrueColorOsd(left, top);
         };
     }
