@@ -248,21 +248,21 @@ namespace Reel
   //error_out:	    
 
 
-	    if (x<min_x)
-		    min_x=x;
-	    
-	    if (y<min_y)
-		    min_y=y;
-	    
-	    if (x+width>max_x)
-		    max_x=x+width;
-	    
-	    if (y+height>max_y)
-		    max_y=y+height;
+            if (x<min_x)
+                min_x=x;
+
+            if (y<min_y)
+                min_y=y;
+
+            if (x+width>max_x)
+                max_x=x+width;
+
+            if (y+height>max_y)
+                max_y=y+height;
 
 
-	    bitmap.Clean();
-	    }
+            bitmap.Clean();
+        }
     }
 
     void HdOsd::SendOsdCmd(void const *bco, UInt bcoSize, void const *payload, UInt payloadSize)
