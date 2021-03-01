@@ -263,7 +263,8 @@ void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
         dirtyArea_.x1 = 0;
         dirtyArea_.y1 = 0;
 
-       }
+        for (int i = 0; i < MAXOSDAREAS; i++) bitmaps[i] = new cBitmap(720,576, 32, 0, 0); // TEST to avoid crash in DrawBitmap32
+    }
 
 
 void HdFbTrueColorOsd::new_osd() {
@@ -319,7 +320,7 @@ void HdFbTrueColorOsd::new_osd() {
             printf("[RBM-FB] Can't malloc\n");
             abort();
         }
- 
+
         //printf("FB: xres: %i, yres: %i, bpp: %i, data: %p\n", osd->width, osd->height, osd->bpp, osd->data);
     }
 
@@ -598,7 +599,7 @@ void HdFbTrueColorOsd::new_osd() {
 
         if (w+x>osd->width || y+h>osd->height)
         {
-            DEBUG_RB_OSD_BM("bitmap out-of-OSD-range: x=%d w=%d osd->width=%d y=%d h=%d osd->height=%d", x, w, osd->width, y, h, osd->height);
+            DEBUG_RB_OSD_BM("bitmap out-of-OSD-range: x=%d w=%d osd->width=%d y=%d h=%d osd->height=%d\n", x, w, osd->width, y, h, osd->height);
             return;
         };
 
@@ -668,13 +669,22 @@ void HdFbTrueColorOsd::new_osd() {
                                                     bool replacePalette,
                                                     bool blend, int width, int height)
     {
-        DEBUG_RB_OSD("HdFbTrueColorOsd: DrawBitmap\n");
+        DEBUG_RB_OSD("called with x=%d y=%d w=%d h=%d BmW=%d BmH=%d\n", X, Y, width, height, bitmap.Width(), bitmap.Height());
+        if (bitmap.Width() < 0 || bitmap.Height() < 0) {
+            DEBUG_RB_OSD("bitmap has no size BmW=%d BmH=%d\n", bitmap.Width(), bitmap.Height());
+            return;
+        };
 
-        //printf("HDCMD_OSD_DRAW8_OVERLAY\n");
         unsigned char const *srcData = bitmap.Data(0,0); //(unsigned char const *)(bco->data);
         unsigned char const *xs;
         static unsigned int qx, qy, xt1, /* yt1, */ x, y, w, h, *px, line, row; // FIXED: variable 'yt1' set but not used
         static unsigned int pxs;
+
+        if (X+w>osd->width || Y+h>osd->height)
+        {
+            DEBUG_RB_OSD_BM("bitmap out-of-OSD-range: x=%d w=%d osd->width=%d y=%d h=%d osd->height=%d\n", x, w, osd->width, y, h, osd->height);
+            return;
+        };
 
         x = X + Left();
         y = Y + Top();
@@ -1269,17 +1279,16 @@ void HdFbTrueColorOsd::new_osd() {
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
-        //if (dirty_)
-       // {
-        //    static int flushCount = 1;
+        if (dirty_)
+        {
+            static int flushCount = 1;
 
-            // dsyslog_rb("HdFbTrueColorOsd::Flush()\n");
+            //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
+            // NOT working, bitmap not proper filled DrawBitmap32(0, 0, *bitmaps[0], 0, 0, false, false, 720, 576); // TODO replace hardcoded w/h
 
-        //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
+            hdcmd_osd_flush const bco = {HDCMD_OSD_FLUSH, flushCount};
 
-            //hdcmd_osd_flush const bco = {HDCMD_OSD_FLUSH, flushCount};
-
-            //SendOsdCmd(bco);
+            SendOsdCmd(bco);
             FlushOsd(osd);
             dirty_ = false;
 
@@ -1296,7 +1305,7 @@ void HdFbTrueColorOsd::new_osd() {
             ++ flushCount;
 #endif
 
-        //}
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
