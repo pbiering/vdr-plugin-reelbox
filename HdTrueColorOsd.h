@@ -141,8 +141,8 @@ namespace Reel
 
 #define MAXOSDAREAS 16
 
-  cBitmap *bitmaps[MAXOSDAREAS];
-  int numBitmaps;
+        cBitmap *bitmaps[MAXOSDAREAS];
+        int numBitmaps;
 
 
         hd_channel_t *osdChannel_;
