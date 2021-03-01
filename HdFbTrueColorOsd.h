@@ -140,7 +140,8 @@ static unsigned char *mySavedRegion = NULL;
         /* override */ void SetImagePath(UInt imageId, char const *path);
 
                        void UpdateDirty(int x0, int y0, int x1, int y1);
-//virtual cPixmap *CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort = cRect::Null);
+
+	// virtual cPixmap *CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort = cRect::Null);
         
     private:
         // No assigning or copying
@@ -165,7 +166,6 @@ static unsigned char *mySavedRegion = NULL;
 
         cBitmap *bitmaps[MAXOSDAREAS];
         int numBitmaps;
-
 
         hd_channel_t *osdChannel_;
 
