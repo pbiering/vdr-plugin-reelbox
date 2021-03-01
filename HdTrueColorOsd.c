@@ -75,6 +75,8 @@ namespace Reel
 
         cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
 
+        for (int i = 0; i < MAXOSDAREAS; i++) bitmaps[i] = new cBitmap(720,576, 32, 0, 0); // TEST to avoid crash in DrawBitmap32
+
 //HdCommChannel::hda->plane[0].mode = 0x41;
 //HdCommChannel::hda->plane[0].changed++;
 
@@ -452,7 +454,7 @@ namespace Reel
                                                     bool replacePalette,
                                                     bool blend, int width, int height)
     {
-	    DEBUG_RB_OSD("HdTrueColorOsd: DrawBitmap\n");
+	    DEBUG_RB_OSD("called with x=%d y=%d w=%d h=%d\n", x, y, width, height);
 
         // Send the palette.
         int numColors;
@@ -829,6 +831,7 @@ namespace Reel
             static int flushCount = 1;
 
             //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
+            // not working HD_MAX_DGRAM_SIZE 414744 > 16384 DrawBitmap32(0, 0, *bitmaps[0], 0, 0, false, false, 720, 576); // TODO replace hardcoded w/h
 
             hdcmd_osd_flush const bco = {HDCMD_OSD_FLUSH, flushCount};
 
@@ -1093,9 +1096,9 @@ namespace Reel
         static char buffer[HD_MAX_DGRAM_SIZE];
 
         if(bcoSize + payloadSize > HD_MAX_DGRAM_SIZE){
-		esyslog_rb("HD_MAX_DGRAM_SIZE !!! %d\n",bcoSize + payloadSize);
-		return;
-	}
+            esyslog_rb("SendOsdCmd exceed HD_MAX_DGRAM_SIZE %d > %d\n", bcoSize + payloadSize, HD_MAX_DGRAM_SIZE);
+            return;
+        }
 #if 0
         int bufferSize = 0;
         while (!bufferSize)
