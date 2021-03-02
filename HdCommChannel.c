@@ -112,12 +112,12 @@ namespace Reel
                 ch_ = hd_channel_open(chNum);
                 if (ch_) 
                     break;                
-                dsyslog_rb("HDE-Channel open %i: waiting to appear (%i)",chNum, n);
+                dsyslog_rb("HDE-Channel open %i: waiting to appear (%i)\n",chNum, n);
                 sleep(1);
             }
             if (!ch_)
             {
-                esyslog_rb("open hd channel %d not successful, using dummy", chNum);
+                esyslog_rb("open hd channel %d not successful, using dummy\n", chNum);
                 Close();
 //              REEL_THROW();
                 ch_=NULL;
