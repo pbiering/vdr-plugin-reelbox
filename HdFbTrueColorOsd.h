@@ -141,6 +141,8 @@ static unsigned char *mySavedRegion = NULL;
 
                        void UpdateDirty(int x0, int y0, int x1, int y1);
 
+		       void DrawPixmap(const int X, const int Y, const uint8_t *pmData, const int w, const int h, const int s);
+
 	// virtual cPixmap *CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort = cRect::Null);
         
     private:
