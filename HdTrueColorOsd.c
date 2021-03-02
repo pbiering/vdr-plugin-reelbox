@@ -541,7 +541,7 @@ namespace Reel
     /* override */ void HdTrueColorOsd::DrawHdImage(UInt imageId, int x, int y, bool blend,
                                                    int horRepeat, int vertRepeat)
     {
-	DEBUG_RB_OSD("HdTrueColorOsd: DrawHdImage\n");
+        DEBUG_RB_OSD("called\n");
 
         if (ImageIdInRange(imageId))
         {
@@ -553,16 +553,15 @@ namespace Reel
                                                horRepeat, vertRepeat};
 
             SendOsdCmd(bco);
+            dirty_ = true;
         }
-        dirty_ = true;
-
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     /* override */ void HdTrueColorOsd::DrawCropImage(UInt imageId, int x, int y, int x0, int y0, int x1, int y1, bool blend)
     {
-	DEBUG_RB_OSD("HdTrueColorOsd: DrawHdImage\n");
+	    DEBUG_RB_OSD("called\n");
 
         if (ImageIdInRange(imageId))
         {
@@ -575,9 +574,8 @@ namespace Reel
                                                blend};
 
             SendOsdCmd(bco);
+            dirty_ = true;
         }
-        dirty_ = true;
-
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -602,7 +600,6 @@ namespace Reel
 
         SendOsdCmd(bco);
         dirty_ = true;
-
     }
     
     //--------------------------------------------------------------------------------------------------------------
