@@ -735,7 +735,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     //--------------------------------------------------------------------------------------------------------------
 
     cPixmap *HdFbTrueColorOsd::CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort) {
-        DEBUG_RB_OSD_PM("called with Layer=%d\n", Layer);
+        //DEBUG_RB_OSD_PM("called with Layer=%d\n", Layer);
         dirty_ = true;
         return cOsd::CreatePixmap(Layer, ViewPort, DrawPort);
     };
@@ -743,41 +743,26 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     //--------------------------------------------------------------------------------------------------------------
 
     void HdFbTrueColorOsd::DrawPixmap(int X, int Y, const uint8_t *pmData, int W, int H, const int s) {
-        DEBUG_RB_OSD_PM("called with X=%d Y=%d W=%d H=%d s=%d\n", X, Y, W, H, s);
-        // shifting, TODO find root cause
-        if (Y < 0) {
-            DEBUG_RB_OSD_PM("Pixmap Y out-of-range Y=%d (< 0) -> shift+reduce\n", Y);
-            H += Y;
-            Y = 0;
-        };
-
+        DEBUG_RB_OSD_PM("called with X=%4d Y=%4d W=%4d H=%4d\n", X, Y, W, H);
         if (W < 0 || H < 0) {
-            DEBUG_RB_OSD_PM("Pixmap H/W out-of-range W=%d H=%d (< 0)\n", W, H);
+            DEBUG_RB_OSD_PM("Pixmap H/W out-of-range W=%d H=%d (< 0) => skip\n", W, H);
             return;
         };
 
         if (X < 0 || Y < 0) {
-            DEBUG_RB_OSD_PM("Pixmap X/Y out-of-range X=%d Y=%d (< 0)\n", X, Y);
+            DEBUG_RB_OSD_PM("Pixmap X/Y out-of-range X=%d Y=%d (< 0) => skip\n", X, Y);
             return;
         };
 
         if (X + W > (int) osd->width) {
-            DEBUG_RB_OSD_PM("Pixmap X+W out-of-range X+W=%d > osd-width=%d\n", X+W, osd->width);
-            return;
+            DEBUG_RB_OSD_PM("Pixmap X+W out-of-range X+W=%d > osd-width=%d => crop right\n", X+W, osd->width);
         };
 
         if (Y + H > (int) osd->height) {
-            DEBUG_RB_OSD_PM("Pixmap Y+H out-of-range Y+H=%d > osd->height=%d => crop\n", Y+H, osd->height);
-            H = osd->height - Y;
-        };
-
-        if (Y + H > (int) osd->height) {
-            DEBUG_RB_OSD_PM("Pixmap Y+H out-of-range Y+H=%d > osd->height=%d\n", Y+H, osd->height);
-            return;
+            DEBUG_RB_OSD_PM("Pixmap Y+H out-of-range Y+H=%d > osd->height=%d => crop bottom\n", Y+H, osd->height);
         };
 
         const uint8_t *pmm_pixel;
-        //static tColor *pmm_pixel;
         static tColor pmm_pixel_color;
         static int line, row, x, y;
         static uint32_t *osd_pixel;
@@ -786,17 +771,25 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         y = Y;
 
         for (line = 0 ; line < H; line++) {
+            if (y >= (int) osd->height) {
+                // bottom of OSD reached
+                break;
+            };
             osd_pixel = (uint32_t*)(osd->buffer + (osd->width * y + x) * osd->bpp); // OSD TODO catch bpp < 32
             pmm_pixel = pmData + line * W * sizeof(tColor); // Pixmap Memory
 
             for(row = 0; row < W; row++) {
                 pmm_pixel_color = *(uint32_t *)pmm_pixel;
+                pmm_pixel += sizeof(tColor);
+                if (x + row >= (int) osd->width) {
+                    // right side of OSD reached
+                    continue;
+                };
                 if (pmm_pixel_color & 0x00FFFFFF && pmm_pixel_color != 0x01ffffff) {
                     *osd_pixel = AlphaBlend(pmm_pixel_color, *osd_pixel);
                 } else {
                     *osd_pixel = AlphaBlend(*osd_pixel, pmm_pixel_color);
                 };
-                pmm_pixel += sizeof(tColor);
                 osd_pixel++;
             };
             y++;
@@ -1366,14 +1359,14 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
                 int w = pm->ViewPort().Width();
                 int h = pm->ViewPort().Height();
                 int d = w * sizeof(tColor);
-                // DEBUG_RB_OSD_BM("call DrawPixmap x=%d y=%d w=%d h=%d s=%d\n", Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), w, h, h * d);
-                // HdFbTrueColorDrawPixmap(Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), pm->Data(), w, h, h * d);
+                /*
                 DEBUG_RB_OSD_PM(" call DrawPixmap X=%d Y=%d W=%d H=%d s=%d (drawPort X=%d Y=%d W=%d H=%d)\n"
-                    , pm->ViewPort().X(), pm->ViewPort().Y(), w, h
+                    , Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), w, h
                     , h * d
                     , pm->DrawPort().X(), pm->DrawPort().Y(), pm->DrawPort().Width(), pm->DrawPort().Height()
                 );
-                DrawPixmap(pm->ViewPort().X(), pm->ViewPort().Y(), pm->Data(), w, h, h * d);
+                */
+                DrawPixmap(Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), pm->Data(), w, h, h * d);
                 DestroyPixmap(pm);
                 pmCount++;
             }
