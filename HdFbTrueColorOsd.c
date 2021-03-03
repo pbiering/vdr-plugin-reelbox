@@ -119,8 +119,9 @@ namespace Reel
     }
 
     static inline void FlushOsd(osd_t *osd) {
+	    DEBUG_RB_OSD("called\n");
         if (HdCommChannel::hda->osd_dont_touch&~4) {
-            DEBUG_RB_OSD_BM("blocked by 'dont-touch' bit active");
+            DEBUG_RB_OSD_BM("blocked by 'dont-touch' bit active\n");
             return;
         }
         //HdCommChannel::hda->plane[2].alpha = 255;
@@ -178,15 +179,17 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     return *l < *r && *t < *b;
 }
 
-void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
-    if(osd && osd->buffer && osd->data) {
-        memset(osd->buffer, 0x00, osd->width*osd->height*osd->bpp);
-        memset(osd->data, 0x00, osd->width*osd->height*osd->bpp);
+    void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
+	    DEBUG_RB_OSD("called\n");
+        if(osd && osd->buffer && osd->data) {
+            memset(osd->buffer, 0x00, osd->width*osd->height*osd->bpp);
+            memset(osd->data, 0x00, osd->width*osd->height*osd->bpp);
+        }
     }
-}
 
     void HdFbTrueColorOsd::SendOsdCmd(void const *bco, UInt bcoSize, void const *payload, UInt payloadSize)
     {
+	    DEBUG_RB_OSD("called\n");
         static char buffer[HD_MAX_DGRAM_SIZE];
 
         if(bcoSize + payloadSize > HD_MAX_DGRAM_SIZE)
@@ -238,6 +241,7 @@ void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
         /*osdChannel_(Hd::HdCommChannel::Instance().bsc_osd),*/
         dirty_(false)
     {
+	    DEBUG_RB_OSD("called\n");
         hdCachedFonts_ = HdCommChannel::hda->osd_cached_fonts;
         //cachedImages_ = HdCommChannel::hda->osd_cached_images;
         
@@ -263,11 +267,11 @@ void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
         dirtyArea_.x1 = 0;
         dirtyArea_.y1 = 0;
 
-        for (int i = 0; i < MAXOSDAREAS; i++) bitmaps[i] = new cBitmap(720,576, 32, 0, 0); // TEST to avoid crash in DrawBitmap32
     }
 
 
-void HdFbTrueColorOsd::new_osd() {
+    void HdFbTrueColorOsd::new_osd() {
+	    DEBUG_RB_OSD("called\n");
         osd = (osd_t*)malloc(sizeof(osd_t));
 
         if(!osd) {
@@ -302,7 +306,7 @@ void HdFbTrueColorOsd::new_osd() {
         if(osd->data == MAP_FAILED ) {
           esyslog_rb("fb mmap failed, allocating dummy storage via malloc\n");
           osd->bpp = 4;
-          osd->width = 800;
+          osd->width = 720;
           osd->height = 576;
           osd->data = (unsigned char*)malloc(osd->bpp * osd->width * osd->height);
         }
@@ -321,7 +325,7 @@ void HdFbTrueColorOsd::new_osd() {
             abort();
         }
 
-        //printf("FB: xres: %i, yres: %i, bpp: %i, data: %p\n", osd->width, osd->height, osd->bpp, osd->data);
+        DEBUG_RB_OSD("successfully created framebuffer OSD xres=%i yres=%i bpp=%i data=%p\n", osd->width, osd->height, osd->bpp, osd->data);
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -330,7 +334,7 @@ void HdFbTrueColorOsd::new_osd() {
     {
 
 #if APIVERSNUM >= 10509 || defined(REELVDR)
-            SetActive(false);
+        SetActive(false);
         
 #else
         ClearOsd();
@@ -730,6 +734,91 @@ void HdFbTrueColorOsd::new_osd() {
 
     //--------------------------------------------------------------------------------------------------------------
 
+    cPixmap *HdFbTrueColorOsd::CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort) {
+        DEBUG_RB_OSD("called with Layer=%d\n", Layer);
+        dirty_ = true;
+        return cOsd::CreatePixmap(Layer, ViewPort, DrawPort);
+    };
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void HdFbTrueColorOsd::DrawPixmap(int X, int Y, const uint8_t *pmData, int W, int H, const int s) {
+        DEBUG_RB_OSD_PM("called with X=%d Y=%d W=%d H=%d s=%d\n", X, Y, W, H, s);
+        // shifting, TODO find root cause
+        if (Y < 0) {
+            DEBUG_RB_OSD_PM("Pixmap Y out-of-range Y=%d (< 0) -> shift+reduce\n", Y);
+            H += Y;
+            Y = 0;
+        };
+
+        if (W < 0 || H < 0) {
+            DEBUG_RB_OSD_PM("Pixmap H/W out-of-range W=%d H=%d (< 0)\n", W, H);
+            return;
+        };
+
+        if (X < 0 || Y < 0) {
+            DEBUG_RB_OSD_PM("Pixmap X/Y out-of-range X=%d Y=%d (< 0)\n", X, Y);
+            return;
+        };
+
+        if (X + W > (int) osd->width) {
+            DEBUG_RB_OSD_PM("Pixmap X+W out-of-range X+W=%d > osd-width=%d\n", X+W, osd->width);
+            return;
+        };
+
+        if (Y + H > (int) osd->height) {
+            DEBUG_RB_OSD_PM("Pixmap Y+H out-of-range Y+H=%d > osd->height=%d\n", Y+H, osd->height);
+            return;
+        };
+
+        const uint8_t *pmm_pixel;
+        //static tColor *pmm_pixel;
+        static tColor pmm_pixel_color;
+        static int line, row, x, y;
+        static uint32_t *osd_pixel;
+        static uint32_t t, r, g, b;
+
+        x = X;
+        y = Y;
+
+        for (line = 0 ; line < H; line++) {
+            osd_pixel = (uint32_t*)(osd->buffer + (osd->width * y + x) * osd->bpp); // OSD TODO catch bpp < 32
+            pmm_pixel = pmData + line * W * sizeof(tColor); // Pixmap Memory
+
+            for(row = 0; row < W; row++) {
+                // pmm_pixel_color = *pmm_pixel;
+                // pmm_pixel_color = *pmm_pixel<<24 + *(pmm_pixel+1)<<16 + *(pmm_pixel+2)<<8 + *(pmm_pixel+3);
+                t = *pmm_pixel;
+                r = *(pmm_pixel+1) & 0xff;
+                g = *(pmm_pixel+2) & 0xff;
+                b = *(pmm_pixel+3) & 0xff;
+                //t = 255 - t;
+                //r = 255 - r;
+                //g = 255 - g;
+                //b = 255 - b;
+                //pmm_pixel_color = (t<<24) | (r<<16) | (g<<8) | b;
+                DEBUG_RB_OSD_PM("Pixmap pixel color=0x%08x t=%d r=%d g=%d b=%d\n", pmm_pixel_color, t, r, g, b);
+                pmm_pixel_color = clrRed;
+                DEBUG_RB_OSD_PM("Pixmap pixel color=0x%08x\n", pmm_pixel_color);
+                break;
+
+                if (pmm_pixel_color & 0x00FFFFFF && pmm_pixel_color != 0x01ffffff) {
+                    *osd_pixel = AlphaBlend(pmm_pixel_color, *osd_pixel);
+                } else {
+                    *osd_pixel = AlphaBlend(*osd_pixel, pmm_pixel_color);
+                };
+
+                osd_pixel++;
+                pmm_pixel += sizeof(tColor);
+            };
+            break;
+            y++;
+        }
+        UpdateDirty(X, Y, X + W - 1, Y + H - 1);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     /* override */ void HdFbTrueColorOsd::HdFbTrueColorOsd::DrawBitmapHor(int x, int y, int w, const cBitmap &bitmap)
     {
         esyslog_rb("HdFbTrueColorOsd::DrawBitmapHor not supported\n");
@@ -746,7 +835,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawEllipse(int X1, int Y1, int X2, int Y2, tColor color, int quadrants)
     {
-	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawEllipse\n");
+        DEBUG_RB_OSD("called\n");
 
         unsigned int l, t, r, b;
         l = /*Left() +*/ X1;
@@ -860,7 +949,7 @@ void HdFbTrueColorOsd::new_osd() {
     /* override */ void HdFbTrueColorOsd::DrawHdImage(UInt imageId, int x, int y, bool blend,
                                                    int horRepeat, int vertRepeat)
     {
-	DEBUG_RB_OSD("HdFbTrueColorOsd: DrawHdImage\n");
+        DEBUG_RB_OSD("called\n");
 
         if (ImageIdInRange(imageId))
             LoadImage(imageId);
@@ -941,19 +1030,20 @@ void HdFbTrueColorOsd::new_osd() {
                     }
                 }
             }
+            dirty_ = true;
         } else {
             printf("Image %d not cached.\n", imageId);
         }
-        dirty_ = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     /* override */ void HdFbTrueColorOsd::DrawCropImage(UInt imageId, int x, int y, int x0, int y0, int x1, int y1, bool blend)
     {
-    DEBUG_RB_OSD("HdFbTrueColorOsd: DrawHdImage\n");
+        DEBUG_RB_OSD("called\n");
 
-    if (ImageIdInRange(imageId)) {
+        if (! ImageIdInRange(imageId)) return;
+
         LoadImage(imageId);
 
         x+=Left();
@@ -1000,22 +1090,21 @@ void HdFbTrueColorOsd::new_osd() {
             } else {
                 for (v = vertRepeat; v > 0; --v) {
                     srcPixels = img->data + img->width*(y0-y) + (x0-x);
-                        for (n = height_; n > 0; --n) {
-                        unsigned int *tgtPixels = (unsigned int*)(osd->buffer + osd->bpp * osd->width * y0++ + x0*osd->bpp);
-                            for (h = horRepeat; h > 0; --h) {
-                                unsigned int const *src = srcPixels;
-                                memcpy(tgtPixels, src, img->width*sizeof(int));
-                                tgtPixels += img->width;
-                            }
-                            srcPixels += img->width;
+                    for (n = height_; n > 0; --n) {
+                    unsigned int *tgtPixels = (unsigned int*)(osd->buffer + osd->bpp * osd->width * y0++ + x0*osd->bpp);
+                        for (h = horRepeat; h > 0; --h) {
+                            unsigned int const *src = srcPixels;
+                            memcpy(tgtPixels, src, img->width*sizeof(int));
+                            tgtPixels += img->width;
                         }
+                        srcPixels += img->width;
                     }
                 }
-            } else {
-                printf("Image %d not cached.\n", imageId);
             }
+            dirty_ = true;
+        } else {
+            printf("Image %d not cached.\n", imageId);
         }
-        dirty_ = true;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1032,7 +1121,7 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-	DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x\n", x1, y1, x2, y2, color);
+	    DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x\n", x1, y1, x2, y2, color);
 
         unsigned int l, t, r, b;
         l = Left() + x1;
@@ -1060,17 +1149,15 @@ void HdFbTrueColorOsd::new_osd() {
                 memcpy(pixels,draw_linebuf,width*sizeof(int));
                 pixels+=osd->width;
             }
+            dirty_ = true;
         }
-        dirty_ = true;
     }
     
     //--------------------------------------------------------------------------------------------------------------
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-	DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x alphaGradH=%d alphaGradV=%d, alphaGradStepH=%d alphaGradStepV=%d\n", x1, y1, x2, y2, color, alphaGradH, alphaGradV, alphaGradStepH, alphaGradStepV);
-
-        dirty_ = true;
+        DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x alphaGradH=%d alphaGradV=%d, alphaGradStepH=%d alphaGradStepV=%d\n", x1, y1, x2, y2, color, alphaGradH, alphaGradV, alphaGradStepH, alphaGradStepV);
 
         unsigned int l, t, r, b;
         l = Left() + x1;
@@ -1098,6 +1185,7 @@ void HdFbTrueColorOsd::new_osd() {
                 memcpy(pixels,draw_linebuf,width*sizeof(int));
                 pixels+=osd->width;
             }
+            dirty_ = true;
         }
     }
     
@@ -1275,16 +1363,34 @@ void HdFbTrueColorOsd::new_osd() {
 
     /* override */ void HdFbTrueColorOsd::Flush()
     {
-        DEBUG_RB_OSD_BM("called\n");
+        DEBUG_RB_OSD_BM("called with dirty_=%d\n", dirty_);
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
         if (dirty_)
         {
             static int flushCount = 1;
+            int pmCount = 0;
 
             //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
-            // NOT working, bitmap not proper filled DrawBitmap32(0, 0, *bitmaps[0], 0, 0, false, false, 720, 576); // TODO replace hardcoded w/h
+
+            LOCK_PIXMAPS;
+            while (cPixmapMemory *pm = dynamic_cast<cPixmapMemory *>(RenderPixmaps())) {
+                int w = pm->ViewPort().Width();
+                int h = pm->ViewPort().Height();
+                int d = w * sizeof(tColor);
+                // DEBUG_RB_OSD_BM("call DrawPixmap x=%d y=%d w=%d h=%d s=%d\n", Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), w, h, h * d);
+                // HdFbTrueColorDrawPixmap(Left() + pm->ViewPort().X(), Top() + pm->ViewPort().Y(), pm->Data(), w, h, h * d);
+                DEBUG_RB_OSD_PM(" call DrawPixmap X=%d Y=%d W=%d H=%d s=%d (drawPort X=%d Y=%d W=%d H=%d)\n"
+                    , pm->ViewPort().X(), pm->ViewPort().Y(), w, h
+                    , h * d
+                    , pm->DrawPort().X(), pm->DrawPort().Y(), pm->DrawPort().Width(), pm->DrawPort().Height()
+                );
+                DrawPixmap(pm->ViewPort().X(), pm->ViewPort().Y(), pm->Data(), w, h, h * d);
+                DestroyPixmap(pm);
+                pmCount++;
+            }
+            DEBUG_RB_OSD_BM("called DrawPixmap pmCount=%d\n", pmCount);
 
             hdcmd_osd_flush const bco = {HDCMD_OSD_FLUSH, flushCount};
 
@@ -1316,7 +1422,7 @@ void HdFbTrueColorOsd::new_osd() {
         return bitmaps[area];
 #endif
         esyslog_rb("HdFbTrueColorOsd::GetBitmap not supported\n");
-        return 0;
+        return NULL;
     }
     
     //--------------------------------------------------------------------------------------------------------------
