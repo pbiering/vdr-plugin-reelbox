@@ -767,6 +767,11 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         };
 
         if (Y + H > (int) osd->height) {
+            DEBUG_RB_OSD_PM("Pixmap Y+H out-of-range Y+H=%d > osd->height=%d => crop\n", Y+H, osd->height);
+            H = osd->height - Y;
+        };
+
+        if (Y + H > (int) osd->height) {
             DEBUG_RB_OSD_PM("Pixmap Y+H out-of-range Y+H=%d > osd->height=%d\n", Y+H, osd->height);
             return;
         };
@@ -786,21 +791,24 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
             pmm_pixel = pmData + line * W * sizeof(tColor); // Pixmap Memory
 
             for(row = 0; row < W; row++) {
-                // pmm_pixel_color = *pmm_pixel;
+                //pmm_pixel_color = *pmm_pixel;
+                //DEBUG_RB_OSD_PM("Pixmap pixel T1 color=0x%08x\n", pmm_pixel_color);
+                //pmm_pixel_color = (tColor) *pmm_pixel;
+                //DEBUG_RB_OSD_PM("Pixmap pixel T2 color=0x%08x\n", pmm_pixel_color);
                 // pmm_pixel_color = *pmm_pixel<<24 + *(pmm_pixel+1)<<16 + *(pmm_pixel+2)<<8 + *(pmm_pixel+3);
-                t = *pmm_pixel;
-                r = *(pmm_pixel+1) & 0xff;
-                g = *(pmm_pixel+2) & 0xff;
-                b = *(pmm_pixel+3) & 0xff;
+                t = *(pmm_pixel+3) & 0xff;
+                r = *(pmm_pixel+2) & 0xff;
+                g = *(pmm_pixel+1) & 0xff;
+                b = *(pmm_pixel+0) & 0xff;
                 //t = 255 - t;
                 //r = 255 - r;
                 //g = 255 - g;
                 //b = 255 - b;
-                //pmm_pixel_color = (t<<24) | (r<<16) | (g<<8) | b;
-                DEBUG_RB_OSD_PM("Pixmap pixel color=0x%08x t=%d r=%d g=%d b=%d\n", pmm_pixel_color, t, r, g, b);
-                pmm_pixel_color = clrRed;
-                DEBUG_RB_OSD_PM("Pixmap pixel color=0x%08x\n", pmm_pixel_color);
-                break;
+                pmm_pixel_color = (t<<24) | (r<<16) | (g<<8) | b;
+                //DEBUG_RB_OSD_PM("Pixmap pixel T3 color=0x%08x t=0x%02x r=0x%02x g=0x%02x b=0x%02x\n", pmm_pixel_color, t, r, g, b);
+                //pmm_pixel_color = clrRed;
+                //DEBUG_RB_OSD_PM("Pixmap pixel RD color=0x%08x\n", pmm_pixel_color);
+                //break;
 
                 if (pmm_pixel_color & 0x00FFFFFF && pmm_pixel_color != 0x01ffffff) {
                     *osd_pixel = AlphaBlend(pmm_pixel_color, *osd_pixel);
@@ -811,7 +819,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
                 osd_pixel++;
                 pmm_pixel += sizeof(tColor);
             };
-            break;
+            //break;
             y++;
         }
         UpdateDirty(X, Y, X + W - 1, Y + H - 1);
