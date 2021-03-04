@@ -12,6 +12,7 @@ extern int m_debugmask;
 #define DEBUG_MASK_RB_OSD_AR	0x00080000	// OSD area related
 #define DEBUG_MASK_RB_OSD_BM	0x00100000	// OSD Bitmap related
 #define DEBUG_MASK_RB_OSD_PM	0x00000100	// OSD Pixmap related
+#define DEBUG_MASK_RB_OSD_FL	0x00000200	// OSD Flush related
 #define DEBUG_MASK_RB_OSD_AC	0x01000000	// OSD active
 #define DEBUG_MASK_RB_PICT	0x10000000	// fs453settings
 #define DEBUG_MASK_VPHD		0x00001000	// VideoPlayerHd
@@ -40,6 +41,7 @@ extern int m_debugmask;
 #define DEBUG_RB_OSD_AR	if (m_debugmask & DEBUG_MASK_RB_OSD_AR) dsyslog_rb
 #define DEBUG_RB_OSD_BM	if (m_debugmask & DEBUG_MASK_RB_OSD_BM) dsyslog_rb
 #define DEBUG_RB_OSD_PM	if (m_debugmask & DEBUG_MASK_RB_OSD_PM) dsyslog_rb
+#define DEBUG_RB_OSD_FL	if (m_debugmask & DEBUG_MASK_RB_OSD_FL) dsyslog_rb
 #define DEBUG_RB_OSD_AC	if (m_debugmask & DEBUG_MASK_RB_OSD_AC) dsyslog_rb
 #define DEBUG_RB_PICT	if (m_debugmask & DEBUG_MASK_RB_PICT)   dsyslog_rb
 #define DEBUG_RB_VPHD	if (m_debugmask & DEBUG_MASK_VPHD)	dsyslog_rb

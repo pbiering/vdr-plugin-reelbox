@@ -1,3 +1,6 @@
+20210304/pbiering:
+- improve Pixmap support in HdFbTrueColorOsd (skindesigner plugin tested skins: 'blackholefredo' 'shady_KISSpb')
+
 20210303/pbiering:
 - add initial Pixmap support to HdFbTrueColorOsd
 

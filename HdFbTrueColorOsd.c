@@ -121,7 +121,7 @@ namespace Reel
     static inline void FlushOsd(osd_t *osd) {
 	    DEBUG_RB_OSD("called\n");
         if (HdCommChannel::hda->osd_dont_touch&~4) {
-            DEBUG_RB_OSD_BM("blocked by 'dont-touch' bit active\n");
+            DEBUG_RB_OSD("blocked by 'dont-touch' bit active\n");
             return;
         }
         //HdCommChannel::hda->plane[2].alpha = 255;
@@ -381,7 +381,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     //--------------------------------------------------------------------------------------------------------------
     /** Mark the rectangle between (x0, y0) and (x1, y1) as an area that has changed */
     void HdFbTrueColorOsd::UpdateDirty(int x0, int y0, int x1, int y1) {
-        DEBUG_RB_OSD_BM("called with x0=%d y0=%d x1=%d y1=%d osd->width=%d osd->heigth=%d\n", x0, y0, x1, y1, osd->width, osd->height);
+        DEBUG_RB_OSD("called with x0=%d y0=%d x1=%d y1=%d osd->width=%d osd->heigth=%d\n", x0, y0, x1, y1, osd->width, osd->height);
         if(x0 >= (int)osd->width)  x0 = osd->width-1;
         if(x1 >= (int)osd->width)  x1 = osd->width-1;
         if(y0 >= (int)osd->height) y0 = osd->height-1;
@@ -749,9 +749,14 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
             return;
         };
 
-        if (X < 0 || Y < 0) {
-            DEBUG_RB_OSD_PM("Pixmap X/Y out-of-range X=%d Y=%d (< 0) => skip\n", X, Y);
-            return;
+        if (X < 0) {
+            DEBUG_RB_OSD_PM("Pixmap X out-of-range X=%d < 0 => shift right\n", X);
+            X = 0;
+        };
+
+        if (Y < 0) {
+            DEBUG_RB_OSD_PM("Pixmap Y out-of-range Y=%d < 0 => shift down\n", Y);
+            Y = 0;
         };
 
         if (X + W > (int) osd->width) {
@@ -1341,16 +1346,41 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
    
     //--------------------------------------------------------------------------------------------------------------
 
+    static uint64_t get_now_time() {
+        struct timespec spec;
+        if (clock_gettime(1, &spec) == -1) { /* 1 is CLOCK_MONOTONIC */
+            abort();
+        }
+        return spec.tv_sec * 1000 + spec.tv_nsec / 1e6;
+    }
+
     /* override */ void HdFbTrueColorOsd::Flush()
     {
-        DEBUG_RB_OSD_BM("called with dirty_=%d\n", dirty_);
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
+        static uint64_t flush_last = 0;
+        uint64_t flush_current, flush_delta;
+        static const uint64_t flush_delta_max = 200; // ms
+        flush_current = get_now_time();
+        flush_delta = flush_current - flush_last;
+
+        if (! dirty_) {
+            if (flush_delta > flush_delta_max) {
+                // auto-dirty
+                DEBUG_RB_OSD_FL("called with dirty_=%d but delta > %lu => auto-dirty\n", dirty_, flush_delta);
+                dirty_ = true;
+            }
+        } else {
+            DEBUG_RB_OSD_FL("called with dirty_=%d\n", dirty_);
+        };
+
         if (dirty_)
         {
             static int flushCount = 1;
             int pmCount = 0;
+
+            flush_last = flush_current; // remember
 
             //DrawBitmap32(/*old_x, old_y*/ 0,0 /*bitmaps[0]->X0(), bitmaps[0]->Y0()*/, *bitmaps[0], old_colorFg, old_colorBg, false, false);
 
