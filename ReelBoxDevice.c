@@ -609,14 +609,16 @@ namespace Reel
 
             if (audioPlayerHd_)
             {
+                dsyslog_rb("%s call audioPlayerHd_->Play()\n", __PRETTY_FUNCTION__);
                 audioPlayerHd_->Play();
             }
             if (audioPlayerBsp_)
             {
+                dsyslog_rb("%s call audioPlayerBsp_->Play()\n", __PRETTY_FUNCTION__);
                 audioPlayerBsp_->Play();
             }
 
-            dsyslog_rb("%s --- videoPlayer_->Play(() \n", __PRETTY_FUNCTION__);
+            dsyslog_rb("%s call videoPlayer_->Play()\n", __PRETTY_FUNCTION__);
             videoPlayer_->Play();
         }
         catch (std::exception const &e)
@@ -688,19 +690,19 @@ soft_decode((uchar*)data,length,(uchar*)Data,len,AV_CODEC_ID_EAC3);
 	}
 }
 */
-	if (useHDExtension_) {
+        if (useHDExtension_) {
 
 //if(length>20){
 //int f = 0,off=0;;
 //esyslog(" %d %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X\n",length,data[0+off+f],data[1+off+f],data[2+off+f],data[3+off+f],data[4+off+f],data[5+off+f],data[6+off+f],data[7+off+f],data[8+off+f],data[9+off+f],data[10+off+f],data[11+off+f],data[12+off+f],data[13+off+f],data[14+off+f],data[15+off+f],data[16+off+f],data[17+off+f],data[18+off+f],data[19+off+f]);
 //}
 
-                if(!audioPlayerBsp_) //send packets to alsa too
-                {
-		    videoPlayer_->PlayPesPacket((void*)data, length, 0);
-		    return length;
-                }
-	}
+            if(!audioPlayerBsp_) //send packets to alsa too
+            {
+		        videoPlayer_->PlayPesPacket((void*)data, length, 0);
+                return length;
+            }
+        }
 
         try
         {
@@ -710,7 +712,7 @@ soft_decode((uchar*)data,length,(uchar*)Data,len,AV_CODEC_ID_EAC3);
 
             while (pesPacketLength > 0)
             {
-		Mpeg::EsPacket esPacket(data, pesPacketLength);
+                Mpeg::EsPacket esPacket(data, pesPacketLength);
 
                 if (audioPlayerHd_)
                 {
@@ -897,10 +899,10 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
         bkgPicPlayer_.PlayedVideo();
 #endif
 
-	if (useHDExtension_) {
+        if (useHDExtension_) {
 #if VDRVERSNUM < 10716
-		bkgPicPlayer_.Stop();
-		videoPlayback_ = 3500;
+            bkgPicPlayer_.Stop();
+		    videoPlayback_ = 3500;
 #else
 //		if((length > 7) && !data[0] && !data[1] && (data[2]==1) && (data[7]&0x20)) {
 //			VideoPlayerHd *player = dynamic_cast<VideoPlayerHd*>(&VideoPlayer::Instance());
@@ -909,16 +911,16 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 //		} // if
 #endif
 
-if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[3] <= 0xEF) )) //drop not video stream, ex 0xBE
-		videoPlayer_->PlayPesPacket((void*)data, length, 1);
+            if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[3] <= 0xEF) )) //drop not video stream, ex 0xBE
+		        videoPlayer_->PlayPesPacket((void*)data, length, 1);
 //else{
 //if(length>30){
 //int f = 0,off=0;
 //esyslog(" !!! %X %X %X %X %X %X %X %X %X %X  %d\n",data[0+off+f],data[1+off+f],data[2+off+f],data[3+off+f],data[4+off+f],data[5+off+f],data[6+off+f],data[7+off+f],data[8+off+f],data[9+off+f],length);
 //}
 //}
-		return length;
-	}
+            return length;
+	    }
 
         try
         {
@@ -1008,11 +1010,11 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 		return videoPlayer_->AproxFramesInQueue();
 	} // ReelBoxDevice::AproxFramesInQueue
 
-        bool ReelBoxDevice::ShowAudioBackgroundPics() { 
-            if(!audioBackgroundPics_) return false;
-            if((playMode_ == pmNone          ) ||
-               (playMode_ == pmAudioOnlyBlack) ||
-               (playMode_ == pmExtern_THIS_SHOULD_BE_AVOIDED)) return false;
+    bool ReelBoxDevice::ShowAudioBackgroundPics() {
+        if(!audioBackgroundPics_) return false;
+        if( (playMode_ == pmNone          ) ||
+            (playMode_ == pmAudioOnlyBlack) ||
+            (playMode_ == pmExtern_THIS_SHOULD_BE_AVOIDED)) return false;
             return true;
         };
 
@@ -1108,7 +1110,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
 
     void ReelBoxDevice::SetAudioChannelDevice(int audioChannel)
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s audioChannel=%d\n", __PRETTY_FUNCTION__, audioChannel);
         audioChannel_ = audioChannel;
         AudioChannel channel = IsMute() ? AudioChannelMute : AudioChannel(audioChannel_);
         if (audioPlayerHd_)
@@ -1119,14 +1121,14 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
         {
            audioPlayerBsp_->SetChannel(channel);
         }
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
     }
 
     void ReelBoxDevice::SetDigitalAudioDevice(bool on)
     {
-        dsyslog_rb("%s ON? %s \n", __PRETTY_FUNCTION__, on?"YES":"NO");
+        dsyslog_rb("%s on=%s\n", __PRETTY_FUNCTION__, on?"YES":"NO");
         if (digitalAudio_ != on)
         {
+#ifndef HDMI_ONLY
             if (digitalAudio_)
             {
                 ::usleep(1000000); // Wait until any leftover digital data has been flushed
@@ -1134,6 +1136,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
             digitalAudio_ = on;
             SystemExec(on ? "iecset audio on" : "iecset audio off");
             SetVolumeDevice(IsMute() ? 0 : CurrentVolume());
+#endif
         }
         RestartAudio();
     }
@@ -1141,7 +1144,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
     int64_t ReelBoxDevice::GetSTC()
     {
         int64_t stc;
-	stc=HdCommChannel::hda->player[0].hde_last_pts; // needs hdplayer >SVN r12241
+        stc=HdCommChannel::hda->player[0].hde_last_pts; // needs hdplayer >SVN r12241
 //        int64_t stc_base = ((((int64_t)HdCommChannel::hda->player[0].hde_stc_base_high)&0xFFFFFFFF)<<32)|(HdCommChannel::hda->player[0].hde_stc_base_low&0xFFFFFFFF);
 //	printf("GET STC %llx\n",stc);
 /*	if (audioPlayerHd_) {
@@ -1171,7 +1174,7 @@ if (length > 7 && !data[0] && !data[1] && data[2]==1 && (data[3]>=0xE0 && (data[
     bool ReelBoxDevice::SetPlayMode(ePlayMode playMode)
     {
         CHECK_CONCURRENCY;
-        dsyslog_rb("%s Playmode? %d \n", __PRETTY_FUNCTION__, playMode);
+        dsyslog_rb("%s playMode=%d\n", __PRETTY_FUNCTION__, playMode);
         bool ret = true;
         try
         {
