@@ -90,6 +90,7 @@ namespace Reel
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     eOsdError HdOsd::SetAreas(const tArea *Areas, int NumAreas) // 1.6
     {
+        DEBUG_RB_OSD("called with NumAreas=%d\n", NumAreas);
         if (Active()) {
             // clear OSd
             Clear(0,0,maxOsdWidth,maxOsdHeight);
@@ -100,6 +101,7 @@ namespace Reel
 
     void HdOsd::Flush()
     { 
+        DEBUG_RB_OSD("called\n");
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
