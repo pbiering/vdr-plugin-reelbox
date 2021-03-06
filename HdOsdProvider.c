@@ -36,13 +36,13 @@ namespace Reel
     cOsd *HdOsdProvider::CreateOsd(int left, int top, uint level)
     {
         if (RBSetup.TRCLosd == 0){
-            dsyslog_rb("create 8-bit color OSD on HDE\n");
+            DEBUG_RB_OSD_CO("create 8-bit color OSD on HDE (left=%d top=%d)\n", left, top);
             HdOsd *hdOsd = new HdOsd(left, top, level);
 #else
     cOsd *HdOsdProvider::CreateOsd(int left, int top)
     {
         if (RBSetup.TRCLosd == 0){
-            dsyslog_rb("create 8-bit color OSD on HDE\n");
+            DEBUG_RB_OSD_CO("create 8-bit color OSD on HDE (left=%d top=%d)\n", left, top);
             HdOsd *hdOsd = new HdOsd(left, top);
 #endif
 #if 0 
@@ -61,12 +61,12 @@ namespace Reel
 
             if(useFb)
             {
-                dsyslog_rb("create TrueColor OSD on HDE with framebuffer device\n");
+                DEBUG_RB_OSD_CO("create TrueColor OSD on HDE with framebuffer device (left=%d top=%d)\n", left, top);
                 return new HdFbTrueColorOsd(left, top, level);
             }
             else
             {
-                dsyslog_rb("create TrueColor OSD on HDE without framebuffer device\n");
+                DEBUG_RB_OSD_CO("create TrueColor OSD on HDE without framebuffer device (left=%d top=%d)\n", left, top);
                 return new HdTrueColorOsd(left, top, level);
             };
         }
@@ -75,12 +75,12 @@ namespace Reel
         {
             if(useFb)
             {
-                dsyslog_rb("create TrueColor OSD on HDE with framebuffer device\n");
+                DEBUG_RB_OSD_CO("create TrueColor OSD on HDE with framebuffer device (left=%d top=%d)\n", left, top);
                 return new HdFbTrueColorOsd(left, top);
             }
             else
             {
-                dsyslog_rb("create TrueColor OSD on HDE without framebuffer device\n");
+                DEBUG_RB_OSD_CO("create TrueColor OSD on HDE without framebuffer device (left=%d top=%d)\n", left, top);
                 return new HdTrueColorOsd(left, top);
             };
         }
