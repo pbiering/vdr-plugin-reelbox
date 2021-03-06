@@ -82,7 +82,7 @@ static unsigned char *mySavedRegion = NULL;
         
         /* override */ eOsdError CanHandleAreas(const tArea *areas, int numAreas);
         
-        /* override */ // NO-LONGER-REQUIRED eOsdError SetAreas(const tArea *areas, int numAreas);
+        /* override (catch+forward) */ eOsdError SetAreas(const tArea *areas, int numAreas);
         
         /* override */ void SaveRegion(int x1, int y1, int x2, int y2);
         
@@ -100,6 +100,8 @@ static unsigned char *mySavedRegion = NULL;
                                        bool replacePalette,
                                        bool overlay);
         
+	/* override (catch+forward) */ void DrawScaledBitmap(int X, int Y, const cBitmap &bitmap, double FactorX, double FactorY, bool AntiAlias = false);
+
         /* override */ void DrawBitmap32(int x,
                                        int y,
                                        const cBitmap &bitmap,
@@ -139,12 +141,12 @@ static unsigned char *mySavedRegion = NULL;
 
         /* override */ void SetImagePath(UInt imageId, char const *path);
 
-                       void UpdateDirty(int x0, int y0, int x1, int y1);
+	/* internal */ void UpdateDirty(int x0, int y0, int x1, int y1);
 
-		       void DrawPixmap(int X, int Y, const uint8_t *pmData, int W, int H, const int s);
+	/* internal */ void DrawPixmap(int X, int Y, const uint8_t *pmData, int W, int H, const int s);
 
 	/* override */ cPixmap *CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort = cRect::Null);
-        
+
     private:
         // No assigning or copying
         HdFbTrueColorOsd(const HdFbTrueColorOsd &);

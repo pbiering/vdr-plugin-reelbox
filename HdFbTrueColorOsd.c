@@ -286,7 +286,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
         osd->fd = open(fbdev, O_RDWR|O_NDELAY);
         if(osd->fd==-1) {
-            esyslog_rb("couldn't open framebuffer device %s (%s)\n", fbdev, strerror(errno));
+            esyslog_rb("couldn't open framebuffer device %s (%s) - kernel module load option: has_fb=1\n", fbdev, strerror(errno));
 
             if (strcmp(fbdev, FB_DEFAULT_DEVICE) == 0) {
                 // don't try same device twice
@@ -296,7 +296,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
             esyslog_rb("fallback to default device %s\n", FB_DEFAULT_DEVICE);
             osd->fd = open(FB_DEFAULT_DEVICE, O_RDWR|O_NDELAY);
             if(osd->fd==-1) {
-                esyslog_rb("couldn't open default framebuffer device %s (%s)\n", FB_DEFAULT_DEVICE, strerror(errno));
+                esyslog_rb("couldn't open default framebuffer device %s (%s) - check /proc/fb and kernel module load option: has_fb=1\n", FB_DEFAULT_DEVICE, strerror(errno));
                 return 1;
             };
             // successful opened default device
@@ -309,7 +309,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
         ioctl(osd->fd, FBIOGET_FSCREENINFO, &screeninfoFix);
         if (strcmp("hde_fb", screeninfoFix.id) != 0) {
-            esyslog_rb("framebuffer device is not HDE (expected: 'hde_fb' have: '%s'): %s\n", screeninfoFix.id, fbdev);
+            esyslog_rb("framebuffer device is not HDE (expected: 'hde_fb' have: '%s' - check /proc/fb and kernel module load option: has_fb=1): %s\n", screeninfoFix.id, fbdev);
             close(osd->fd);
             return 1;
         };
@@ -320,8 +320,10 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         if (screeninfo.bits_per_pixel != 32) {
             screeninfo.bits_per_pixel = 32;
             if(ioctl(osd->fd, FBIOPUT_VSCREENINFO, &screeninfo)) {
-                printf("Can't set VSCREENINFO\n");
-            } // if
+                esyslog_rb("can't set VSCREENINFO on framebuffer device: %s\n", fbdev);
+                close(osd->fd);
+                return 1;
+            }
         }
 
         osd->bpp = screeninfo.bits_per_pixel/8; 
@@ -330,24 +332,22 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
  
         osd->data = (unsigned char*) mmap(0, osd->bpp * osd->width * osd->height, PROT_READ|PROT_WRITE, MAP_SHARED, osd->fd, 0);
         if(osd->data == MAP_FAILED ) {
-          esyslog_rb("fb mmap failed, allocating dummy storage via malloc\n");
+          esyslog_rb("can't mmap framebuffer, allocating dummy storage via malloc\n");
           osd->bpp = 4;
           osd->width = 720;
           osd->height = 576;
           osd->data = (unsigned char*)malloc(osd->bpp * osd->width * osd->height);
         }
  
-        //assert(data!=(void*)-1);
- 
         osd->buffer = (unsigned char*) malloc(osd->bpp * osd->width * osd->height);
         if(!osd->buffer) {
-            std::cout << "ERROR: couldn't malloc in " << __FILE__ << ": " << __LINE__ << std::endl;
+            esyslog_rb("can't malloc required OSD buffer\n");
             return 1;
         }
         if (mySavedRegion == NULL)
             mySavedRegion = (unsigned char*) malloc(osd->bpp*osd->width*osd->height);
         if (mySavedRegion == NULL) {
-            printf("[RBM-FB] Can't malloc\n");
+            esyslog_rb("can't malloc required mySavedRegion\n");
             return 1;
         }
 
@@ -556,6 +556,10 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     /* override */ eOsdError HdFbTrueColorOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
         DEBUG_RB_OSD_AR("called with numAreas=%i\n", numAreas);
+        for (int i = 0; i < numAreas; i++)
+        {
+            DEBUG_RB_OSD_AR("area i=%d bpp=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].Width(), areas[i].Height());
+        }
 /*
         if (numAreas != 1) {
             esyslog_rb("HdFbTrueColorOsd::CanHandleAreas numAreas = %d\n", numAreas);
@@ -605,6 +609,17 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     void HdFbTrueColorOsd::ClosePngFile()
     {
         png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    /* override */ void HdFbTrueColorOsd::DrawScaledBitmap(int X, int Y, const cBitmap &bitmap, double FactorX, double FactorY, bool AntiAlias)
+    {
+        DEBUG_RB_OSD_BM("called (and forward to cOsd) with X=%d Y=%d w=%d h=%d FactorX=%lf FactorY=%lf AntiAlias=%d\n", X, Y, bitmap.Width(), bitmap.Height(), FactorX, FactorY, AntiAlias);
+
+        cOsd::DrawScaledBitmap(X, Y, bitmap, FactorX, FactorY, AntiAlias);
+
+        return;
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -1217,7 +1232,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     if (s_in) {
         DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i Setup.AntiAlias=%d '%s'\n", colorFg, colorBg, x, y, w, h, Setup.AntiAlias, s_in);
         if (x < 0 || y < 0) {
-            esyslog_rb("HdFbTrueColorOsd::DrawText out-of-range: x=%i y=%i w=%i h=%i '%s'\n", x, y, w, h, s_in);
+            esyslog_rb("out-of-range: x=%i y=%i w=%i h=%i '%s'\n", x, y, w, h, s_in);
             return;
         };
 
@@ -1458,7 +1473,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 #if 1
         return bitmaps[area];
 #endif
-        esyslog_rb("HdFbTrueColorOsd::GetBitmap not supported\n");
+        esyslog_rb("not supported\n");
         return NULL;
     }
     
@@ -1679,9 +1694,16 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
     //--------------------------------------------------------------------------------------------------------------
 
-    /* override */ /* NO-LONGER-REQUIRED eOsdError HdFbTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
+    /* override */ eOsdError HdFbTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
     {
+        DEBUG_RB_OSD_AR("called (and forward to cOsd) with numAreas=%i\n", numAreas);
+        for (int i = 0; i < numAreas; i++)
+        {
+            DEBUG_RB_OSD_AR("area i=%d bpp=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].Width(), areas[i].Height());
+        }
+        eOsdError ret = cOsd::SetAreas(areas, numAreas);
 
+#if 0
         eOsdError ret = CanHandleAreas(areas, numAreas);
         if (ret == oeOk)
         {
@@ -1697,9 +1719,9 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
             width = std::max(1, width);
             height = std::max(1, height);
         }
+#endif
         return ret;
     }
-    */
 
     //--------------------------------------------------------------------------------------------------------------
 
