@@ -302,7 +302,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
         ioctl(osd->fd, FBIOGET_FSCREENINFO, &screeninfoFix);
         if (strcmp("hde_fb", screeninfoFix.id) != 0) {
-            esyslog_rb("framebuffer device is not HDE: %s\n", fbdev);
+            esyslog_rb("framebuffer device is not HDE (expected: 'hde_fb'): %s\n", fbdev);
             close(osd->fd);
             return 1;
         };
