@@ -272,7 +272,6 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         dirtyArea_.y0 = osd->height-1;
         dirtyArea_.x1 = 0;
         dirtyArea_.y1 = 0;
-
     }
 
 
