@@ -257,7 +257,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         if(osd == NULL || (osd->data == NULL && osd->buffer == NULL)) {
             ret = new_osd();
             if (ret != 0) {
-	            esyslog_rb("can't TrueColor OSD on HDE\n");
+	            esyslog_rb("can't create Framebuffer TrueColor OSD on HDE\n");
                 exit(1);
             };
         };
@@ -288,12 +288,20 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         osd->fd = open(fbdev, O_RDWR|O_NDELAY);
         if(osd->fd==-1) {
             esyslog_rb("couldn't open framebuffer device %s (%s)\n", fbdev, strerror(errno));
+
+            if (strcmp(fbdev, FB_DEFAULT_DEVICE) == 0) {
+                // don't try same device twice
+                return 1;
+            };
+
             esyslog_rb("fallback to default device %s\n", FB_DEFAULT_DEVICE);
             osd->fd = open(FB_DEFAULT_DEVICE, O_RDWR|O_NDELAY);
-        };
-        if(osd->fd==-1) {
-            esyslog_rb("couldn't open framebuffer device %s (%s)\n", fbdev, strerror(errno));
-            return 1;
+            if(osd->fd==-1) {
+                esyslog_rb("couldn't open default framebuffer device %s (%s)\n", FB_DEFAULT_DEVICE, strerror(errno));
+                return 1;
+            };
+            // successful opened default device
+            fbdev = FB_DEFAULT_DEVICE;
         };
 
         //assert(fb_fd!=-1);
@@ -302,7 +310,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
         ioctl(osd->fd, FBIOGET_FSCREENINFO, &screeninfoFix);
         if (strcmp("hde_fb", screeninfoFix.id) != 0) {
-            esyslog_rb("framebuffer device is not HDE (expected: 'hde_fb'): %s\n", fbdev);
+            esyslog_rb("framebuffer device is not HDE (expected: 'hde_fb' have: '%s'): %s\n", screeninfoFix.id, fbdev);
             close(osd->fd);
             return 1;
         };
