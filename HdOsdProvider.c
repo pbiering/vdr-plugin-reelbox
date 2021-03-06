@@ -35,56 +35,57 @@ namespace Reel
 #if APIVERSNUM >= 10509 || defined(REELVDR)
     cOsd *HdOsdProvider::CreateOsd(int left, int top, uint level)
     {
-	if (RBSetup.TRCLosd == 0){
-    	    HdOsd *hdOsd = new HdOsd(left, top, level);
+        if (RBSetup.TRCLosd == 0){
+            dsyslog_rb("create 8-bit color OSD on HDE\n");
+            HdOsd *hdOsd = new HdOsd(left, top, level);
 #else
     cOsd *HdOsdProvider::CreateOsd(int left, int top)
     {
-	    if (RBSetup.TRCLosd == 0){
-            DEBUG_RB_OSD("create 8-bit color OSD\n");
-    	    HdOsd *hdOsd = new HdOsd(left, top);
+        if (RBSetup.TRCLosd == 0){
+            dsyslog_rb("create 8-bit color OSD on HDE\n");
+            HdOsd *hdOsd = new HdOsd(left, top);
 #endif
 #if 0 
-        if (scaleMode_)
-        {
-            hdOsd->ScaleToVideoPlane();
-        }
+            if (scaleMode_)
+            {
+                hdOsd->ScaleToVideoPlane();
+            }
 #endif
 
-    	    return hdOsd; 
-	}
-    else
+            return hdOsd;
+        }
+        else
 #if APIVERSNUM >= 10509 || defined(REELVDR)
 //    cOsd *HdOsdProvider::CreateTrueColorOsd(int left, int top, uint level)
-    {
+        {
 
-        if(useFb)
-        {
-            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device\n");
-            return new HdFbTrueColorOsd(left, top, level);
+            if(useFb)
+            {
+                dsyslog_rb("create TrueColor OSD on HDE with framebuffer device\n");
+                return new HdFbTrueColorOsd(left, top, level);
+            }
+            else
+            {
+                dsyslog_rb("create TrueColor OSD on HDE without framebuffer device\n");
+                return new HdTrueColorOsd(left, top, level);
+            };
         }
-        else
-        {
-            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device\n");
-            return new HdTrueColorOsd(left, top, level);
-        };
-    }
 #else
 //    cOsd *HdOsdProvider::CreateTrueColorOsd(int left, int top)
-    {
-        if(useFb)
         {
-            DEBUG_RB_OSD("create TrueColor OSD with framebuffer device\n");
-            return new HdFbTrueColorOsd(left, top);
+            if(useFb)
+            {
+                dsyslog_rb("create TrueColor OSD on HDE with framebuffer device\n");
+                return new HdFbTrueColorOsd(left, top);
+            }
+            else
+            {
+                dsyslog_rb("create TrueColor OSD on HDE without framebuffer device\n");
+                return new HdTrueColorOsd(left, top);
+            };
         }
-        else
-        {
-            DEBUG_RB_OSD("create TrueColor OSD without framebuffer device\n");
-            return new HdTrueColorOsd(left, top);
-        };
-    }
 #endif
-}
+    }
 
     HdOsdProvider::~HdOsdProvider() {
         if(0 && useFb) {  //TB: causes crash when shutting down???
