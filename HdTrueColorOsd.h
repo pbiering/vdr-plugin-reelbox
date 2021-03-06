@@ -121,6 +121,8 @@ namespace Reel
 
         /* override */ void SetImagePath(UInt imageId, char const *path);
 
+        /* override */ cPixmap *CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort = cRect::Null);
+
     private:
         // No assigning or copying
         HdTrueColorOsd(const HdTrueColorOsd &);

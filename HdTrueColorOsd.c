@@ -732,6 +732,17 @@ namespace Reel
         //printf("DrawText: %s colorFg: %#08x colorBg: %#08x x: %i y: %i w: %i h: %i\n", s, colorFg, colorBg, x, y, width, height);
 //      }
 //    }
+//
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    cPixmap *HdTrueColorOsd::CreatePixmap(int Layer, const cRect &ViewPort, const cRect &DrawPort) {
+        static int flag_display_warning = 0;
+        if (flag_display_warning == 0)
+            esyslog_rb("Pixmap support currently not implemented in TrueColor OSD without framebuffer on HDE\n");
+        flag_display_warning = 1;
+        return NULL;
+    };
 
 
     //--------------------------------------------------------------------------------------------------------------
