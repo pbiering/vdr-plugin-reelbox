@@ -171,15 +171,15 @@ namespace Reel
         if (RBSetup.usehdext)
         {
             if (HdCommChannel::Init()) {
-		    esyslog_rb("eHD selected but HdCommChannel::Init was not successful\n");
+		    esyslog_rb("HDE selected but HdCommChannel::Init was not successful\n");
 		    return false;
             };
-	    dsyslog_rb("eHD selected and HdCommChannel::Init was successful\n");
-            Reel::HdCommChannel::SetVideomode();
-	    Reel::HdCommChannel::SetPicture(&RBSetup);
-	    Reel::HdCommChannel::SetHWControl(&RBSetup);
-	    Reel::HdCommChannel::hda->plane[2].enable=1; // avoid init race
-	    Reel::HdCommChannel::hda->plane[2].alpha=255;
+        dsyslog_rb("HDE selected and HdCommChannel::Init was successful\n");
+        Reel::HdCommChannel::SetVideomode();
+        Reel::HdCommChannel::SetPicture(&RBSetup);
+        Reel::HdCommChannel::SetHWControl(&RBSetup);
+        Reel::HdCommChannel::hda->plane[2].enable=1; // avoid init race
+        Reel::HdCommChannel::hda->plane[2].alpha=255;
 //	    Reel::HdCommChannel::hda->plane[2].mode=15;
 //	    Reel::HdCommChannel::hda->plane[2].w=1920;
 //	    Reel::HdCommChannel::hda->plane[2].h=1080;
