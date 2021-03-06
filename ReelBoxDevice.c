@@ -1513,18 +1513,20 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 
     void ReelBoxDevice::SetPlayModeOn()
     {
-	if(needRestart)
-	{
-		Restart();
-		Reel::HdCommChannel::SetAspect();
-		dsyslog_rb("SetPlayModeOn needRestart\n");
-	}
+        if(needRestart)
+	    {
+            dsyslog_rb("SetPlayModeOn called with needRestart\n");
+            Restart();
+            Reel::HdCommChannel::SetAspect();
+        }
+        else
+            dsyslog_rb("SetPlayModeOn called\n");
 
-	while(!HdCommChannel::hda->hdp_running){
-		HdCommChannel::hda->hdp_enable = 1;
-		//dsyslog_rb("hda->hdp_running: %d\n", hda->hdp_running);
-		usleep(10000);
-	}
+        while(!HdCommChannel::hda->hdp_running){
+            HdCommChannel::hda->hdp_enable = 1;
+            //dsyslog_rb("hda->hdp_running: %d\n", hda->hdp_running);
+            usleep(10000);
+        }
 //	if (!HdCommChannel::hda->hdp_running)
 //	{
 //dsyslog("===========hda->hdp_running \n");
@@ -1532,7 +1534,6 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
 //	    Reel::HdCommChannel::SetAspect();
 //        }
 //
-        dsyslog_rb("===========SetPlayModeOn\n");
 
 #if VDRVERSNUM < 10716
         audioPlayback_ = 100;
