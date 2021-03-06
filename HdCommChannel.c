@@ -184,9 +184,9 @@ namespace Reel
 
         int Init()
         {
-            dsyslog_rb("HDE: start");
+            dsyslog_rb("HDE: start\n");
             if (InitHda()) {
-		esyslog_rb("HDE: Init not successful");
+		esyslog_rb("HDE: Init not successful\n");
 		return 1;
             };
 
