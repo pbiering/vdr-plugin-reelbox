@@ -242,6 +242,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         dirty_(false)
     {
 	    DEBUG_RB_OSD("called\n");
+        int ret = 0;
         hdCachedFonts_ = HdCommChannel::hda->osd_cached_fonts;
         //cachedImages_ = HdCommChannel::hda->osd_cached_images;
         
@@ -253,8 +254,13 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         numBitmaps = 0;
 
         //std::cout << "OSD: " << osd << std::endl;
-        if(osd == NULL || (osd->data == NULL && osd->buffer == NULL))
-          new_osd();
+        if(osd == NULL || (osd->data == NULL && osd->buffer == NULL)) {
+            ret = new_osd();
+            if (ret != 0) {
+	            esyslog_rb("can't TrueColor OSD on HDE\n");
+                exit(1);
+            };
+        };
 
         if(255 != HdCommChannel::hda->plane[2].alpha) {
             HdCommChannel::hda->plane[2].alpha = 255;
@@ -270,26 +276,39 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     }
 
 
-    void HdFbTrueColorOsd::new_osd() {
-	    DEBUG_RB_OSD("called\n");
+    int HdFbTrueColorOsd::new_osd() {
+	    DEBUG_RB_OSD("called with defined fbdev=%s\n", fbdev);
         osd = (osd_t*)malloc(sizeof(osd_t));
 
         if(!osd) {
-            std::cout << "ERROR: couldn't malloc in " << __FILE__ << ": " << __LINE__ << std::endl;
-            abort();
+            esyslog_rb("couldn't malloc required amount of OSD memory: 0x%lx\n", sizeof(osd_t));
+            return 1;
         }
 
         osd->fd = open(fbdev, O_RDWR|O_NDELAY);
-        if(osd->fd==-1)
+        if(osd->fd==-1) {
+            esyslog_rb("couldn't open framebuffer device %s (%s)\n", fbdev, strerror(errno));
+            esyslog_rb("fallback to default device %s\n", FB_DEFAULT_DEVICE);
             osd->fd = open(FB_DEFAULT_DEVICE, O_RDWR|O_NDELAY);
-        if(osd->fd==-1)
-            std::cout << "couldn't open " << fbdev << ", error: " << strerror(errno) << std::endl;
+        };
+        if(osd->fd==-1) {
+            esyslog_rb("couldn't open framebuffer device %s (%s)\n", fbdev, strerror(errno));
+            return 1;
+        };
 
         //assert(fb_fd!=-1);
+        struct fb_fix_screeninfo screeninfoFix;
         struct fb_var_screeninfo screeninfo;
 
+        ioctl(osd->fd, FBIOGET_FSCREENINFO, &screeninfoFix);
+        if (strcmp("hde_fb", screeninfoFix.id) != 0) {
+            esyslog_rb("framebuffer device is not HDE: %s\n", fbdev);
+            close(osd->fd);
+            return 1;
+        };
+
         ioctl(osd->fd, FBIOGET_VSCREENINFO, &screeninfo);
-//        esyslog("bits_per_pixel %d xres %d yres %d\n", screeninfo.bits_per_pixel, screeninfo.xres, screeninfo.yres);
+        DEBUG_RB_OSD("name=%s bpp=%d xres=%d yres=%d\n", screeninfoFix.id, screeninfo.bits_per_pixel, screeninfo.xres, screeninfo.yres);
  
         if (screeninfo.bits_per_pixel != 32) {
             screeninfo.bits_per_pixel = 32;
@@ -316,16 +335,17 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         osd->buffer = (unsigned char*) malloc(osd->bpp * osd->width * osd->height);
         if(!osd->buffer) {
             std::cout << "ERROR: couldn't malloc in " << __FILE__ << ": " << __LINE__ << std::endl;
-            abort();
+            return 1;
         }
         if (mySavedRegion == NULL)
             mySavedRegion = (unsigned char*) malloc(osd->bpp*osd->width*osd->height);
         if (mySavedRegion == NULL) {
             printf("[RBM-FB] Can't malloc\n");
-            abort();
+            return 1;
         }
 
         DEBUG_RB_OSD("successfully created framebuffer OSD xres=%i yres=%i bpp=%i data=%p\n", osd->width, osd->height, osd->bpp, osd->data);
+        return 0;
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -158,7 +158,7 @@ static unsigned char *mySavedRegion = NULL;
                          int                &width,
                          int                &height);
         bool LoadImage(UInt imageId);
-        void new_osd();
+        int new_osd();
         void ClearOsd(osd_t *osd);
         void SendOsdCmd(void const *bco, UInt bcoSize, void const *payload = 0, UInt payloadSize = 0);
         template<typename T>
