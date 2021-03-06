@@ -98,16 +98,15 @@ namespace Reel
                                      int height,
                                      int alignment);
 
-//        /* override */ void DrawText32(int x,
-//                                     int y,
-//                                     const char *s,
-//                                     tColor colorFg,
-//                                     tColor colorBg,
-//                                     const cFont *font,
-//                                     int width,
-//                                     int height,
-//                                     int alignment);
-
+        /* override */ void DrawText32(int x,
+                                     int y,
+                                     const char *s,
+                                     tColor colorFg,
+                                     tColor colorBg,
+                                     const cFont *font,
+                                     int width,
+                                     int height,
+                                     int alignment);
         
         /* override */ void DrawRectangle(int x1, int y1, int x2, int y2, tColor color);
        

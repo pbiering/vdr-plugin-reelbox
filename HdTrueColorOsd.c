@@ -73,9 +73,9 @@ namespace Reel
 #endif
         numBitmaps = 0;
 
-        cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
+//        cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
 
-        for (int i = 0; i < MAXOSDAREAS; i++) bitmaps[i] = new cBitmap(720,576, 32, 0, 0); // TEST to avoid crash in DrawBitmap32
+//        for (int i = 0; i < MAXOSDAREAS; i++) bitmaps[i] = new cBitmap(720,576, 32, 0, 0); // TEST to avoid crash in DrawBitmap32
 
 //HdCommChannel::hda->plane[0].mode = 0x41;
 //HdCommChannel::hda->plane[0].changed++;
@@ -455,6 +455,10 @@ namespace Reel
                                                     bool blend, int width, int height)
     {
 	    DEBUG_RB_OSD("called with x=%d y=%d w=%d h=%d\n", x, y, width, height);
+        esyslog_rb("HdTrueColorOsd::DrawBitmap32 not supported\n");
+        return;
+
+#if 0
 
         // Send the palette.
         int numColors;
@@ -499,7 +503,7 @@ namespace Reel
         SendOsdCmd(&bco2, sizeof(hdcmd_osd_draw8_t), bitmap.Data(0, 0), width * height);
         free(buffer);
         dirty_ = true;
-
+#endif
     }
 
     //--------------------------------------------------------------------------------------------------------------
