@@ -20,7 +20,7 @@
 
 // HdFbTrueColorOsd.c
 
-
+#include "HdOsdProviderSupport.h"
 #include "HdFbTrueColorOsd.h"
 
 #include <vdr/tools.h>
@@ -555,10 +555,13 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
     /* override */ eOsdError HdFbTrueColorOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
+        SUPPORT_CanHandleAreas(areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8 && areas[i].bpp != 32 || !RBSetup.TRCLosd, 720, 576)
+#if 0
+
         DEBUG_RB_OSD_AR("called with numAreas=%i\n", numAreas);
         for (int i = 0; i < numAreas; i++)
         {
-            DEBUG_RB_OSD_AR("area i=%d bpp=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].Width(), areas[i].Height());
+            DEBUG_RB_OSD_AR("area i=%d bpp=%d x1=%d x2=%d y1=%d y2=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height());
         }
 /*
         if (numAreas != 1) {
@@ -581,17 +584,24 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
                 if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8
                     && (areas[i].bpp != 32 || !RBSetup.TRCLosd))
                 {
-                    DEBUG_RB_OSD_AR("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
-                    return oeBppNotSupported;
+                    esyslog_rb("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
+                    Result = oeBppNotSupported;
+                    break;
                 }
                 if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
                 {
-                    DEBUG_RB_OSD_AR("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
-                    return oeWrongAreaSize;
+                    esyslog_rb("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
+                    Result = oeWrongAreaSize;
+                    break;
                 }
             }
         }
-        DEBUG_RB_OSD_AR("Result=%d\n", Result);
+        else
+        {
+            DEBUG_RB_OSD_AR("cOsd::CanHandleAreas already returned Result != oeOk: %d\n", Result);
+        }
+        DEBUG_RB_OSD_AR("Result=%d (%s)\n", Result, OsdErrorTexts[Result]);
+#endif
         return Result;
     }
     
@@ -1697,10 +1707,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     /* override */ eOsdError HdFbTrueColorOsd::SetAreas(tArea const *areas, int numAreas)
     {
         DEBUG_RB_OSD_AR("called (and forward to cOsd) with numAreas=%i\n", numAreas);
-        for (int i = 0; i < numAreas; i++)
-        {
-            DEBUG_RB_OSD_AR("area i=%d bpp=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].Width(), areas[i].Height());
-        }
+        DEBUG_DISPLAY_Areas()
         eOsdError ret = cOsd::SetAreas(areas, numAreas);
 
 #if 0
