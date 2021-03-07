@@ -186,8 +186,8 @@ namespace Reel
         {
             dsyslog_rb("HDE: start\n");
             if (InitHda()) {
-		esyslog_rb("HDE: Init not successful\n");
-		return 1;
+                esyslog_rb("HDE: Init not successful\n");
+                return 1;
             };
 
             dsyslog_rb("HDE: call chStream1.Open(%d)\n", HDCH_STREAM1);
@@ -420,25 +420,25 @@ namespace Reel
                 return 1;
             }
 
-	    // Be tolerant...
-	    for(int n=0;n<20;n++) {
-                    dsyslog_rb("HDE: try to get area id=%d\n", HDID_HDA);
-		    area = ::hd_get_area(HDID_HDA);
-		    if (area)
-			    break;
-		    sleep(1);
-	    }
+	        // Be tolerant...
+            for(int n=0;n<20;n++) {
+                dsyslog_rb("HDE: try to get area id=%d\n", HDID_HDA);
+		        area = ::hd_get_area(HDID_HDA);
+		        if (area)
+			        break;
+                sleep(1);
+	        }
 	    
-	    if (area)
-		dsyslog_rb("HDE control area: %p, mapped %p, pyhs 0x%lx, len 0x%x, hdp_running=%i, hdc_running=%i\n",area,
+	        if (area)
+                dsyslog_rb("HDE control area: %p, mapped %p, pyhs 0x%lx, len 0x%x, hdp_running=%i, hdc_running=%i\n",area,
     	            area->mapped, area->physical, area->length,
     	              ((::hd_data_t volatile *)area->mapped)->hdp_running,((::hd_data_t volatile *)area->mapped)->hdc_running);
             else
             { // Create dummy
                 esyslog_rb("HDE: can't get control area (hdctrld not running on HDE?). Using dummy.\n");
                 int area_size = ALIGN_UP(sizeof(hd_data_t), 2*4096);
-		::hdshm_reset();
-		area = hd_create_area(HDID_HDA, NULL, area_size, HDSHM_MEM_HD);
+		        ::hdshm_reset();
+                area = hd_create_area(HDID_HDA, NULL, area_size, HDSHM_MEM_HD);
             }
 
             if (!area)
@@ -450,20 +450,30 @@ namespace Reel
 
             hda = (::hd_data_t volatile *)area->mapped;
             for(int n=30;n>=0;n--) {
-		dsyslog_rb("HDE: set hdp_enable=1\n");
+                dsyslog_rb("HDE: set hdp_enable=0\n");
+                hda->hdp_enable = 0;
+                dsyslog_rb("HDE: set hdp_enable=0 executed\n");
+		        dsyslog_rb("HDE: check for hdp_running=0\n");
+                if (!hda->hdp_running)
+                    break;
+                isyslog_rb("HDE: wait for stopped hdplayer (%i)\n",n);
+                sleep(1);
+            }
+            for(int n=30;n>=0;n--) {
+		        dsyslog_rb("HDE: set hdp_enable=1\n");
                 hda->hdp_enable = 1;
-		dsyslog_rb("HDE: set hdp_enable=1 executed\n");
-		dsyslog_rb("HDE: check for hdp_running\n");
+                dsyslog_rb("HDE: set hdp_enable=1 executed\n");
+		        dsyslog_rb("HDE: check for hdp_running\n");
                 if (hda->hdp_running)
                     break;
                 isyslog_rb("HDE: wait for hdplayer (%i)\n",n);
                 sleep(1);
             }
             if (hda->hdp_running) {
-		isyslog_rb("HDE: hdplayer is running\n");
-	    } else {
-		esyslog_rb("HDE: hdplayer is NOT running\n");
-		return 1;
+                isyslog_rb("HDE: hdplayer is running\n");
+	        } else {
+                esyslog_rb("HDE: hdplayer is NOT running\n");
+		        return 1;
             };
             hda->hd_shutdown = 0;
             hda->osd_dont_touch=0;
@@ -473,3 +483,5 @@ namespace Reel
         }
     }
 }
+
+// vim: ts=4 sw=4 et
