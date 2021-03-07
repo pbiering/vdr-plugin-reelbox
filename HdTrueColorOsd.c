@@ -20,7 +20,7 @@
 
 // HdTrueColorOsd.c
 
-
+#include "HdOsdProviderSupport.h"
 #include "HdTrueColorOsd.h"
 #include "logging.h"
 
@@ -73,7 +73,7 @@ namespace Reel
 #endif
         numBitmaps = 0;
 
-//        cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
+        cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
 
 //        for (int i = 0; i < MAXOSDAREAS; i++) bitmaps[i] = new cBitmap(720,576, 32, 0, 0); // TEST to avoid crash in DrawBitmap32
 
@@ -306,28 +306,42 @@ namespace Reel
 
     /* override */ eOsdError HdTrueColorOsd::CanHandleAreas(tArea const *areas, int numAreas)
     {
+        SUPPORT_CanHandleAreas(areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8 && areas[i].bpp != 32 || !RBSetup.TRCLosd, 720, 576)
+
+#if 0
         DEBUG_RB_OSD_AR("called with numAreas=%i\n", numAreas);
+        for (int i = 0; i < numAreas; i++)
+        {
+            DEBUG_RB_OSD_AR("area i=%d bpp=%d x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height());
+        }
 
         eOsdError Result = cOsd::CanHandleAreas(areas, numAreas);
         if (Result == oeOk)
         {
             for (int i = 0; i < numAreas; i++)
             {
-                DEBUG_RB_OSD_AR("check: area=%i bpp=%d x1=%d y1=%d x2=%d y2=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].y1, areas[i].x2, areas[i].y2, areas[i].Width(), areas[i].Height());
+                DEBUG_RB_OSD_AR("check: area=%i bpp=%d x1=%d x2=%d y1=%d y2=%d Width=%d Height=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height());
                 if (areas[i].bpp != 1 && areas[i].bpp != 2 && areas[i].bpp != 4 && areas[i].bpp != 8
                     && (areas[i].bpp != 32 || !RBSetup.TRCLosd))
                 {
-                    DEBUG_RB_OSD_AR("area color depth not supported: i=%d bpp=%d\n", i, areas[i].bpp);
-                    return oeBppNotSupported;
+                    esyslog_rb("area color depth not supported: i=%d bpp=%d x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp);
+                    Result = oeBppNotSupported;
+                    break;
                 };
                 if (areas[i].Width() < 1 || areas[i].Height() < 1 || areas[i].Width() > 720 || areas[i].Height() > 576)
                 {
-                    DEBUG_RB_OSD_AR("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
-                    return oeWrongAreaSize;
+                    esyslog_rb("area size not supported: i=%d w=%d h=%d\n", i, areas[i].Width(), areas[i].Height());
+                    Result = oeWrongAreaSize;
+                    break;
                 };
             }
         }
-        DEBUG_RB_OSD_AR("Result=%d\n", Result);
+        else
+        {
+            esyslog_rb("cOsd::CanHandleAreas already returned Result != oeOk: %d\n", Result);
+        }
+        DEBUG_RB_OSD_AR("Result=%d (%s)\n", Result, OsdErrorTexts[Result]);
+#endif
         return Result;
 
 /*
