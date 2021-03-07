@@ -1,0 +1,43 @@
+diff --git a/dvbsubtitle.c b/dvbsubtitle.c
+index 5e5139ff..c3b6663a 100644
+--- a/dvbsubtitle.c
++++ b/dvbsubtitle.c
+@@ -1085,10 +1085,10 @@ tArea *cDvbSubtitlePage::GetAreas(int &NumAreas, double FactorX, double FactorY)
+      tArea *a = Areas;
+      for (cSubtitleRegionRef *srr = regionRefs.First(); srr; srr = regionRefs.Next(srr)) {
+          if (cSubtitleRegion *sr = GetRegionById(srr->RegionId())) {
+-            a->x1 = int(round(FactorX * srr->RegionHorizontalAddress()));
+-            a->y1 = int(round(FactorY * srr->RegionVerticalAddress()));
+-            a->x2 = int(round(FactorX * (srr->RegionHorizontalAddress() + sr->RegionWidth() - 1)));
+-            a->y2 = int(round(FactorY * (srr->RegionVerticalAddress() + sr->RegionHeight() - 1)));
++            a->x1 = int(FactorX * srr->RegionHorizontalAddress());
++            a->y1 = int(FactorY * srr->RegionVerticalAddress());
++            a->x2 = a->x1 + int(FactorX * sr->RegionWidth()) - 1;  // -1 required to avoid x2-x1 > osd->width
++            a->y2 = a->y1 + int(FactorY * sr->RegionHeight()) - 1; // -1 required to avoid any overlap on low-res OSD
+             a->bpp = sr->RegionDepth();
+             while ((a->Width() & 3) != 0)
+                   a->x2++; // aligns width to a multiple of 4, so 2, 4 and 8 bpp will work
+@@ -1737,8 +1737,13 @@ void cDvbSubtitleConverter::FinishPage(cDvbSubtitlePage *Page)
+   tArea *Areas = Page->GetAreas(NumAreas, osdFactorX, osdFactorY);
+   int Bpp = 8;
+   bool Reduced = false;
+-  while (osd && osd->CanHandleAreas(Areas, NumAreas) != oeOk) {
+-        dbgoutput("CanHandleAreas: %d<br>\n", osd->CanHandleAreas(Areas, NumAreas));
++  if (!osd)
++     return;
++  eOsdError Result = osd->CanHandleAreas(Areas, NumAreas);
++  while (Result != oeOk) {
++        dbgoutput("CanHandleAreas: %d<br>\n", Result);
++        if (Result != oeBppNotSupported)
++            return; // reduce of bpp won't help here
+         int HalfBpp = Bpp / 2;
+         if (HalfBpp >= 2) {
+            for (int i = 0; i < NumAreas; i++) {
+@@ -1751,6 +1756,7 @@ void cDvbSubtitleConverter::FinishPage(cDvbSubtitlePage *Page)
+            }
+         else
+            return; // unable to draw bitmaps
++        Result = osd->CanHandleAreas(Areas, NumAreas); // try again with reduced bpp
+         }
+   cDvbSubtitleBitmaps *Bitmaps = new cDvbSubtitleBitmaps(Page->PageState(), Page->Pts(), Page->PageTimeout(), Areas, NumAreas, osdFactorX, osdFactorY);
+   bitmaps->Add(Bitmaps);
