@@ -37,7 +37,7 @@ namespace Reel
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         HdOsd(int Left, int Top, uint level);
         void SetActive(bool On);
-        virtual eOsdError SetAreas(const tArea *Areas, int NumAreas); // 1.6
+        virtual eOsdError SetAreas(const tArea *areas, int numAreas); // 1.6
         virtual eOsdError CanHandleAreas(const tArea *areas, int numAreas);
 #else
         HdOsd(int Left, int Top);
