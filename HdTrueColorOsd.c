@@ -91,9 +91,10 @@ namespace Reel
 
     HdTrueColorOsd::~HdTrueColorOsd()
     {
+        DEBUG_RB_OSD("called\n");
 
 #if APIVERSNUM >= 10509 || defined(REELVDR)
-            SetActive(false);
+        SetActive(false);
         
 #else
 
