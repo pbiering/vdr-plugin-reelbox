@@ -120,7 +120,7 @@ namespace Reel
 
     Plugin::~Plugin() NO_THROW
     {
-        //printf (" \033[0;44m %s \033[0m \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("called\n");
         if (RBSetup.usehdext)
         {
             HdCommChannel::Exit();
@@ -129,7 +129,7 @@ namespace Reel
         {
             Bsp::BspCommChannel::Destroy();
         }
-        //printf (" \033[0;44m %s END \033[0m \n", __PRETTY_FUNCTION__);
+        dsyslog_rb("finished\n");
     }
 
     PCSTR Plugin::Version() NO_THROW
@@ -163,26 +163,26 @@ namespace Reel
     {
         // Open communications to the BSP
         if (useFb == 0) {
-	    isyslog_rb("initializing without OSD framebuffer device\n");
-	} else {
-	    isyslog_rb("initializing with OSD framebuffer device: %s\n", fbdev);
-	};
+            isyslog_rb("initializing without OSD framebuffer device\n");
+	    } else {
+	        isyslog_rb("initializing with OSD framebuffer device: %s\n", fbdev);
+        };
 
         if (RBSetup.usehdext)
         {
             if (HdCommChannel::Init()) {
-		    esyslog_rb("HDE selected but HdCommChannel::Init was not successful\n");
-		    return false;
+                esyslog_rb("HDE selected but HdCommChannel::Init was not successful\n");
+                return false;
             };
-        dsyslog_rb("HDE selected and HdCommChannel::Init was successful\n");
-        Reel::HdCommChannel::SetVideomode();
-        Reel::HdCommChannel::SetPicture(&RBSetup);
-        Reel::HdCommChannel::SetHWControl(&RBSetup);
-        Reel::HdCommChannel::hda->plane[2].enable=1; // avoid init race
-        Reel::HdCommChannel::hda->plane[2].alpha=255;
-//	    Reel::HdCommChannel::hda->plane[2].mode=15;
-//	    Reel::HdCommChannel::hda->plane[2].w=1920;
-//	    Reel::HdCommChannel::hda->plane[2].h=1080;
+            dsyslog_rb("HDE selected and HdCommChannel::Init was successful\n");
+            Reel::HdCommChannel::SetVideomode();
+            Reel::HdCommChannel::SetPicture(&RBSetup);
+            Reel::HdCommChannel::SetHWControl(&RBSetup);
+            Reel::HdCommChannel::hda->plane[2].enable=1; // avoid init race
+            Reel::HdCommChannel::hda->plane[2].alpha=255;
+//	        Reel::HdCommChannel::hda->plane[2].mode=15;
+//	        Reel::HdCommChannel::hda->plane[2].w=1920;
+//  	    Reel::HdCommChannel::hda->plane[2].h=1080;
 
 #if 0 //REELVDR
         Reel::HdCommChannel::hda->hdp_enable = 0;
