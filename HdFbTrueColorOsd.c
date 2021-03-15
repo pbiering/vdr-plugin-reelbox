@@ -169,19 +169,20 @@ namespace Reel
         dirtyArea_.y1 = 0;
     }
 
-static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigned  int *r,unsigned  int *b) {
-    if (*r >= osd->width) {
-        *r = osd->width-1;
+    static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigned  int *r,unsigned  int *b) {
+        if (*r >= osd->width) {
+            *r = osd->width-1;
+        }
+        if (*b >= osd->height) {
+            *b = osd->height-1;
+        }
+        return *l < *r && *t < *b;
     }
-    if (*b >= osd->height) {
-        *b = osd->height-1;
-    }
-    return *l < *r && *t < *b;
-}
 
     void HdFbTrueColorOsd::ClearOsd(osd_t *osd) {
 	    DEBUG_RB_OSD("called\n");
         if(osd && osd->buffer && osd->data) {
+	        DEBUG_RB_OSD("clear buffer width=%d height=%d bpp=%d\n", osd->width, osd->height, osd->bpp);
             memset(osd->buffer, 0x00, osd->width*osd->height*osd->bpp);
             memset(osd->data, 0x00, osd->width*osd->height*osd->bpp);
         }
@@ -241,7 +242,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
         /*osdChannel_(Hd::HdCommChannel::Instance().bsc_osd),*/
         dirty_(false)
     {
-	    DEBUG_RB_OSD("called\n");
+	    DEBUG_RB_OSD("called with left=%d top=%d\n", left, top);
         int ret = 0;
         hdCachedFonts_ = HdCommChannel::hda->osd_cached_fonts;
         //cachedImages_ = HdCommChannel::hda->osd_cached_images;
@@ -359,21 +360,13 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
     HdFbTrueColorOsd::~HdFbTrueColorOsd()
     {
+        DEBUG_RB_OSD("called\n");
 
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         SetActive(false);
-        
 #else
         ClearOsd();
 #endif
-
-        //close(osd->fd);
-        //osd->fd = -1;
-        //free(osd->buffer);
-        //free(osd);
-//    if(mySavedRegion)
-//        free(mySavedRegion);
-//    mySavedRegion = NULL;
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -408,7 +401,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
     //--------------------------------------------------------------------------------------------------------------
     /** Mark the rectangle between (x0, y0) and (x1, y1) as an area that has changed */
     void HdFbTrueColorOsd::UpdateDirty(int x0, int y0, int x1, int y1) {
-        DEBUG_RB_OSD("called with x0=%d y0=%d x1=%d y1=%d osd->width=%d osd->heigth=%d\n", x0, y0, x1, y1, osd->width, osd->height);
+        DEBUG_RB_OSD_UD("called with x0=%d y0=%d x1=%d y1=%d osd->width=%d osd->heigth=%d\n", x0, y0, x1, y1, osd->width, osd->height);
         if(x0 >= (int)osd->width)  x0 = osd->width-1;
         if(x1 >= (int)osd->width)  x1 = osd->width-1;
         if(y0 >= (int)osd->height) y0 = osd->height-1;
@@ -872,7 +865,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
     /* override */ void HdFbTrueColorOsd::DrawEllipse(int X1, int Y1, int X2, int Y2, tColor color, int quadrants)
     {
-        DEBUG_RB_OSD("called\n");
+        DEBUG_RB_OSD_DF("called\n");
 
         unsigned int l, t, r, b;
         l = /*Left() +*/ X1;
@@ -1158,7 +1151,7 @@ static bool inline ClipArea(osd_t *osd, unsigned int *l,unsigned  int *t,unsigne
 
     /* override */ void HdFbTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-	    DEBUG_RB_OSD("called with: x1=%d y1=%d x2=%d y2=%d color=%08x\n", x1, y1, x2, y2, color);
+	    DEBUG_RB_OSD_DF("called with: x1=%d y1=%d x2=%d y2=%d color=%08x\n", x1, y1, x2, y2, color);
 
         unsigned int l, t, r, b;
         l = Left() + x1;
