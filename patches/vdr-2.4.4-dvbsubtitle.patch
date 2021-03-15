@@ -1,0 +1,309 @@
+diff --git a/dvbsubtitle.c b/dvbsubtitle.c
+index 5e5139ff..00120b6c 100644
+--- a/dvbsubtitle.c
++++ b/dvbsubtitle.c
+@@ -10,6 +10,10 @@
+  * $Id: dvbsubtitle.c 4.2 2020/05/15 12:32:51 kls Exp $
+  */
+ 
++#define DVBSTNG    1 // activate DVB subtitle scaling NextGeneration
++//#define DVBSTDEBUG 1 // DEBUG extra
++//#define DVBSTNGDEBUG 1 // DEBUG DVBSTNG extra
++
+ #include "dvbsubtitle.h"
+ #define __STDC_FORMAT_MACROS // Required for format specifiers
+ #include <inttypes.h>
+@@ -993,7 +997,13 @@ public:
+   int64_t Pts(void) const { return pts; }
+   bool Pending(void) { return pending; }
+   cSubtitleObjects *Objects(void) { return &objects; }
++#ifdef DVBSTNG
++  tArea *GetAreas(int &NumAreas);
++  tArea *GetAreaMaster(const int NumAreas, const tArea *a);
++  tArea *GetAreaOsd(const int NumAreas, const tArea *a, const double FactorX, const double FactorY);
++#else
+   tArea *GetAreas(int &NumAreas, double FactorX, double FactorY);
++#endif
+   cSubtitleObject *GetObjectById(int ObjectId, bool New = false);
+   cSubtitleClut *GetClutById(int ClutId, bool New = false);
+   cSubtitleRegion *GetRegionById(int RegionId, bool New = false);
+@@ -1077,14 +1087,97 @@ void cDvbSubtitlePage::ParsePgs(int64_t Pts, cBitStream &bs)
+   pending = true;
+ }
+ 
++#ifdef DVBSTNG
++tArea *cDvbSubtitlePage::GetAreaOsd(const int NumAreas, const tArea *a, const double FactorX, const double FactorY)
++{
++#ifdef DVBSTDEBUG
++  dsyslog("dvbsubtitle/%s: called with NumAreas=%d FactorX=%lf FactorY=%lf\n", __FUNCTION__, NumAreas, FactorX, FactorY);
++#endif
++  if (NumAreas == 0)
++    return NULL; // nothing to do
++
++  tArea *AreaOsd = new tArea[1]; // only 1 master area
++  tArea *ao = AreaOsd;
++
++  ao->x1  = int(round(FactorX * a->x1)    );
++  ao->x2  = int(round(FactorX * a->x2) - 1);
++  ao->y1  = int(round(FactorY * a->y1)    );
++  ao->y2  = int(round(FactorY * a->y2) - 1);
++  ao->bpp = a->bpp;
++  while ((ao->Width() & 3) != 0)
++    ao->x2++; // aligns width to a multiple of 4, so 2, 4 and 8 bpp will work
++
++#ifdef DVBSTDEBUG
++  dsyslog("dvbsubtitle/cDvbSubtitlePage::GetAreaOsd: x1=%d x2=%d y1=%d y2=%d <= x1=%d x2=%d y1=%d y2=%d FactorX=%lf FactorY=%lf\n", ao->x1, ao->x2, ao->y1, ao->y2, a->x1, a->x2, a->y1, a->y2, FactorX, FactorY);
++#endif
++
++  return AreaOsd;
++};
++
++
++tArea *cDvbSubtitlePage::GetAreaMaster(const int NumAreas, const tArea *a)
++{
++#ifdef DVBSTDEBUG
++  dsyslog("dvbsubtitle/%s: called with NumAreas=%d\n", __FUNCTION__, NumAreas);
++#endif
++  if (NumAreas == 0)
++    return NULL; // nothing to do
++
++  int x1min = -1, x2max = -1, y1min = -1, y2max = -1, bpp = -1;
++  for (int i = 0; i < NumAreas; i++) {
++    if (i == 0) {
++      // init
++      x1min = a[i].x1;
++      x2max = a[i].x2;
++      y1min = a[i].y1;
++      y2max = a[i].y2;
++      bpp   = a[i].bpp;
++    } else {
++      if (x1min > a[i].x1 ) x1min = a[i].x1 ;
++      if (x2max < a[i].x2 ) x2max = a[i].y2 ;
++      if (y1min > a[i].y1 ) y1min = a[i].y1 ;
++      if (y2max < a[i].y2 ) y2max = a[i].y2 ;
++      if (bpp   < a[i].bpp) bpp   = a[i].bpp;
++    };
++  };
++
++  tArea *AreaMaster = new tArea[1]; // only 1 master area
++  tArea *am = AreaMaster;
++
++  am->x1  = x1min;
++  am->x2  = x2max;
++  am->y1  = y1min;
++  am->y2  = y2max;
++  am->bpp = bpp;
++
++#ifdef DVBSTDEBUG
++  dsyslog("dvbsubtitle/cDvbSubtitlePage::GetAreaMaster: x1=%d x2=%d y1=%d y2=%d <= x1min=%d x2max=%d y1min=%d y2max=%d\n", am->x1, am->x2, am->y1, am->y2, x1min, x2max, y1min, y2max);
++#endif
++
++  return AreaMaster;
++};
++
++tArea *cDvbSubtitlePage::GetAreas(int &NumAreas)
++#else
+ tArea *cDvbSubtitlePage::GetAreas(int &NumAreas, double FactorX, double FactorY)
++#endif
+ {
+   if (regions.Count() > 0) {
+      NumAreas = regionRefs.Count();
+      tArea *Areas = new tArea[NumAreas];
+      tArea *a = Areas;
++#ifdef DVBSTDEBUG  // DEBUG
++     int n = 0;
++#endif
+      for (cSubtitleRegionRef *srr = regionRefs.First(); srr; srr = regionRefs.Next(srr)) {
+          if (cSubtitleRegion *sr = GetRegionById(srr->RegionId())) {
++#ifdef DVBSTNG
++            a->x1 = srr->RegionHorizontalAddress();
++            a->y1 = srr->RegionVerticalAddress();
++            a->x2 = srr->RegionHorizontalAddress() + sr->RegionWidth() - 1;
++            a->y2 = srr->RegionVerticalAddress() + sr->RegionHeight() - 1;
++            a->bpp = sr->RegionDepth();
++#else
+             a->x1 = int(round(FactorX * srr->RegionHorizontalAddress()));
+             a->y1 = int(round(FactorY * srr->RegionVerticalAddress()));
+             a->x2 = int(round(FactorX * (srr->RegionHorizontalAddress() + sr->RegionWidth() - 1)));
+@@ -1092,6 +1185,11 @@ tArea *cDvbSubtitlePage::GetAreas(int &NumAreas, double FactorX, double FactorY)
+             a->bpp = sr->RegionDepth();
+             while ((a->Width() & 3) != 0)
+                   a->x2++; // aligns width to a multiple of 4, so 2, 4 and 8 bpp will work
++#endif
++#ifdef DVBSTDEBUG
++            dsyslog("dvbsubtitle/cDvbSubtitlePage::GetAreas: #%d x1=%d x2=%d y1=%d y2=%d RHA=%d RW=%d RVA=%d RH=%d bpp=%d\n", n, a->x1, a->x2, a->y1, a->y2, srr->RegionHorizontalAddress(), sr->RegionWidth(), srr->RegionVerticalAddress(), sr->RegionHeight(), a->bpp);
++            n++;
++#endif
+             }
+          else
+             a->x1 = a->y1 = a->x2 = a->y2 = a->bpp = 0;
+@@ -1219,11 +1317,19 @@ private:
+   int timeout;
+   tArea *areas;
+   int numAreas;
++#ifdef DVBSTNG
++  tArea *areaMaster;
++  tArea *areaOsd;
++#endif
+   double osdFactorX;
+   double osdFactorY;
+   cVector<cBitmap *> bitmaps;
+ public:
++#ifdef DVBSTNG
++  cDvbSubtitleBitmaps(int State, int64_t Pts, int Timeout, tArea *Areas, int NumAreas, double OsdFactorX, double OsdFactorY, tArea *AreaMaster, tArea *AreaOsd);
++#else
+   cDvbSubtitleBitmaps(int State, int64_t Pts, int Timeout, tArea *Areas, int NumAreas, double OsdFactorX, double OsdFactorY);
++#endif
+   ~cDvbSubtitleBitmaps();
+   int State(void) { return state; }
+   int64_t Pts(void) { return pts; }
+@@ -1234,13 +1340,21 @@ public:
+   void DbgDump(int WindowWidth, int WindowHeight);
+   };
+ 
++#ifdef DVBSTNG
++cDvbSubtitleBitmaps::cDvbSubtitleBitmaps(int State, int64_t Pts, int Timeout, tArea *Areas, int NumAreas, double OsdFactorX, double OsdFactorY, tArea *AreaMaster, tArea *AreaOsd)
++#else
+ cDvbSubtitleBitmaps::cDvbSubtitleBitmaps(int State, int64_t Pts, int Timeout, tArea *Areas, int NumAreas, double OsdFactorX, double OsdFactorY)
++#endif
+ {
+   state = State;
+   pts = Pts;
+   timeout = Timeout;
+   areas = Areas;
+   numAreas = NumAreas;
++#ifdef DVBSTNG
++  areaMaster = AreaMaster;
++  areaOsd    = AreaOsd;
++#endif
+   osdFactorX = OsdFactorX;
+   osdFactorY = OsdFactorY;
+ }
+@@ -1248,6 +1362,10 @@ cDvbSubtitleBitmaps::cDvbSubtitleBitmaps(int State, int64_t Pts, int Timeout, tA
+ cDvbSubtitleBitmaps::~cDvbSubtitleBitmaps()
+ {
+   delete[] areas;
++#ifdef DVBSTNG
++  delete[] areaMaster;
++  delete[] areaOsd;
++#endif
+   for (int i = 0; i < bitmaps.Size(); i++)
+       delete bitmaps[i];
+ }
+@@ -1260,9 +1378,44 @@ void cDvbSubtitleBitmaps::AddBitmap(cBitmap *Bitmap)
+ void cDvbSubtitleBitmaps::Draw(cOsd *Osd)
+ {
+   bool Scale = !(DoubleEqual(osdFactorX, 1.0) && DoubleEqual(osdFactorY, 1.0));
+-  bool AntiAlias = true;
++  bool AntiAlias = Setup.AntiAlias;
++#ifdef DVBSTDEBUG
++  dsyslog("subtitle/%s: called Scale=%d AntiAlias=%d osdFactorX=%f osdFactorY=%f\n", __FUNCTION__, Scale, AntiAlias, osdFactorX, osdFactorY); // DEBUG
++#endif
+   if (Scale && osdFactorX > 1.0 || osdFactorY > 1.0) {
+      // Upscaling requires 8bpp:
++#ifdef DVBSTNG
++     int Bpp;
++     Bpp = areaOsd[0].bpp;
++     areaOsd[0].bpp = 8;
++     if (Osd->CanHandleAreas(areaOsd, 1) != oeOk) {
++        areaOsd[0].bpp = Bpp;
++        AntiAlias = false;
++        }
++     }
++  if (State() == 0 || Osd->SetAreas(areaOsd, 1) == oeOk) {
++     // merge bitmaps into master
++     cBitmap master(areaMaster[0].Width(), areaMaster[0].Height(), areaMaster[0].bpp);
++     //master.DrawRectangle(0, 0, master.Width() - 1, master.Height() - 1, 0x80000000 | clrGreen);
++     //master.DrawRectangle(0, 0, master.Width() / 2 - 1, master.Height() / 2 - 1, 0xA0000000 | clrGreen);
++     master.SetOffset(areaMaster[0].x1, areaMaster[0].y1);
++#ifdef DVBSTDEBUG
++     dsyslog("subtitle/%s: create master bitmap X0=%d Y0=%d Width=%d Height=%d bpp=%d\n", __FUNCTION__, master.X0(), master.Y0(), master.Width(), master.Height(), areaMaster[0].bpp); // DEBUG
++#endif
++     for (int i = 0; i < bitmaps.Size(); i++) {
++         cBitmap *b = bitmaps[i];
++         master.DrawBitmap(b->X0(), b->Y0(), *b);
++         }
++#ifdef DVBSTNGDEBUG
++     for (int i = 0; i < master.Height(); i++) {
++         master.DrawPixel(master.Width() / 3 + i + master.X0(), i + master.Y0(), clrWhite);
++         master.DrawPixel(master.Width() / 3 + master.Width() / 2 + i + master.X0(), i + master.Y0(), clrYellow);
++     };
++#endif
++     Osd->DrawScaledBitmap(int(round(master.X0() * osdFactorX)), int(round(master.Y0() * osdFactorY)), master, osdFactorX, osdFactorY, AntiAlias);
++     Osd->Flush();
++     }
++#else
+      int Bpp[MAXOSDAREAS];
+      for (int i = 0; i < numAreas; i++) {
+          Bpp[i] = areas[i].bpp;
+@@ -1281,6 +1434,7 @@ void cDvbSubtitleBitmaps::Draw(cOsd *Osd)
+          }
+      Osd->Flush();
+      }
++#endif
+ }
+ 
+ void cDvbSubtitleBitmaps::DbgDump(int WindowWidth, int WindowHeight)
+@@ -1519,6 +1673,9 @@ void cDvbSubtitleConverter::SetOsdData(void)
+      osdDeltaX = (OsdWidth - displayWidth * osdFactorX) / 2;
+      osdDeltaY = (OsdHeight - displayHeight * osdFactorY) / 2;
+      }
++#ifdef DVBSTDEBUG
++  dsyslog("subtitle/%s: called OsdWidth=%d displayWidth=%d OsdHeight=%d displayHeight=%d => osdFactorX=%f osdDeltaX=%d osdFactorY=%f osdDeltaY=%d\n", __FUNCTION__, OsdWidth, displayWidth, OsdHeight, displayHeight, osdFactorX, osdDeltaX, osdFactorY, osdDeltaY); // DEBUG
++#endif
+ }
+ 
+ bool cDvbSubtitleConverter::AssertOsd(void)
+@@ -1734,25 +1891,52 @@ void cDvbSubtitleConverter::FinishPage(cDvbSubtitlePage *Page)
+   if (!AssertOsd())
+      return;
+   int NumAreas;
++#ifdef DVBSTNG
++  int NumAreaOsd;
++  tArea *Areas = Page->GetAreas(NumAreas);
++  // get master area
++  tArea *AreaMaster = Page->GetAreaMaster(NumAreas, Areas);
++  tArea *AreaOsd = Page->GetAreaOsd(NumAreas, AreaMaster, osdFactorX, osdFactorY);
++  if (AreaOsd == NULL)
++    NumAreaOsd = 0;
++  else
++    NumAreaOsd = 1;
++#else
+   tArea *Areas = Page->GetAreas(NumAreas, osdFactorX, osdFactorY);
++#endif
+   int Bpp = 8;
+   bool Reduced = false;
++#ifdef DVBSTNG
++  while (osd && osd->CanHandleAreas(AreaOsd, NumAreaOsd) != oeOk) {
++#else
+   while (osd && osd->CanHandleAreas(Areas, NumAreas) != oeOk) {
++#endif
+         dbgoutput("CanHandleAreas: %d<br>\n", osd->CanHandleAreas(Areas, NumAreas));
+         int HalfBpp = Bpp / 2;
+         if (HalfBpp >= 2) {
++#ifdef DVBSTNG
++           if (AreaOsd[0].bpp >= Bpp) {
++               AreaOsd[0].bpp = HalfBpp;
++               Reduced = true;
++	   };
++#else
+            for (int i = 0; i < NumAreas; i++) {
+                if (Areas[i].bpp >= Bpp) {
+                   Areas[i].bpp = HalfBpp;
+                   Reduced = true;
+                   }
+                }
++#endif
+            Bpp = HalfBpp;
+            }
+         else
+            return; // unable to draw bitmaps
+         }
++#ifdef DVBSTNG
++  cDvbSubtitleBitmaps *Bitmaps = new cDvbSubtitleBitmaps(Page->PageState(), Page->Pts(), Page->PageTimeout(), Areas, NumAreas, osdFactorX, osdFactorY, AreaMaster, AreaOsd);
++#else
+   cDvbSubtitleBitmaps *Bitmaps = new cDvbSubtitleBitmaps(Page->PageState(), Page->Pts(), Page->PageTimeout(), Areas, NumAreas, osdFactorX, osdFactorY);
++#endif
+   bitmaps->Add(Bitmaps);
+   for (int i = 0; i < NumAreas; i++) {
+       if (cSubtitleRegionRef *srr = Page->GetRegionRefByIndex(i)) {
