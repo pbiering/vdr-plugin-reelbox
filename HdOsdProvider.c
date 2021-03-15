@@ -88,7 +88,7 @@ namespace Reel
     }
 
     HdOsdProvider::~HdOsdProvider() {
-        if(0 && useFb) {  //TB: causes crash when shutting down???
+        if(0 && useFb) {  //TODO: causes crash when shutting down???
             close(osd->fd);
             osd->fd = -1;
             free(osd->buffer);
