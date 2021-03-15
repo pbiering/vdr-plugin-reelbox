@@ -108,11 +108,12 @@ namespace Reel
 
         void Channel::Open(int chNum)
         {
-            for(int n=15;n>=0;n--) {
+            int nmax = 15;
+            for(int n=0; n <= nmax; n++) {
                 ch_ = hd_channel_open(chNum);
                 if (ch_) 
                     break;                
-                dsyslog_rb("HDE-Channel open %i: waiting to appear (%i)\n",chNum, n);
+                dsyslog_rb("HDE-Channel open %i: waiting to appear (%i/%i)\n",chNum, n, nmax);
                 sleep(1);
             }
             if (!ch_)
@@ -171,15 +172,23 @@ namespace Reel
 
         void Exit() NO_THROW
         {
-	    if (hda == NULL) return;
+	        if (hda == NULL) return;
+            dsyslog_rb("HDE: called\n");
+
             hda->player[0].data_generation++;
+            dsyslog_rb("HDE: set hdp_enable=0\n");
             hda->hdp_enable = 0;
+            dsyslog_rb("HDE: set hd_shutdown=1\n");
             hda->hd_shutdown = 1;
             hda->osd_dont_touch=1;
             hda->osd_hidden=1;
+            dsyslog_rb("HDE: call chStream1.Close()\n");
             chStream1.Close();
+            dsyslog_rb("HDE: call chOsd.Close()\n");
             chOsd.Close();
+            dsyslog_rb("HDE: call ::hd_deinit(0)\n");
             ::hd_deinit(0);
+            dsyslog_rb("HDE: finished\n");
         }
 
         int Init()
@@ -410,6 +419,7 @@ namespace Reel
         {
             dsyslog_rb("HDE: start\n");
             ::hdshm_area_t *area;
+            int nmax = 15;
 
             if (::hd_init(0) != 0)
             {
@@ -421,8 +431,8 @@ namespace Reel
             }
 
 	        // Be tolerant...
-            for(int n=0;n<20;n++) {
-                dsyslog_rb("HDE: try to get area id=%d\n", HDID_HDA);
+            for(int n = 0; n < nmax ; n++) {
+                dsyslog_rb("HDE: try to get area id=%d (%d/%d)\n", HDID_HDA, n, nmax);
 		        area = ::hd_get_area(HDID_HDA);
 		        if (area)
 			        break;
@@ -449,24 +459,24 @@ namespace Reel
             }
 
             hda = (::hd_data_t volatile *)area->mapped;
-            for(int n=30;n>=0;n--) {
+            for(int n = 0; n <= nmax; n++) {
                 dsyslog_rb("HDE: set hdp_enable=0\n");
                 hda->hdp_enable = 0;
                 dsyslog_rb("HDE: set hdp_enable=0 executed\n");
 		        dsyslog_rb("HDE: check for hdp_running=0\n");
                 if (!hda->hdp_running)
                     break;
-                isyslog_rb("HDE: wait for stopped hdplayer (%i)\n",n);
+                isyslog_rb("HDE: wait for stopped hdplayer (%i/%i)\n", n, nmax);
                 sleep(1);
             }
-            for(int n=30;n>=0;n--) {
+            for(int n=0; n<= nmax; n++) {
 		        dsyslog_rb("HDE: set hdp_enable=1\n");
                 hda->hdp_enable = 1;
                 dsyslog_rb("HDE: set hdp_enable=1 executed\n");
 		        dsyslog_rb("HDE: check for hdp_running\n");
                 if (hda->hdp_running)
                     break;
-                isyslog_rb("HDE: wait for hdplayer (%i)\n",n);
+                isyslog_rb("HDE: wait for hdplayer (%i/%i)\n", n, nmax);
                 sleep(1);
             }
             if (hda->hdp_running) {
