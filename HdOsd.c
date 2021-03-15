@@ -64,14 +64,14 @@ namespace Reel
     
     HdOsd::~HdOsd()
     {
-            //if (Active())
-            //    Clear(min_x, min_y, max_x, max_y);
-            instance_ = this;
+        DEBUG_RB_OSD("called\n");
+        //if (Active())
+            //Clear(min_x, min_y, max_x, max_y);
+        instance_ = this;
 #if APIVERSNUM >= 10509 || defined(REELVDR)
-            SetActive(false);
-
+        SetActive(false);
 #else 
-            Clear(min_x, min_y, max_x, max_y);
+        Clear(min_x, min_y, max_x, max_y);
 #endif
     }
     
@@ -164,7 +164,7 @@ namespace Reel
 	    int x2 = bitmap.Width() - 1;
 	    int y2 = bitmap.Height() - 1;
         
-        DEBUG_RB_OSD_BM("called with x1=%d y1=%d x2=%d y2=%d full=%d\n", x1, y1, x2, y2, full);
+        DEBUG_RB_OSD_BM("called with x1=%d x2=%d y1=%d y2=%d full=%d\n", x1, x2, y1, y2, full);
 
 	    if (full || bitmap.Dirty(x1, y1, x2, y2))
 	    {
