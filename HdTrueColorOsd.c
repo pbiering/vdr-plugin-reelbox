@@ -768,7 +768,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::Flush()
     {
-        DEBUG_RB_OSD_BM("called\n");
+        DEBUG_RB_OSD_FL("called\n");
 
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
