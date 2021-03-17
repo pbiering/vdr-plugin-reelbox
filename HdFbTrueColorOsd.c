@@ -119,7 +119,7 @@ namespace Reel
     }
 
     static inline void FlushOsd(osd_t *osd) {
-	    DEBUG_RB_OSD("called\n");
+	    DEBUG_RB_OSD_FL("called\n");
         if (HdCommChannel::hda->osd_dont_touch&~4) {
             DEBUG_RB_OSD("blocked by 'dont-touch' bit active\n");
             return;
@@ -131,10 +131,10 @@ namespace Reel
         int pixels = dirtyArea_.x1 - dirtyArea_.x0;
         int rest = pixels%4;
         if (lines < 0 || pixels < 0) {
-            DEBUG_RB_OSD_BM("called but nothing dirty to flush\n");
+            DEBUG_RB_OSD_FL("called but nothing dirty to flush\n");
             return;
         };
-        DEBUG_RB_OSD_BM("called and flush dirty area x0=%d y0=%d x1=%d y1=%d w=%d h=%d\n", dirtyArea_.x0, dirtyArea_.y0, dirtyArea_.x1, dirtyArea_.y1, pixels, lines);
+        DEBUG_RB_OSD_FL("called and flush dirty area x0=%d y0=%d x1=%d y1=%d w=%d h=%d\n", dirtyArea_.x0, dirtyArea_.y0, dirtyArea_.x1, dirtyArea_.y1, pixels, lines);
         //printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FlushOSD %d %d/%d-%d/%d w %d h %d\n", HdCommChannel::hda->osd_hidden, dirtyArea_.x0, dirtyArea_.y0, dirtyArea_.x1, dirtyArea_.y1, pixels, lines);
         if (pixels>0)
             pixels+=4-rest;
@@ -190,7 +190,7 @@ namespace Reel
 
     void HdFbTrueColorOsd::SendOsdCmd(void const *bco, UInt bcoSize, void const *payload, UInt payloadSize)
     {
-	    DEBUG_RB_OSD("called\n");
+	    DEBUG_RB_OSD_SC("called\n");
         static char buffer[HD_MAX_DGRAM_SIZE];
 
         if(bcoSize + payloadSize > HD_MAX_DGRAM_SIZE)
@@ -1233,15 +1233,11 @@ namespace Reel
     {
 
     if (s_in) {
-        DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i Setup.AntiAlias=%d '%s'\n", colorFg, colorBg, x, y, w, h, Setup.AntiAlias, s_in);
+        DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i align=0x%02x Setup.AntiAlias=%d font->Height=%d '%s'\n", colorFg, colorBg, x, y, w, h, alignment, Setup.AntiAlias, font->Height(), s_in);
         if (x < 0 || y < 0) {
             esyslog_rb("out-of-range: x=%i y=%i w=%i h=%i '%s'\n", x, y, w, h, s_in);
             return;
         };
-
-        /* adjust coordinates with global OSD-margins */        
-        x+=Left();
-        y+=Top();
 
         /* check for empty string */
         unsigned int i;
@@ -1261,24 +1257,23 @@ namespace Reel
 
         if(i == len) { /* every char is a space */
 //            if((colorBg >> 24) != 0) /* not transparent */
-//                DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
+//                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
             if(colorBg != clrTransparent) /* not transparent */
-                DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
+                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
             return;
         }
 
-            if(colorBg != clrTransparent) /* not transparent */
-                DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
+        if(colorBg != clrTransparent) /* not transparent */
+            DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h -1 , colorBg); /* clear the background */
 
-
-        UpdateDirty(x, y, x+w, y+h);
+        // UpdateDirty(Left()+x, Top()+y, x+w, y+h); // duplicate
 
 //        if((colorBg >> 24 == 0) || ((colorBg&0x00ffffff) == 0x00000000)){ /* TB: transparent as bgcolor is evil */
 //            colorBg = colorFg&0x01ffffff; 
 //        }
 
 //        if((colorBg >> 24) != 0) /* not transparent */
-//            DrawRectangle(x-Left(), y-Top(), x + w - Left(), y + h - Top(), colorBg); /* clear the background */
+//            DrawRectangle(x, y, x + w, y + h, colorBg); /* clear the background */
 
 
         int old_x = x; int old_y = y; y=0; x=0;
@@ -1292,10 +1287,11 @@ namespace Reel
             limit = x + cw;
             if (w) {
                if ((alignment & taLeft) != 0)
+                   x = 1
                   ;
                else if ((alignment & taRight) != 0) {
                   if (w_ < w)
-                     x += w - w_;
+                     x += w - w_ - 1;
                   }
                else { // taCentered
                   if (w_ < w)
@@ -1315,17 +1311,22 @@ namespace Reel
                   }
                }
             }
+        DEBUG_RB_OSD_DT("align=0x%02x w=%d w_=%d => x-delta=%d / h=%d h_=%d => y-delta=%d\n", alignment, w, w_, x, h, h_, y);
 
-         bool AntiAliased = Setup.AntiAlias;
-         bool TransparentBackground = (colorBg == clrTransparent);
-         static int16_t BlendLevelIndex[MAX_BLEND_LEVELS]; // tIndex is 8 bit unsigned, so a negative value can be used to mark unused entries
-         if (AntiAliased && !TransparentBackground)
+        /* adjust coordinates with global OSD-margins */        
+        x+=Left();
+        y+=Top();
+
+        bool AntiAliased = Setup.AntiAlias;
+        bool TransparentBackground = (colorBg == clrTransparent);
+        static int16_t BlendLevelIndex[MAX_BLEND_LEVELS]; // tIndex is 8 bit unsigned, so a negative value can be used to mark unused entries
+        if (AntiAliased && !TransparentBackground)
             memset(BlendLevelIndex, 0xFF, sizeof(BlendLevelIndex)); // initializes the array with negative values
-         cPalette palette;
-         palette.Index(colorFg);
-         uint prevSym = 0;
+        cPalette palette;
+        palette.Index(colorFg);
+        uint prevSym = 0;
 
-         while (*s_in) {
+        while (*s_in) {
            int sl = Utf8CharLen(s_in);
            uint sym = Utf8CharGet(s_in, sl);
            s_in += sl;
@@ -1343,8 +1344,9 @@ namespace Reel
            if (limit && x + symWidth + symLeft + kerning - 1 > limit)
               break; // we don't draw partial characters
            int px_tmp_sum = symLeft + kerning + x;
-//           int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
-           int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
+           //int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
+           //int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
+           int py_tmp_sum = y + (font->Height() - font->Height()/4 - symTop);
 
            if (x + symWidth + symLeft + kerning > 0) {
               for (int row = 0; row < g->Rows(); row++) {
@@ -1385,7 +1387,7 @@ namespace Reel
            x += g->AdvanceX() + kerning;
            if (x > w - 1)
               break;
-         } // while
+        } // while
     } // if
     } // function
    
@@ -1445,7 +1447,7 @@ namespace Reel
                 DestroyPixmap(pm);
                 pmCount++;
             }
-            DEBUG_RB_OSD_BM("called DrawPixmap pmCount=%d\n", pmCount);
+            DEBUG_RB_OSD_FL("called DrawPixmap pmCount=%d\n", pmCount);
 
             hdcmd_osd_flush const bco = {HDCMD_OSD_FLUSH, flushCount};
 
