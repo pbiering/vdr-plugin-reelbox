@@ -33,6 +33,7 @@ extern int m_debugmask;
 
 // stderr debugging
 #define isyslog_rb(format, arg...) fprintf(stderr, "reelbox: INFO  %s/%s " format, __FILE__, __FUNCTION__, ## arg)
+#define wsyslog_rb(format, arg...) fprintf(stderr, "reelbox: WARN  %s/%s " format, __FILE__, __FUNCTION__, ## arg)
 #define esyslog_rb(format, arg...) fprintf(stderr, "reelbox: ERROR %s/%s " format, __FILE__, __FUNCTION__, ## arg)
 #define dsyslog_rb(format, arg...) fprintf(stderr, "reelbox: DEBUG %s/%s " format, __FILE__, __FUNCTION__, ## arg)
 #define printf(format, arg...)     fprintf(stderr, "reelbox: DEBUG %s/%s " format, __FILE__, __FUNCTION__, ## arg)
