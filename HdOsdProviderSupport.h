@@ -44,7 +44,7 @@ static const char *OsdErrorTexts[] = {
             DEBUG_RB_OSD_AR("check: area=%i bpp=%d x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height()); \
             if (bpp_check) \
             { \
-                esyslog_rb("area color depth not supported: i=%d *bpp=%d* x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height()); \
+                wsyslog_rb("area color depth not supported: i=%d *bpp=%d* x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height()); \
                 Result = oeBppNotSupported; \
                 break; \
             }; \
