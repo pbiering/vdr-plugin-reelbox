@@ -16,7 +16,11 @@ Version:        3.3.0
 Release:        %{rel}.git.%{gitshortcommit}.%{gitdate}%{?dist}
 %else
 %if 0%{?fork_account:1}
-Release:        %{rel}.%{?fork_account:.fork.%fork_branch}%{?dist}
+  %if 0%{?fork_branch:1}
+Release:        %{rel}.fork.%{fork_account}.branch.%{fork_branch}%{?dist}
+  %else
+Release:        %{rel}.fork.%{fork_account}%{?dist}
+  %endif
 %else
 Release:        %{rel}%{?dist}
 %endif
@@ -126,5 +130,9 @@ install -Dpm 644 contrib/%{file_plugin_config} $RPM_BUILD_ROOT%{_sysconfdir}/sys
 
 
 %changelog
+* Thu Dec 02 2021 Peter Bieringer <pb@bieringer.de> - 3.3.0
+- Update to 3.3.0
+- Bugfixes
+
 * Sun Nov 14 2021 Peter Bieringer <pb@bieringer.de> - 3.2.0
 - First build
