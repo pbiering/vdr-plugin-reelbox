@@ -85,7 +85,7 @@ git-commit: %{gitshortcommit} from %{gitdate}
     %if 0%{?gitcommit:1}
 %setup -q -n vdr-plugin-%{pname}-%{gitcommit}
     %else
-%setup -q -n vdr-plugin-%{pname}
+%setup -q -n vdr-plugin-%{pname}-%{version}
     %endif
   %endif
 %else
