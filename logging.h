@@ -6,11 +6,14 @@
 
 extern int m_debugmask;
 
-#define DEBUG_MASK_PLAYTS	0x00000010	// PlayTS
-#define DEBUG_MASK_VPHD		0x00000100	// VideoPlayerHd
+#define DEBUG_MASK_PLAYTS	0x00000001	// PlayTS
+#define DEBUG_MASK_VPHD		0x00000010	// VideoPlayerHd
+#define DEBUG_MASK_RB_OSD_DTRF	0x00000100	// OSD draw text "red frame drawing" code
+#define DEBUG_MASK_RB_OSD_DRBF	0x00000200	// OSD draw rectangle "blue frame drawing" code
+#define DEBUG_MASK_RB_OSD_DTSC	0x00000800	// OSD draw text "single char"
 #define DEBUG_MASK_RB_OSD_DF	0x00001000	// OSD draw figures
 #define DEBUG_MASK_RB_OSD_UD	0x00002000	// OSD update dirty
-#define DEBUG_MASK_RB_OSD_DTRF	0x00004000	// OSD draw text "red frame"
+#define DEBUG_MASK_RB_OSD_DR	0x00004000	// OSD draw rectange
 #define DEBUG_MASK_RB_OSD_DT	0x00008000	// OSD draw text
 #define DEBUG_MASK_RB_OSD	0x00010000	// OSD general
 #define DEBUG_MASK_RB_OSD_SC	0x00020000	// OSD SendCmd
@@ -43,6 +46,7 @@ extern int m_debugmask;
 
 #define DEBUG_RB_OSD	if (m_debugmask & DEBUG_MASK_RB_OSD)    dsyslog_rb
 #define DEBUG_RB_OSD_SC	if (m_debugmask & DEBUG_MASK_RB_OSD_SC) dsyslog_rb
+#define DEBUG_RB_OSD_DR	if (m_debugmask & DEBUG_MASK_RB_OSD_DR) dsyslog_rb
 #define DEBUG_RB_OSD_DT	if (m_debugmask & DEBUG_MASK_RB_OSD_DT) dsyslog_rb
 #define DEBUG_RB_OSD_DF	if (m_debugmask & DEBUG_MASK_RB_OSD_DF) dsyslog_rb
 #define DEBUG_RB_OSD_UD	if (m_debugmask & DEBUG_MASK_RB_OSD_UD) dsyslog_rb

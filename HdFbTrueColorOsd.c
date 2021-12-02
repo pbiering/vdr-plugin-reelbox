@@ -1180,6 +1180,30 @@ namespace Reel
                 pixels+=osd->width;
             }
             dirty_ = true;
+
+            // DEBUG_MASK_RB_OSD_DRBF: rectangle around background
+            if (m_debugmask & DEBUG_MASK_RB_OSD_DRBF) {
+                unsigned int xF;
+                unsigned int yF;
+                for (xF = l; xF < r; xF++) {
+                    //line  top
+                    uint32_t *dstPxFt = (uint32_t*)(osd->buffer + osd->width * t * osd->bpp  + xF * osd->bpp);
+                    *dstPxFt = clrBlue;
+
+                    // line bottom
+                    uint32_t *dstPxFb = (uint32_t*)(osd->buffer + osd->width * (b - 1) * osd->bpp  + xF * osd->bpp);
+                    *dstPxFb = clrBlue;
+                };
+                for (yF = t; yF < b; yF++) {
+                    // line left
+                    uint32_t *dstPxFl = (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + l * osd->bpp);
+                    *dstPxFl = clrBlue;
+
+                    // line right
+                    uint32_t *dstPxFr= (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + (r - 1) * osd->bpp);
+                    *dstPxFr = clrBlue;
+                };
+            };
         }
     }
     
@@ -1348,10 +1372,13 @@ namespace Reel
            int symTop = g->Top();
            int symPitch = g->Pitch();
            if (limit && x - symWidth + symLeft + kerning - 1 > limit) {
-              DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, limit);
+              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                 DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, limit);
               break; // we don't draw partial characters
            };
-           DEBUG_RB_OSD_DT("draw char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d\n", sym, sym, x, symWidth, symLeft, kerning);
+
+           if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+               DEBUG_RB_OSD_DT("draw char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d\n", sym, sym, x, symWidth, symLeft, kerning);
            int px_tmp_sum = symLeft + kerning + x;
            //int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
            //int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
