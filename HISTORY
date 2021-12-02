@@ -1,3 +1,7 @@
+20211202/pbiering: 3.3.0
+- add RPM spec file
+- HdFbTrueColorOsd: fix DrawText (right alignment + background box)
+
 20210304/pbiering: 3.2.0.2021.03.04
 - improve Pixmap support in HdFbTrueColorOsd (skindesigner plugin tested skins: 'blackholefredo' 'shady_KISSpb')
 
