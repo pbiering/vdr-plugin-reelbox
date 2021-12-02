@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-02-14 08:09+0100\n"
+"POT-Creation-Date: 2021-12-02 21:54+0100\n"
 "PO-Revision-Date: 2009-03-06 12:07+0100\n"
 "Last-Translator: Hynek Palatin\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
@@ -112,6 +112,9 @@ msgstr "Používat Extension HD"
 msgid "Output"
 msgstr "Výstup"
 
+msgid "Output (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Analog Output"
 msgstr "Analogový výstup"
 
@@ -130,19 +133,20 @@ msgstr "Typ zobrazení"
 msgid "Aspect Ratio"
 msgstr "Poměr stran"
 
-#, fuzzy
-msgid "Overscan no"
-msgstr "Přeskenování"
+msgid "no"
+msgstr "ne"
 
-#, fuzzy
-msgid "Overscan yes"
-msgstr "Přeskenování"
+msgid "yes"
+msgstr ""
 
 msgid "Overscan"
 msgstr "Přeskenování"
 
 msgid "Resolution"
 msgstr "Rozlišení"
+
+msgid "Resolution (HD_ONLY active)"
+msgstr ""
 
 msgid "Refresh Rate"
 msgstr "Obnovovací frekvence"
@@ -231,9 +235,6 @@ msgstr "Pouze 75Hz (VESA)"
 msgid "Framerate"
 msgstr "Snímková frekvence"
 
-msgid "no"
-msgstr "ne"
-
 msgid "1080i"
 msgstr "1080i"
 
@@ -272,6 +273,9 @@ msgstr "bitový tok (AC3)"
 msgid "Soundcard"
 msgstr "Zvuková karta"
 
+msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgstr ""
+
 msgid " Delay (1/100s)"
 msgstr ""
 
@@ -287,8 +291,19 @@ msgstr "kon. HDMI/SCART/RCA"
 msgid "Analog Mix"
 msgstr "Analogové směšování"
 
+msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Restartovat ReelBox? Počkejte prosím 2 minuty!"
+
+#, fuzzy
+#~ msgid "Overscan no"
+#~ msgstr "Přeskenování"
+
+#, fuzzy
+#~ msgid "Overscan yes"
+#~ msgstr "Přeskenování"
 
 #~ msgid "Reel"
 #~ msgstr "Reel"

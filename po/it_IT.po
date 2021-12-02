@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-02-14 08:09+0100\n"
+"POT-Creation-Date: 2021-12-02 21:54+0100\n"
 "PO-Revision-Date: 2009-06-20 22:52+0100\n"
 "Last-Translator: Spaeleus <spaeleus@croci.org>\n"
 "Language-Team: www.linsat.net - Italy <spaeleus@croci.org>\n"
@@ -119,6 +119,9 @@ msgstr "Usare extension HD"
 msgid "Output"
 msgstr "Output"
 
+msgid "Output (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Analog Output"
 msgstr "Output analogico"
 
@@ -137,19 +140,20 @@ msgstr "Tipo display"
 msgid "Aspect Ratio"
 msgstr "Rapporto d'aspetto"
 
-#, fuzzy
-msgid "Overscan no"
-msgstr "Overscan"
+msgid "no"
+msgstr "No"
 
-#, fuzzy
-msgid "Overscan yes"
-msgstr "Overscan"
+msgid "yes"
+msgstr ""
 
 msgid "Overscan"
 msgstr "Overscan"
 
 msgid "Resolution"
 msgstr "Risoluzione"
+
+msgid "Resolution (HD_ONLY active)"
+msgstr ""
 
 msgid "Refresh Rate"
 msgstr "Refresh Rate"
@@ -238,9 +242,6 @@ msgstr "Solo 75Hz (VESA)"
 msgid "Framerate"
 msgstr "Framerate"
 
-msgid "no"
-msgstr "No"
-
 msgid "1080i"
 msgstr "1080i"
 
@@ -279,6 +280,9 @@ msgstr "Bitstream (AC3)"
 msgid "Soundcard"
 msgstr "Scheda audio"
 
+msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgstr ""
+
 msgid " Delay (1/100s)"
 msgstr ""
 
@@ -294,8 +298,19 @@ msgstr "Jack HDMI/SCART/RCA"
 msgid "Analog Mix"
 msgstr "Mix analogico"
 
+msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Riavviare il ReelBox? Attendere 2 minuti!"
+
+#, fuzzy
+#~ msgid "Overscan no"
+#~ msgstr "Overscan"
+
+#, fuzzy
+#~ msgid "Overscan yes"
+#~ msgstr "Overscan"
 
 #~ msgid "Reel"
 #~ msgstr "Reel"

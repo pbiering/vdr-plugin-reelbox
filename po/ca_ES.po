@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-02-14 08:09+0100\n"
+"POT-Creation-Date: 2021-12-02 21:54+0100\n"
 "PO-Revision-Date: 2009-12-08 00:00+0100\n"
 "Last-Translator: David F. <david@micaco.com>\n"
 "Language-Team: Reelbox Tododream Team\n"
@@ -112,6 +112,9 @@ msgstr "Utilitza extensió HD"
 msgid "Output"
 msgstr "Sortida"
 
+msgid "Output (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Analog Output"
 msgstr "Sortida analògica"
 
@@ -130,19 +133,20 @@ msgstr "Tipus de visualització"
 msgid "Aspect Ratio"
 msgstr "Relació d'aspecte"
 
-#, fuzzy
-msgid "Overscan no"
-msgstr "Overscan"
+msgid "no"
+msgstr "no"
 
-#, fuzzy
-msgid "Overscan yes"
-msgstr "Overscan"
+msgid "yes"
+msgstr ""
 
 msgid "Overscan"
 msgstr "Overscan"
 
 msgid "Resolution"
 msgstr "Resolució"
+
+msgid "Resolution (HD_ONLY active)"
+msgstr ""
 
 msgid "Refresh Rate"
 msgstr "Freq. actual. pantalla"
@@ -231,9 +235,6 @@ msgstr "Només 75Hz (VESA)"
 msgid "Framerate"
 msgstr "Imatges per segon"
 
-msgid "no"
-msgstr "no"
-
 msgid "1080i"
 msgstr "1080i"
 
@@ -270,6 +271,9 @@ msgstr "bitstream (Dolby D)"
 msgid "Soundcard"
 msgstr "Tarja de so"
 
+msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgstr ""
+
 msgid " Delay (1/100s)"
 msgstr " Retard (1/100s)"
 
@@ -285,8 +289,19 @@ msgstr "jack HDMI/Euroconector/RCA"
 msgid "Analog Mix"
 msgstr "Mescla analògica"
 
+msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Reiniciar la Reelbox? Si us plau, espereu 2 minuts!"
+
+#, fuzzy
+#~ msgid "Overscan no"
+#~ msgstr "Overscan"
+
+#, fuzzy
+#~ msgid "Overscan yes"
+#~ msgstr "Overscan"
 
 #~ msgid "Reel"
 #~ msgstr "Reel"
