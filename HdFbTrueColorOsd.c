@@ -1417,7 +1417,7 @@ namespace Reel
                 *dstPxFl = clrRed;
 
                 // line right
-                uint32_t *dstPxFr= (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + (xFs + wFs -1) * osd->bpp);
+                uint32_t *dstPxFr= (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + (xFs + wFs - 1) * osd->bpp);
                 *dstPxFr = clrRed;
             };
         };
