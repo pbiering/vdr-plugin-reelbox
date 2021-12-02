@@ -32,7 +32,7 @@
 
 #include "Reel.h"
 
-#define REELBOX_VERSION "3.2.0.2021.03.04"
+#define REELBOX_VERSION "3.3.0.2021.11.02"
 
 namespace Reel
 {
