@@ -4,14 +4,14 @@
 %global fork_account pbiering
 #global fork_branch  vdr-2.4.1
 
-%global gitcommit e4d46cc6dda08ad2394b72f3d9b9083e5f7735e6
+#global gitcommit e4d46cc6dda08ad2394b72f3d9b9083e5f7735e6
 %global gitshortcommit %(c=%{gitcommit}; echo ${c:0:7})
 %global gitdate 20211114
 
 %define rel	1
 
 Name:           vdr-%{pname}
-Version:        3.2.0
+Version:        3.3.0
 %if 0%{?gitcommit:1}
 Release:        %{rel}.git.%{gitshortcommit}.%{gitdate}%{?dist}
 %else
@@ -28,7 +28,7 @@ License:        GPLv2
 %if 0%{?fork_account:1}
 URL:            https://github.com/%{fork_account}/vdr-plugin-reelbox
   %if 0%{?fork_branch:1}
-Source0:        https://github.com/%{fork_account}/vdr-plugin-mcli/archive/%{fork_branch}/%{name}.tar.gz
+Source0:        https://github.com/%{fork_account}/vdr-plugin-reelbox/archive/%{fork_branch}/%{name}.tar.gz
   %else
     %if 0%{?gitcommit:1}
 Source0:        https://github.com/%{fork_account}/vdr-plugin-reelbox/archive/%{gitcommit}/%{name}-%{gitshortcommit}.tar.gz
@@ -39,7 +39,7 @@ Source0:        https://github.com/%{fork_account}/vdr-plugin-reelbox/archive/v%
 %else
 URL:            https://github.com/vdr-projects/vdr-plugin-reelbox
   %if 0%{?gitcommit:1}
-Source0:        https://github.com/vdr-projects/vdr-plugin-mcli/archive/v%{version}/vdr-plugin-%{pname}-%{version}.tar.gz
+Source0:        https://github.com/vdr-projects/vdr-plugin-reelbox/archive/v%{version}/vdr-plugin-%{pname}-%{version}.tar.gz
   %else
 Source0:        https://github.com/vdr-projects/vdr-plugin-reelbox/archive/%{gitcommit}/%{name}-%{gitshortcommit}.tar.gz
   %endif
