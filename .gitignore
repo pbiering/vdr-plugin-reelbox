@@ -30,3 +30,10 @@
 *.exe
 *.out
 *.app
+
+# Build
+.dependencies
+
+# compiled language files
+po/*.mo
+po/reelbox.pot

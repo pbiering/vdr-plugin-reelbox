@@ -1180,6 +1180,30 @@ namespace Reel
                 pixels+=osd->width;
             }
             dirty_ = true;
+
+            // DEBUG_MASK_RB_OSD_DRBF: rectangle around background
+            if (m_debugmask & DEBUG_MASK_RB_OSD_DRBF) {
+                unsigned int xF;
+                unsigned int yF;
+                for (xF = l; xF < r; xF++) {
+                    //line  top
+                    uint32_t *dstPxFt = (uint32_t*)(osd->buffer + osd->width * t * osd->bpp  + xF * osd->bpp);
+                    *dstPxFt = clrBlue;
+
+                    // line bottom
+                    uint32_t *dstPxFb = (uint32_t*)(osd->buffer + osd->width * (b - 1) * osd->bpp  + xF * osd->bpp);
+                    *dstPxFb = clrBlue;
+                };
+                for (yF = t; yF < b; yF++) {
+                    // line left
+                    uint32_t *dstPxFl = (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + l * osd->bpp);
+                    *dstPxFl = clrBlue;
+
+                    // line right
+                    uint32_t *dstPxFr= (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + (r - 1) * osd->bpp);
+                    *dstPxFr = clrBlue;
+                };
+            };
         }
     }
     
@@ -1259,12 +1283,18 @@ namespace Reel
 //            if((colorBg >> 24) != 0) /* not transparent */
 //                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
             if(colorBg != clrTransparent) /* not transparent */
-                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
+                DrawRectangle(x, y, x + w - 1, y + h - 1, colorBg); /* clear the background */
             return;
         }
 
         if(colorBg != clrTransparent) /* not transparent */
-            DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h -1 , colorBg); /* clear the background */
+            DrawRectangle(x, y, x + w - 1, y + h -1 , colorBg); /* clear the background */
+
+        // DEBUG_MASK_RB_OSD_DTRF: rectangle around background prepraration
+        int xFs = x + Left();
+        int yFs = y + Top();
+        int wFs = w;
+        int hFs = h;
 
         // UpdateDirty(Left()+x, Top()+y, x+w, y+h); // duplicate
 
@@ -1341,8 +1371,14 @@ namespace Reel
            int symLeft = g->Left();
            int symTop = g->Top();
            int symPitch = g->Pitch();
-           if (limit && x + symWidth + symLeft + kerning - 1 > limit)
+           if (limit && x - symWidth + symLeft + kerning - 1 > limit) {
+              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                 DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, limit);
               break; // we don't draw partial characters
+           };
+
+           if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+               DEBUG_RB_OSD_DT("draw char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d\n", sym, sym, x, symWidth, symLeft, kerning);
            int px_tmp_sum = symLeft + kerning + x;
            //int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
            //int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
@@ -1388,6 +1424,30 @@ namespace Reel
            if (x > w - 1)
               break;
         } // while
+
+        // DEBUG_MASK_RB_OSD_DTRF: rectangle around background
+        if (m_debugmask & DEBUG_MASK_RB_OSD_DTRF) {
+            int xF;
+            int yF;
+            for (xF = xFs; xF < xFs + wFs; xF++) {
+                //line  top
+                uint32_t *dstPxFt = (uint32_t*)(osd->buffer + osd->width * yFs * osd->bpp  + xF * osd->bpp);
+                *dstPxFt = clrRed;
+
+                // line bottom
+                uint32_t *dstPxFb = (uint32_t*)(osd->buffer + osd->width * (yFs + hFs - 1) * osd->bpp  + xF * osd->bpp);
+                *dstPxFb = clrRed;
+            };
+            for (yF = yFs; yF < yFs + hFs; yF++) {
+                // line left
+                uint32_t *dstPxFl = (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + xFs * osd->bpp);
+                *dstPxFl = clrRed;
+
+                // line right
+                uint32_t *dstPxFr= (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + (xFs + wFs - 1) * osd->bpp);
+                *dstPxFr = clrRed;
+            };
+        };
     } // if
     } // function
    

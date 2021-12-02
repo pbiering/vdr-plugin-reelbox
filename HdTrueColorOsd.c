@@ -704,8 +704,10 @@ namespace Reel
             DrawRectangle(Left()+x, Top()+y, width, height, colorBg); /* clear the background */
 
 
+        DEBUG_RB_OSD_DT("draw text into bitmap: colorFg=%08x colorBg=%08x w=%i h=%i '%s'\n", colorFg, colorBg, width, height, s_in);
         cacheBitmap->DrawText(0, 0, s_in, colorFg, colorBg /*clrTransparent*/, font, width, height, alignment);
 //        DrawBitmap32(x, y, *cacheBitmap, colorFg, /*colorBg*/ clrTransparent, false, false, width, height);
+        DEBUG_RB_OSD_DT("draw bitmap: colorFg=%08x colorBg=%08x x=%i y=%i\n", colorFg, colorBg, x, y);
         DrawBitmap(x, y, *cacheBitmap, colorFg, colorBg/*clrTransparent*/, false, false);
         //printf("DrawText: %s colorFg: %#08x colorBg: %#08x x: %i y: %i w: %i h: %i\n", s, colorFg, colorBg, x, y, width, height);
     }

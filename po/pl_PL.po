@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-02-14 08:09+0100\n"
+"POT-Creation-Date: 2021-12-02 21:54+0100\n"
 "PO-Revision-Date: 2008-09-26 12:11+0200\n"
 "Last-Translator: Krystian Kruszynski <sathumax@yahoo.com>\n"
 "Language-Team: <vdr@linuxtv.org>\n"
@@ -113,6 +113,9 @@ msgstr "Uzywaj rozszerzenie HD"
 msgid "Output"
 msgstr "Wyjście"
 
+msgid "Output (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Analog Output"
 msgstr "Wyjście Analogowe"
 
@@ -131,19 +134,20 @@ msgstr "Typ Obrazu"
 msgid "Aspect Ratio"
 msgstr "Stosunek Aspektu"
 
-#, fuzzy
-msgid "Overscan no"
-msgstr "Nadmiarowość obrazu"
+msgid "no"
+msgstr "nie"
 
-#, fuzzy
-msgid "Overscan yes"
-msgstr "Nadmiarowość obrazu"
+msgid "yes"
+msgstr ""
 
 msgid "Overscan"
 msgstr "Nadmiarowość obrazu"
 
 msgid "Resolution"
 msgstr "Rezolucja"
+
+msgid "Resolution (HD_ONLY active)"
+msgstr ""
 
 msgid "Refresh Rate"
 msgstr "Szybkość Odświerzenia"
@@ -232,9 +236,6 @@ msgstr "Tylko 75Hz (VESA)"
 msgid "Framerate"
 msgstr "Szybkość klatek"
 
-msgid "no"
-msgstr "nie"
-
 msgid "1080i"
 msgstr ""
 
@@ -272,6 +273,9 @@ msgstr ""
 msgid "Soundcard"
 msgstr "Karta dzwięku"
 
+msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgstr ""
+
 msgid " Delay (1/100s)"
 msgstr ""
 
@@ -287,8 +291,19 @@ msgstr ""
 msgid "Analog Mix"
 msgstr "Analogowy Mix"
 
+msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Zastartować Reelbox teraz? Prosze czekać 2 minuty!"
+
+#, fuzzy
+#~ msgid "Overscan no"
+#~ msgstr "Nadmiarowość obrazu"
+
+#, fuzzy
+#~ msgid "Overscan yes"
+#~ msgstr "Nadmiarowość obrazu"
 
 #, fuzzy
 #~ msgid " Delay Dolby D/dts"

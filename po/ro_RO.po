@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
 "Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-02-14 08:09+0100\n"
+"POT-Creation-Date: 2021-12-02 21:54+0100\n"
 "PO-Revision-Date: 2009-03-03 16:36+0200\n"
 "Last-Translator: Iacobescu Marian\n"
 "Language-Team: independent <vdr@linuxtv.org>\n"
@@ -116,6 +116,9 @@ msgstr "Foloseste extensia HD"
 msgid "Output"
 msgstr "Iesire"
 
+msgid "Output (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Analog Output"
 msgstr "Iesire Analog"
 
@@ -134,19 +137,20 @@ msgstr "Tip Display"
 msgid "Aspect Ratio"
 msgstr "Ratie Aspect"
 
-#, fuzzy
-msgid "Overscan no"
-msgstr "Suprascanare"
+msgid "no"
+msgstr "NU"
 
-#, fuzzy
-msgid "Overscan yes"
-msgstr "Suprascanare"
+msgid "yes"
+msgstr ""
 
 msgid "Overscan"
 msgstr "Suprascanare"
 
 msgid "Resolution"
 msgstr "Rezolutie"
+
+msgid "Resolution (HD_ONLY active)"
+msgstr ""
 
 msgid "Refresh Rate"
 msgstr "Rata reimprospatare"
@@ -235,9 +239,6 @@ msgstr "numai 75Hz (VESA)"
 msgid "Framerate"
 msgstr "Rata de cadre"
 
-msgid "no"
-msgstr "NU"
-
 msgid "1080i"
 msgstr "1080i"
 
@@ -276,6 +277,9 @@ msgstr "bitstream (AC3)"
 msgid "Soundcard"
 msgstr "Placa sunet"
 
+msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgstr ""
+
 msgid " Delay (1/100s)"
 msgstr ""
 
@@ -291,8 +295,19 @@ msgstr "HDMI/SCART/RCA jack"
 msgid "Analog Mix"
 msgstr "Mix Analog"
 
+msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgstr ""
+
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "Repornesc ReelBox acum ? Va rog asteptati 2 minute !"
+
+#, fuzzy
+#~ msgid "Overscan no"
+#~ msgstr "Suprascanare"
+
+#, fuzzy
+#~ msgid "Overscan yes"
+#~ msgstr "Suprascanare"
 
 #~ msgid "Reel"
 #~ msgstr "Reel"

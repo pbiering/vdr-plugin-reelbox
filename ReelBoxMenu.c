@@ -289,8 +289,8 @@ void cMenuVideoMode::Setup()
             showAspect[2] = tr("Crop to Fill");
             Add(new cMenuEditStraItem(tr("Aspect Ratio"), &rbSetup_.HDaspect, 3, showAspect));
 
-            showOverscan[0] = tr("Overscan no");
-            showOverscan[1] = tr("Overscan yes");
+            showOverscan[0] = tr("no");
+            showOverscan[1] = tr("yes");
             Add(new cMenuEditStraItem(tr("Overscan"), &rbSetup_.HDoverscan, 2, showOverscan));
 
             showResolution[0] = "1080";
