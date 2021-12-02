@@ -1283,12 +1283,12 @@ namespace Reel
 //            if((colorBg >> 24) != 0) /* not transparent */
 //                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
             if(colorBg != clrTransparent) /* not transparent */
-                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
+                DrawRectangle(x, y, x + w - 1, y + h - 1, colorBg); /* clear the background */
             return;
         }
 
         if(colorBg != clrTransparent) /* not transparent */
-            DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h -1 , colorBg); /* clear the background */
+            DrawRectangle(x, y, x + w - 1, y + h -1 , colorBg); /* clear the background */
 
         // DEBUG_MASK_RB_OSD_DTRF: rectangle around background prepraration
         int xFs = x + Left();
