@@ -1266,6 +1266,12 @@ namespace Reel
         if(colorBg != clrTransparent) /* not transparent */
             DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h -1 , colorBg); /* clear the background */
 
+        // DEBUG_MASK_RB_OSD_DTRF: rectangle around background prepraration
+        int xFs = x + Left();
+        int yFs = y + Top();
+        int wFs = w;
+        int hFs = h;
+
         // UpdateDirty(Left()+x, Top()+y, x+w, y+h); // duplicate
 
 //        if((colorBg >> 24 == 0) || ((colorBg&0x00ffffff) == 0x00000000)){ /* TB: transparent as bgcolor is evil */
@@ -1388,6 +1394,30 @@ namespace Reel
            if (x > w - 1)
               break;
         } // while
+
+        // DEBUG_MASK_RB_OSD_DTRF: rectangle around background
+        if (m_debugmask & DEBUG_MASK_RB_OSD_DTRF) {
+            int xF;
+            int yF;
+            for (xF = xFs; xF < xFs + wFs; xF++) {
+                //line  top
+                uint32_t *dstPxFt = (uint32_t*)(osd->buffer + osd->width * yFs * osd->bpp  + xF * osd->bpp);
+                *dstPxFt = clrRed;
+
+                // line bottom
+                uint32_t *dstPxFb = (uint32_t*)(osd->buffer + osd->width * (yFs + hFs - 1) * osd->bpp  + xF * osd->bpp);
+                *dstPxFb = clrRed;
+            };
+            for (yF = yFs; yF < yFs + hFs; yF++) {
+                // line left
+                uint32_t *dstPxFl = (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + xFs * osd->bpp);
+                *dstPxFl = clrRed;
+
+                // line right
+                uint32_t *dstPxFr= (uint32_t*)(osd->buffer + osd->width * yF * osd->bpp  + (xFs + wFs -1) * osd->bpp);
+                *dstPxFr = clrRed;
+            };
+        };
     } // if
     } // function
    

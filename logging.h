@@ -10,6 +10,7 @@ extern int m_debugmask;
 #define DEBUG_MASK_VPHD		0x00000100	// VideoPlayerHd
 #define DEBUG_MASK_RB_OSD_DF	0x00001000	// OSD draw figures
 #define DEBUG_MASK_RB_OSD_UD	0x00002000	// OSD update dirty
+#define DEBUG_MASK_RB_OSD_DTRF	0x00004000	// OSD draw text "red frame"
 #define DEBUG_MASK_RB_OSD_DT	0x00008000	// OSD draw text
 #define DEBUG_MASK_RB_OSD	0x00010000	// OSD general
 #define DEBUG_MASK_RB_OSD_SC	0x00020000	// OSD SendCmd
