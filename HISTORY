@@ -1,5 +1,6 @@
 20211203/pbiering:
 - HdFbTrueColorOsd: fix DrawText in case of OSD has not 100% size
+- ReelBoxDevice: disable sound mixer calls in HDMI_ONLY mode
 
 20211202/pbiering: 3.3.0
 - add RPM spec file

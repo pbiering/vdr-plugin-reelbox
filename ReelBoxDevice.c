@@ -1273,6 +1273,7 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
             audioPlayerBsp_->SetChannel(channel);
         }
 
+#ifndef HDMI_ONLY
         if (digitalAudio_ )  // we have ac3
         {
             if (RBSetup.ac3 || !useHDExtension_)
@@ -1313,12 +1314,13 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
                 SET_VOLUME(0);
             }
         }
-
+#endif
     }
 
+#ifndef HDMI_ONLY
     void ReelBoxDevice::SetVolume(int Volume, const char *device)
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        dsyslog_rb("%s device=%s\n", __PRETTY_FUNCTION__, device);
         int err;
         snd_mixer_t *handle;
         const char *card= "default";
@@ -1367,18 +1369,19 @@ int ReelBoxDevice::PlayTsVideo(const uchar *Data, int length)
             if (snd_mixer_selem_has_playback_channel(elem, chn)) {
                     if (snd_mixer_selem_has_playback_volume(elem)) {
                         long min, max;
-                                               if(snd_mixer_selem_get_playback_volume_range(elem, &min, &max) >= 0)
-                                               {
-                                                       unsigned int percent = 100*Volume/MAXVOLUME;
-                                                       long relVol = (max-min)*percent/100 + min;
-                                                       snd_mixer_selem_set_playback_volume(elem, chn, relVol);
-                                               }
+                           if(snd_mixer_selem_get_playback_volume_range(elem, &min, &max) >= 0)
+                           {
+                                   unsigned int percent = 100*Volume/MAXVOLUME;
+                                   long relVol = (max-min)*percent/100 + min;
+                                   snd_mixer_selem_set_playback_volume(elem, chn, relVol);
+                           }
 
                     }
             }
         }
         snd_mixer_close(handle);
     }
+#endif
 
     void ReelBoxDevice::StartPip(bool on)
     {
