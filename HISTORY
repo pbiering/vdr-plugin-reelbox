@@ -1,3 +1,6 @@
+20211203/pbiering:
+- HdFbTrueColorOsd: fix DrawText in case of OSD has not 100% size
+
 20211202/pbiering: 3.3.0
 - add RPM spec file
 - HdFbTrueColorOsd: fix DrawText (right alignment + background box)
