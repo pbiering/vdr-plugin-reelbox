@@ -192,7 +192,7 @@ I18Npot   = $(PODIR)/$(PLUGIN).pot
 
 $(I18Npot): $(wildcard *.c $(PLUGIN).h $(EXTRA_I18N))
 	echo $(I18Nmsgs)
-	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --from-code=utf-8 --msgid-bugs-address='<reelbox-devel@mailings.reelbox.org>' $^ -o $@ `ls $^`
+	xgettext -C -cTRANSLATORS --no-wrap --no-location -k -ktr -ktrNOOP --from-code=utf-8 $^ -o $@ `ls $^`
 
 #%.po:
 %.po: $(I18Npot)
