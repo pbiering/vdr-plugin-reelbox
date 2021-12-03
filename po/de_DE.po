@@ -271,8 +271,8 @@ msgstr "bitstream (Dolby D)"
 msgid "Soundcard"
 msgstr "Soundkarte"
 
-msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
-msgstr "Setup.DVB$Nutze HDMI immer für Dolby Ausgabe (HDMI_ONLY aktiv)"
+msgid "Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgstr "Nutze HDMI immer für Dolby Ausgabe (HDMI_ONLY aktiv)"
 
 msgid " Delay (1/100s)"
 msgstr " Verzögerung (1/100s)"
@@ -289,8 +289,8 @@ msgstr "HDMI/SCART/Cinch"
 msgid "Analog Mix"
 msgstr "Analog Mix"
 
-msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
-msgstr ""
+msgid "Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgstr "Benutze HDMI immer für Analog Audio (HDMI_ONLY aktiv)"
 
 msgid "Restart ReelBox now? Please wait 2 minutes!"
 msgstr "ReelBox neu starten? Bitte 2 Minuten warten!"
