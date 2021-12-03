@@ -1371,7 +1371,7 @@ namespace Reel
            int symLeft = g->Left();
            int symTop = g->Top();
            int symPitch = g->Pitch();
-           if (limit && x - symWidth + symLeft + kerning - 1 > limit) {
+           if (limit && ((x + symWidth + symLeft + kerning - 1) > limit)) {
               if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
                  DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, limit);
               break; // we don't draw partial characters
