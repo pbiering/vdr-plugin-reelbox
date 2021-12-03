@@ -11,7 +11,7 @@
 %define rel	1
 
 Name:           vdr-%{pname}
-Version:        3.3.0
+Version:        3.3.1
 %if 0%{?gitcommit:1}
 Release:        %{rel}.git.%{gitshortcommit}.%{gitdate}%{?dist}
 %else
@@ -130,6 +130,9 @@ install -Dpm 644 contrib/%{file_plugin_config} $RPM_BUILD_ROOT%{_sysconfdir}/sys
 
 
 %changelog
+* Fri Dec 03 2021 Peter Bieringer <pb@bieringer.de> - 3.3.1
+- Update to 3.3.1
+
 * Thu Dec 02 2021 Peter Bieringer <pb@bieringer.de> - 3.3.0
 - Update to 3.3.0
 - Bugfixes
