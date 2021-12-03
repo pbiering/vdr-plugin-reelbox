@@ -1421,8 +1421,11 @@ namespace Reel
               }
            } // if
            x += g->AdvanceX() + kerning;
-           if (x > w - 1)
+           if (x > w - 1) {
+              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                 DEBUG_RB_OSD_DT("draw char: STOP because x=%d > w=%d + 1\n", x, w);
               break;
+           };
         } // while
 
         // DEBUG_MASK_RB_OSD_DTRF: rectangle around background
