@@ -1341,11 +1341,11 @@ namespace Reel
                   }
                }
             }
-        DEBUG_RB_OSD_DT("align=0x%02x w=%d w_=%d => x-delta=%d / h=%d h_=%d => y-delta=%d\n", alignment, w, w_, x, h, h_, y);
+        DEBUG_RB_OSD_DT("align=0x%02x w=%d w_=%d => x=%d / h=%d h_=%d => y=%d\n", alignment, w, w_, x, h, h_, y);
 
-        /* adjust coordinates with global OSD-margins */        
-        x+=Left();
-        y+=Top();
+        /* adjust coordinates later with global OSD-margins */
+        int xOffset = Left();
+        int yOffset = Top();
 
         bool AntiAliased = Setup.AntiAlias;
         bool TransparentBackground = (colorBg == clrTransparent);
@@ -1371,7 +1371,7 @@ namespace Reel
            int symLeft = g->Left();
            int symTop = g->Top();
            int symPitch = g->Pitch();
-           if (limit && x - symWidth + symLeft + kerning - 1 > limit) {
+           if (limit && ((x + symWidth + symLeft + kerning - 1) > limit)) {
               if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
                  DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, limit);
               break; // we don't draw partial characters
@@ -1393,7 +1393,7 @@ namespace Reel
                             int px = pitch + px_tmp_sum;
                             int py = row + py_tmp_sum;
 
-                            uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (py+old_y) * osd->bpp  + (px+old_x) * osd->bpp );
+                            uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (py + old_y + yOffset) * osd->bpp  + (px +old_x + xOffset) * osd->bpp);
 
                             if (bt == 0xFF)
                                *dstPx = colorFg;
@@ -1411,7 +1411,7 @@ namespace Reel
 
                              if (bt & 0x80) {
 //                                uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (old_y + y + row + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop)) * osd->bpp  + (old_x + x + col + pitch * 8 + symLeft + kerning) * osd->bpp );
-                                uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (old_y + y + row + (font->Height() -font->Height()/8 - symTop)) * osd->bpp  + (old_x + x + col + pitch * 8 + symLeft + kerning) * osd->bpp );
+                                uint32_t *dstPx = (uint32_t*)(osd->buffer + osd->width * (old_y + y + yOffset + row + (font->Height() -font->Height()/8 - symTop)) * osd->bpp  + (old_x + x + xOffset + col + pitch * 8 + symLeft + kerning) * osd->bpp);
                                 *dstPx = colorFg;
                              }
                              bt <<= 1;
@@ -1421,8 +1421,11 @@ namespace Reel
               }
            } // if
            x += g->AdvanceX() + kerning;
-           if (x > w - 1)
+           if (x > w - 1) {
+              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                 DEBUG_RB_OSD_DT("draw char: STOP because x=%d > w=%d + 1\n", x, w);
               break;
+           };
         } // while
 
         // DEBUG_MASK_RB_OSD_DTRF: rectangle around background

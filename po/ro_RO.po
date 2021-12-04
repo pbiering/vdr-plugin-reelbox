@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
-"Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-12-02 21:54+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-03 22:12+0100\n"
 "PO-Revision-Date: 2009-03-03 16:36+0200\n"
 "Last-Translator: Iacobescu Marian\n"
 "Language-Team: independent <vdr@linuxtv.org>\n"
@@ -277,7 +277,7 @@ msgstr "bitstream (AC3)"
 msgid "Soundcard"
 msgstr "Placa sunet"
 
-msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgid "Use HDMI always for Dolby output (HDMI_ONLY active)"
 msgstr ""
 
 msgid " Delay (1/100s)"
@@ -295,7 +295,7 @@ msgstr "HDMI/SCART/RCA jack"
 msgid "Analog Mix"
 msgstr "Mix Analog"
 
-msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgid "Use HDMI always for Analog Audio (HDMI_ONLY active)"
 msgstr ""
 
 msgid "Restart ReelBox now? Please wait 2 minutes!"

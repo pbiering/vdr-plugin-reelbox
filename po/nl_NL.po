@@ -8,8 +8,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: vdr-reelbox\n"
-"Report-Msgid-Bugs-To: <reelbox-devel@mailings.reelbox.org>\n"
-"POT-Creation-Date: 2021-12-02 21:54+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-03 22:12+0100\n"
 "PO-Revision-Date: 2011-09-07 18:33+0100\n"
 "Last-Translator: TechNL <technl@gmx.net>\n"
 "Language-Team:  <vdr@linuxtv.org>\n"
@@ -273,7 +273,7 @@ msgstr "bitstream (Dolby D)"
 msgid "Soundcard"
 msgstr "Geluidskaart"
 
-msgid "Setup.DVB$Use HDMI always for Dolby output (HDMI_ONLY active)"
+msgid "Use HDMI always for Dolby output (HDMI_ONLY active)"
 msgstr ""
 
 msgid " Delay (1/100s)"
@@ -291,7 +291,7 @@ msgstr "HDMI/Scart/tulp"
 msgid "Analog Mix"
 msgstr "Analoge mix"
 
-msgid "Setup.DVB$Use HDMI always for Analog Audio (HDMI_ONLY active)"
+msgid "Use HDMI always for Analog Audio (HDMI_ONLY active)"
 msgstr ""
 
 msgid "Restart ReelBox now? Please wait 2 minutes!"
