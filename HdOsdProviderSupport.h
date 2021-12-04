@@ -32,10 +32,29 @@ static const char *OsdErrorTexts[] = {
         eOsdError Result = cOsd::CanHandleAreas(areas, numAreas); \
         if (Result != oeOk) \
         { \
-            esyslog_rb("cOsd::CanHandleAreas already returned Result=%d (%s)\n", Result, OsdErrorTexts[Result]); \
-    	  	if (Result == oeAreasOverlap) \
-                for (int i = 0; i < numAreas; i++) \
-                   esyslog_rb("overlap problem: area i=%d bpp=%d x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height()); \
+            if (Result == oeAreasOverlap) { \
+                eOsdError ResultYplus1 = oeOk; \
+                for (int i = 0; i < numAreas; i++) { \
+                    for (int j = i + 1; j < numAreas; j++) { \
+                        if (!(areas[j].x2 < areas[i].x1 || areas[j].x1 > areas[i].x2 || areas[j].y2 < areas[i].y1 || areas[j].y1 + 1 > areas[i].y2)) { \
+                            ResultYplus1 = oeAreasOverlap; \
+                            break; \
+                        } \
+                    } \
+                } \
+                if (ResultYplus1 == oeOk) { \
+                    Result = oeOk; \
+                    dsyslog_rb("cOsd::CanHandleAreas already returned Result=%d (%s) (ignored because Y+1)\n", Result, OsdErrorTexts[Result]); \
+                    for (int i = 0; i < numAreas; i++) \
+                       dsyslog_rb("overlap problem (ignored because Y+1): area i=%d bpp=%d x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height()); \
+                } else { \
+                    esyslog_rb("cOsd::CanHandleAreas already returned Result=%d (%s)\n", Result, OsdErrorTexts[Result]); \
+                    for (int i = 0; i < numAreas; i++) \
+                       esyslog_rb("overlap problem: area i=%d bpp=%d x1=%d x2=%d y1=%d y2=%d W=%d H=%d\n", i, areas[i].bpp, areas[i].x1, areas[i].x2, areas[i].y1, areas[i].y2, areas[i].Width(), areas[i].Height()); \
+                } \
+            } else { \
+                esyslog_rb("cOsd::CanHandleAreas already returned Result=%d (%s)\n", Result, OsdErrorTexts[Result]); \
+            } \
     	    return Result; \
        	} \
         \
