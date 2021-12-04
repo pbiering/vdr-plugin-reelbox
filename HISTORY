@@ -1,4 +1,4 @@
-20211204/pbiering:
+20211204/pbiering: 3.3.1
 - HdOsdProviderSupport.h: relax CanHandleAreas to catch overlapping subtitle areas by y+1 (workaround for vdr < 2.5.2)
 
 20211203/pbiering:
