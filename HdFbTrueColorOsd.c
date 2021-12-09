@@ -1371,14 +1371,22 @@ namespace Reel
            int symLeft = g->Left();
            int symTop = g->Top();
            int symPitch = g->Pitch();
+
            if (limit && ((x + symWidth + symLeft + kerning - 1) > limit)) {
+              /*
               if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
-                 DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, limit);
+                 DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d AdvanceX=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, g->AdvanceX(), limit);
               break; // we don't draw partial characters
+              */
+
+              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                 DEBUG_RB_OSD_DT("part char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d AdvanceX=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, g->AdvanceX(), limit);
+              // print partial chars by overwriting limit, looks like Width calculation on lowres OSD has issues
+           } else {
+              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                 DEBUG_RB_OSD_DT("draw char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d AdvanceX=%d\n", sym, sym, x, symWidth, symLeft, kerning, g->AdvanceX());
            };
 
-           if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
-               DEBUG_RB_OSD_DT("draw char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d\n", sym, sym, x, symWidth, symLeft, kerning);
            int px_tmp_sum = symLeft + kerning + x;
            //int py_tmp_sum = y + (font->Height() - ((cFreetypeFont*)font)->Bottom() - symTop);
            //int py_tmp_sum = y + (font->Height() - font->Height()/8 - symTop);
