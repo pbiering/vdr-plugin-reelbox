@@ -389,7 +389,7 @@ namespace Reel
                                                     bool replacePalette,
                                                     bool blend)
     {
-        DEBUG_RB_OSD("HdTrueColorOsd: DrawBitmap\n");
+        DEBUG_RB_OSD_BM("called with x=%d y=%d w=%d h=%d colorFg=0x%08x colorBg=0x%08x replacePalette=%d blend=%d\n", x, y, bitmap.Width(), bitmap.Height(), colorFg, colorBg, replacePalette, blend);
 
         REEL_ASSERT(!overlay);
 
@@ -539,7 +539,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawEllipse(int x1, int y1, int x2, int y2, tColor color, int quadrants)
     {
-        DEBUG_RB_OSD("HdTrueColorOsd: DrawEllipse\n");
+        DEBUG_RB_OSD("HdTrueColorOsd: DrawEllipse x1=%d y1=%d x2=%d y2=%d color=0x%08x quadrants=%d\n", x1, y1, x2, y2, color, quadrants);
 
         hdcmd_osd_draw_ellipse const bco = {HDCMD_OSD_DRAW_ELLIPSE,
                                              (unsigned int) Left() + x1,
@@ -552,7 +552,6 @@ namespace Reel
         SendOsdCmd(bco);
 
         dirty_ = true;
-
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -608,7 +607,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color)
     {
-        DEBUG_RB_OSD("HdTrueColorOsd: DrawRectangle\n");
+        DEBUG_RB_OSD_DR("called with x1=%d y1=%d x2=%d y2=%d color=0x%08x\n", x1, y1, x2, y2, color);
 
         hdcmd_osd_draw_rect const bco = {HDCMD_OSD_DRAW_RECT,
                                           (unsigned int) Left() + x1,
@@ -625,7 +624,7 @@ namespace Reel
 
     /* override */ void HdTrueColorOsd::DrawRectangle(int x1, int y1, int x2, int y2, tColor color, int alphaGradH, int alphaGradV, int alphaGradStepH, int alphaGradStepV)
     {
-	DEBUG_RB_OSD("HdTrueColorOsd: DrawRectangle\n");
+	DEBUG_RB_OSD_DR("called with x1=%d y1=%d x2=%d y2=%d color=0x%08x alphaGradH=%d alphaGradV=%d alphaGradStepH=%d alphaGradStepV=%d\n", x1, y1, x2, y2, color, alphaGradH, alphaGradV, alphaGradStepH, alphaGradStepV);
 
         hdcmd_osd_draw_rect2 const bco = {HDCMD_OSD_DRAW_RECT2,
                                           (unsigned int) Left() + x1,
@@ -640,7 +639,6 @@ namespace Reel
 
         SendOsdCmd(bco);
         dirty_ = true;
-
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -703,13 +701,32 @@ namespace Reel
         if(colorBg != clrTransparent) /* not transparent */
             DrawRectangle(Left()+x, Top()+y, width, height, colorBg); /* clear the background */
 
-
         DEBUG_RB_OSD_DT("draw text into bitmap: colorFg=%08x colorBg=%08x w=%i h=%i '%s'\n", colorFg, colorBg, width, height, s_in);
         cacheBitmap->DrawText(0, 0, s_in, colorFg, colorBg /*clrTransparent*/, font, width, height, alignment);
-//        DrawBitmap32(x, y, *cacheBitmap, colorFg, /*colorBg*/ clrTransparent, false, false, width, height);
+
+        // DEBUG_MASK_RB_OSD_DTRF: rectangle around background
+        if (m_debugmask & DEBUG_MASK_RB_OSD_DTRF) {
+            int xF;
+            int yF;
+            for (xF = 0; xF < width; xF++) {
+                //line  top
+                cacheBitmap->DrawPixel(xF, 0, clrRed);
+
+                // line bottom
+                cacheBitmap->DrawPixel(xF, height - 1, clrRed);
+            };
+            for (yF = 0; yF < height; yF++) {
+                // line left
+                cacheBitmap->DrawPixel(0, yF, clrRed);
+
+                // line right
+                cacheBitmap->DrawPixel(width - 1, yF, clrRed);
+            };
+        };
+
         DEBUG_RB_OSD_DT("draw bitmap: colorFg=%08x colorBg=%08x x=%i y=%i\n", colorFg, colorBg, x, y);
         DrawBitmap(x, y, *cacheBitmap, colorFg, colorBg/*clrTransparent*/, false, false);
-        //printf("DrawText: %s colorFg: %#08x colorBg: %#08x x: %i y: %i w: %i h: %i\n", s, colorFg, colorBg, x, y, width, height);
+//        DrawBitmap32(x, y, *cacheBitmap, colorFg, /*colorBg*/ clrTransparent, false, false, width, height);
     }
    
 //    /* override */ void HdTrueColorOsd::DrawText32(int x,
