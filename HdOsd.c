@@ -103,7 +103,7 @@ namespace Reel
 
     void HdOsd::Flush()
     { 
-        DEBUG_RB_OSD("called\n");
+        DEBUG_RB_OSD_FL("called\n");
 #if APIVERSNUM >= 10509 || defined(REELVDR)
         if (! Active()) return ;
 #endif
