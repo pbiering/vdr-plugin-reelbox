@@ -1,3 +1,6 @@
+20211208/pbiering:
+- HdFbTrueColorOsd.c: do not avoid printing of partial chars, as calculation of Width has issues
+
 20211204/pbiering: 3.3.1
 - HdOsdProviderSupport.h: relax CanHandleAreas to catch overlapping subtitle areas by y+1 (workaround for vdr < 2.5.2)
 
