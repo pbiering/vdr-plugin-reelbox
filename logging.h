@@ -26,10 +26,11 @@ extern int m_debugmask;
 #define DEBUG_MASK_RB_OSD_CO	0x02000000	// OSD create
 #define DEBUG_MASK_RB_PICT	0x10000000	// fs453settings
 
-#if 0
+#ifndef DEBUG
 
-#define isyslog_rb(format, arg...) isyslog("reelbox: INFO  %s " format, __FUNCTION__, ## arg)
-#define esyslog_rb(format, arg...) esyslog("reelbox: ERROR %s " format, __FUNCTION__, ## arg)
+#define isyslog_rb(format, arg...) isyslog("reelbox: INFO  %s/%s: " format, __FILE__, __FUNCTION__, ## arg)
+#define esyslog_rb(format, arg...) esyslog("reelbox: ERROR %s/%s: " format, __FILE__, __FUNCTION__, ## arg)
+#define wsyslog_rb(format, arg...) esyslog("reelbox: WARN  %s/%s: " format, __FILE__, __FUNCTION__, ## arg)
 #define dsyslog_rb(format, arg...) dsyslog("reelbox: DEBUG %s/%s: " format, __FILE__, __FUNCTION__, ## arg)
 #define printf(format, arg...)     dsyslog("reelbox: DEBUG %s/%s: " format, __FILE__, __FUNCTION__, ## arg)
 
