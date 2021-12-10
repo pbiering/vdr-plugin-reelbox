@@ -1,4 +1,4 @@
-20211208/pbiering:
+20211208/pbiering: 3.3.2
 - HdFbTrueColorOsd.c: do not avoid printing of partial chars, as calculation of Width has issues
 
 20211204/pbiering: 3.3.1
