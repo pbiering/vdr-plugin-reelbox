@@ -391,7 +391,7 @@ resync:
     }
 
     while (c.bfound < c.fsize) {
-        register int skip, pay;
+        int skip, pay;
         if ((skip = tail - buf) <= 0)
             goto out;
         if (skip > (pay = c.fsize - c.bfound))
