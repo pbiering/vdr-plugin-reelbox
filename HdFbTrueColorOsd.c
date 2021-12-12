@@ -1373,11 +1373,11 @@ namespace Reel
            int symPitch = g->Pitch();
 
            if (limit && ((x + symWidth + symLeft + kerning - 1) > limit)) {
-              /*
-              if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
-                 DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d AdvanceX=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, g->AdvanceX(), limit);
-              break; // we don't draw partial characters
-              */
+              if ((x + symLeft) >= limit) {
+                  if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
+                     DEBUG_RB_OSD_DT("skip char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d AdvanceX=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, g->AdvanceX(), limit);
+                  break; // we don't invisible characters
+              };
 
               if (m_debugmask & DEBUG_MASK_RB_OSD_DTSC)
                  DEBUG_RB_OSD_DT("part char: c='%c' (%04x) x=%d symWidth=%d symLeft=%d kerning=%d AdvanceX=%d limit=%d\n", sym, sym, x, symWidth, symLeft, kerning, g->AdvanceX(), limit);
