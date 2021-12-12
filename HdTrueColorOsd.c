@@ -676,33 +676,27 @@ namespace Reel
         /* check for empty string */
         unsigned int i;
 
-        for(i=0; i<strlen(s_in); i++){
+        for (i = 0; i < strlen(s_in); i++){
             if(s_in[i] == ' ')
                 continue;
             else
                 break;
         }
+        if (i == strlen(s_in)) return;
 
-        if(i == strlen(s_in))
-            return;
-
-        if(width==0) {
-            width = font->Width(s_in);
-        }
-
-        if(height == 0)
-            height=font->Height();
+        if (width == 0) width = font->Width(s_in);
+        if (height == 0) height = font->Height();
 
         cacheBitmap->SetSize(width, height);
 
 //        if((colorBg >> 24 == 0) || ((colorBg&0x00ffffff) == 0x00000000)){ /* TB: transparent as bgcolor is evil */
 //		colorBg = colorFg&0x01ffffff; 
 //        }
-        if(colorBg != clrTransparent) /* not transparent */
-            DrawRectangle(Left()+x, Top()+y, width, height, colorBg); /* clear the background */
+        if(colorBg != clrTransparent) // not transparent
+            DrawRectangle(Left()+x, Top()+y, width, height, colorBg); // clear the background
 
         DEBUG_RB_OSD_DT("draw text into bitmap: colorFg=%08x colorBg=%08x w=%i h=%i '%s'\n", colorFg, colorBg, width, height, s_in);
-        cacheBitmap->DrawText(0, 0, s_in, colorFg, colorBg /*clrTransparent*/, font, width, height, alignment);
+        cacheBitmap->DrawText(0, 0, s_in, colorFg, colorBg, font, width, height, alignment);
 
         // DEBUG_MASK_RB_OSD_DTRF: rectangle around background
         if (m_debugmask & DEBUG_MASK_RB_OSD_DTRF) {
@@ -725,7 +719,7 @@ namespace Reel
         };
 
         DEBUG_RB_OSD_DT("draw bitmap: colorFg=%08x colorBg=%08x x=%i y=%i\n", colorFg, colorBg, x, y);
-        DrawBitmap(x, y, *cacheBitmap, colorFg, colorBg/*clrTransparent*/, false, false);
+        DrawBitmap(x, y, *cacheBitmap, colorFg, colorBg, false, false);
 //        DrawBitmap32(x, y, *cacheBitmap, colorFg, /*colorBg*/ clrTransparent, false, false, width, height);
     }
    
