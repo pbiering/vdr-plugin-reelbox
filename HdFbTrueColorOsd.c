@@ -1255,8 +1255,8 @@ namespace Reel
     /* override */ void HdFbTrueColorOsd::DrawText(int x, int y, const char *s_in, tColor colorFg, tColor colorBg,
                                                   const cFont *font, int w, int h, int alignment)
     {
+        if (!s_in) return;
 
-    if (s_in) {
         DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i align=0x%02x Setup.AntiAlias=%d font->Height=%d '%s'\n", colorFg, colorBg, x, y, w, h, alignment, Setup.AntiAlias, font->Height(), s_in);
         if (x < 0 || y < 0) {
             esyslog_rb("out-of-range: x=%i y=%i w=%i h=%i '%s'\n", x, y, w, h, s_in);
@@ -1459,7 +1459,6 @@ namespace Reel
                 *dstPxFr = clrRed;
             };
         };
-    } // if
     } // function
    
     //--------------------------------------------------------------------------------------------------------------
