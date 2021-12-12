@@ -38,9 +38,14 @@
 #include "font_helper.h"
 #include "logging.h"
 
+#define DrawTextWithBitmap 1    // use VDR internal Bitmap/DrawText rendering
+
 namespace Reel
 {
 #define MAX_CACHED_IMAGES 256
+#ifdef DrawTextWithBitmap
+    static cBitmap *cacheBitmap;
+#endif
 
     static CachedImage *cachedImages_[MAX_CACHED_IMAGES];
     std::string    imagePaths_[MAX_CACHED_IMAGES];
@@ -253,6 +258,10 @@ namespace Reel
             imageDirty_[i] = true; 
 #endif
         numBitmaps = 0;
+
+#ifdef DrawTextWithBitmap
+        cacheBitmap = new cBitmap(720, 576, 8, 0, 0);
+#endif
 
         //std::cout << "OSD: " << osd << std::endl;
         if(osd == NULL || (osd->data == NULL && osd->buffer == NULL)) {
@@ -1258,6 +1267,7 @@ namespace Reel
         if (!s_in) return;
 
         DEBUG_RB_OSD_DT("called with: colorFg=%08x colorBg=%08x x=%i y=%i w=%i h=%i align=0x%02x Setup.AntiAlias=%d font->Height=%d '%s'\n", colorFg, colorBg, x, y, w, h, alignment, Setup.AntiAlias, font->Height(), s_in);
+
         if (x < 0 || y < 0) {
             esyslog_rb("out-of-range: x=%i y=%i w=%i h=%i '%s'\n", x, y, w, h, s_in);
             return;
@@ -1265,20 +1275,57 @@ namespace Reel
 
         /* check for empty string */
         unsigned int i;
-        unsigned int len = strlen(s_in);
-        for(i=0; i<len; i++){ /* count the spaces */
+
+        for( i = 0; i < strlen(s_in); i++){
             if(s_in[i] == ' ')
                 continue;
             else
                 break;
         }
+        if (i == strlen(s_in)) return;
 
-        if(i == strlen(s_in))
-		    return;
+        // code alignment with HdTrueColorOsd.c
+        int width = w;
+        int height = h;
 
-        if(w == 0) w = font->Width(s_in);
-        if(h == 0) h = font->Height();
+        if (width == 0) width = font->Width(s_in);
+        if (height == 0) height=font->Height();
 
+#ifdef DrawTextWithBitmap
+        // working code from HdTrueColorOsd.c, use VDR internal Bitmap/DrawText rendering
+        cacheBitmap->SetSize(width, height);
+
+        if(colorBg != clrTransparent) // not transparent
+            DrawRectangle(Left()+x, Top()+y, width, height, colorBg); // clear the background
+
+        DEBUG_RB_OSD_DT("draw text into bitmap: colorFg=%08x colorBg=%08x w=%i h=%i '%s'\n", colorFg, colorBg, width, height, s_in);
+        cacheBitmap->DrawText(0, 0, s_in, colorFg, colorBg, font, width, height, alignment);
+
+        // DEBUG_MASK_RB_OSD_DTRF: rectangle around background
+        if (m_debugmask & DEBUG_MASK_RB_OSD_DTRF) {
+            int xF;
+            int yF;
+            for (xF = 0; xF < width; xF++) {
+                //line  top
+                cacheBitmap->DrawPixel(xF, 0, clrRed);
+
+                // line bottom
+                cacheBitmap->DrawPixel(xF, height - 1, clrRed);
+            };
+            for (yF = 0; yF < height; yF++) {
+                // line left
+                cacheBitmap->DrawPixel(0, yF, clrRed);
+
+                // line right
+                cacheBitmap->DrawPixel(width - 1, yF, clrRed);
+            };
+        };
+
+        DEBUG_RB_OSD_DT("draw bitmap: colorFg=%08x colorBg=%08x x=%i y=%i\n", colorFg, colorBg, x, y);
+        DrawBitmap(x, y, *cacheBitmap, colorFg, colorBg, false, false);
+
+# else
+        // BROKEN CODE, rendering will exceet pre-calculated Text Width
         if(i == len) { /* every char is a space */
 //            if((colorBg >> 24) != 0) /* not transparent */
 //                DrawRectangle(Left()+x, Top()+y, x + w - 1, y + h - 1, colorBg); /* clear the background */
@@ -1459,6 +1506,7 @@ namespace Reel
                 *dstPxFr = clrRed;
             };
         };
+#endif
     } // function
    
     //--------------------------------------------------------------------------------------------------------------
