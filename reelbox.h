@@ -33,7 +33,7 @@
 #include "Reel.h"
 
 // sync version also with contrib/vdr-reelbox.spec
-#define REELBOX_VERSION "3.3.2"
+#define REELBOX_VERSION "3.3.2.99.preview.1"
 
 namespace Reel
 {
