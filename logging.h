@@ -7,7 +7,9 @@
 extern int m_debugmask;
 
 #define DEBUG_MASK_PLAYTS	0x00000001	// PlayTS
+#define DEBUG_MASK_PLAY		0x00000002	// Play
 #define DEBUG_MASK_VPHD		0x00000010	// VideoPlayerHd
+#define DEBUG_MASK_AUDIO	0x00000080	// Audio
 #define DEBUG_MASK_RB_OSD_DTRF	0x00000100	// OSD draw text "red frame drawing" code
 #define DEBUG_MASK_RB_OSD_DRBF	0x00000200	// OSD draw rectangle "blue frame drawing" code
 #define DEBUG_MASK_RB_OSD_DTSC	0x00000800	// OSD draw text "single char"
@@ -60,6 +62,8 @@ extern int m_debugmask;
 #define DEBUG_RB_OSD_CO	if (m_debugmask & DEBUG_MASK_RB_OSD_CO) dsyslog_rb
 #define DEBUG_RB_PICT	if (m_debugmask & DEBUG_MASK_RB_PICT)   dsyslog_rb
 #define DEBUG_RB_VPHD	if (m_debugmask & DEBUG_MASK_VPHD)	dsyslog_rb
+#define DEBUG_RB_AUDIO	if (m_debugmask & DEBUG_MASK_AUDIO)	dsyslog_rb
 #define DEBUG_RB_PLAYTS	if (m_debugmask & DEBUG_MASK_PLAYTS)	dsyslog_rb
+#define DEBUG_RB_PLAY	if (m_debugmask & DEBUG_MASK_PLAY)	dsyslog_rb
 
 #endif

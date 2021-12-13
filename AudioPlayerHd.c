@@ -35,7 +35,7 @@ namespace Reel
 
     void AudioPlayerHd::Create()
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         if (!instanceHd_)
         {
             instanceHd_ = new AudioPlayerHd;
@@ -49,7 +49,7 @@ namespace Reel
     :   hdPlayer_(HdCommChannel::hda->player[0]), frameNr_(0),
         freeze_(false), rawaudio_(false)
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         CreateAudioDecoders();
         for (AudioDecoders::Iterator audioDecoder = AudioDecoders::Begin();
                                      audioDecoder != AudioDecoders::End();
@@ -71,24 +71,24 @@ namespace Reel
 
     AudioPlayerHd::~AudioPlayerHd() NO_THROW
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         //lastDecoder_->Reset(&emptyQueue_);
         DestroyAudioDecoders();
-        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("finished\n");
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void AudioPlayerHd::Clear()
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void AudioPlayerHd::Freeze()
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         freeze_ = true;
     }
 
@@ -96,7 +96,7 @@ namespace Reel
 
     void AudioPlayerHd::Play()
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         freeze_ = false;
         SynchronizeClockInitial();
         currentSampleRate_ = 0;
@@ -105,7 +105,7 @@ namespace Reel
 //--------------------------------------------------------------------------------------------------------------
     void AudioPlayerHd::SetCorrectionBase(uint sampleRate)
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         unsigned long long correction_base = SyncClock::GetSysTime() * (sampleRate / 100);
         hdPlayer_.correction_base_low = LowWord(correction_base);
         hdPlayer_.correction_base_high = HighWord(correction_base);
@@ -131,7 +131,6 @@ namespace Reel
         struct timeval tv1,tv2;
 	ULLong t1,t2;
 	return; // GA
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
 	gettimeofday(&tv1, 0);
 	t1=ULLong(tv1.tv_sec) * 1000000 + tv1.tv_usec;
         while(1) {
@@ -142,7 +141,6 @@ namespace Reel
 		if ((t2-t1)>SYNC_INITIAL_MS*1000LL)
 			break;		
 	}
-        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -257,18 +255,18 @@ namespace Reel
 
     void AudioPlayerHd::Start()
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
         SynchronizeClockInitial();
         currentSampleRate_ = 0;
         freeze_ = 0;
-        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("finished\n");
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     void AudioPlayerHd::Stop()
     {
-        dsyslog_rb("%s END\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_AUDIO("called\n");
     }
 
     //--------------------------------------------------------------------------------------------------------------
