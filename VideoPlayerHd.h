@@ -96,7 +96,7 @@ namespace Reel
 
     inline VideoPlayerHd::~VideoPlayerHd() NO_THROW
     {
-        dsyslog_rb("%s\n", __PRETTY_FUNCTION__);
+        DEBUG_RB_VPHD("called\n");
         // Do nothing.
     }
 

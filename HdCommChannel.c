@@ -113,12 +113,12 @@ namespace Reel
                 ch_ = hd_channel_open(chNum);
                 if (ch_) 
                     break;                
-                dsyslog_rb("HDE-Channel open %i: waiting to appear (%i/%i)\n",chNum, n, nmax);
+                DEBUG_RB_HDE("HDE-Channel open %d: waiting to appear (%i/%i)\n",chNum, n, nmax);
                 sleep(1);
             }
             if (!ch_)
             {
-                esyslog_rb("open hd channel %d not successful, using dummy\n", chNum);
+                esyslog_rb("HDE-Channel open %d: not successful, using dummy\n", chNum);
                 Close();
 //              REEL_THROW();
                 ch_=NULL;
@@ -173,39 +173,39 @@ namespace Reel
         void Exit() NO_THROW
         {
 	        if (hda == NULL) return;
-            dsyslog_rb("HDE: called\n");
+            DEBUG_RB_HDE("HDE: called\n");
 
             hda->player[0].data_generation++;
-            dsyslog_rb("HDE: set hdp_enable=0\n");
+            DEBUG_RB_HDE("HDE: set hdp_enable=0\n");
             hda->hdp_enable = 0;
-            dsyslog_rb("HDE: set hd_shutdown=1\n");
+            DEBUG_RB_HDE("HDE: set hd_shutdown=1\n");
             hda->hd_shutdown = 1;
             hda->osd_dont_touch=1;
             hda->osd_hidden=1;
-            dsyslog_rb("HDE: call chStream1.Close()\n");
+            DEBUG_RB_HDE("HDE: call chStream1.Close()\n");
             chStream1.Close();
-            dsyslog_rb("HDE: call chOsd.Close()\n");
+            DEBUG_RB_HDE("HDE: call chOsd.Close()\n");
             chOsd.Close();
-            dsyslog_rb("HDE: call ::hd_deinit(0)\n");
+            DEBUG_RB_HDE("HDE: call ::hd_deinit(0)\n");
             ::hd_deinit(0);
-            dsyslog_rb("HDE: finished\n");
+            DEBUG_RB_HDE("HDE: finished\n");
         }
 
         int Init()
         {
-            dsyslog_rb("HDE: start\n");
+            DEBUG_RB_HDE("HDE: start\n");
             if (InitHda()) {
                 esyslog_rb("HDE: Init not successful\n");
                 return 1;
             };
 
-            dsyslog_rb("HDE: call chStream1.Open(%d)\n", HDCH_STREAM1);
+            DEBUG_RB_HDE("HDE: call chStream1.Open(%d)\n", HDCH_STREAM1);
             chStream1.Open(HDCH_STREAM1);
-            dsyslog_rb("HDE: call chStream1.Open(%d) returned\n", HDCH_STREAM1);
-            dsyslog_rb("HDE: call chOsd.Open(%d)\n", HDCH_OSD);
+            DEBUG_RB_HDE("HDE: call chStream1.Open(%d) returned\n", HDCH_STREAM1);
+            DEBUG_RB_HDE("HDE: call chOsd.Open(%d)\n", HDCH_OSD);
             chOsd.Open(HDCH_OSD);
-            dsyslog_rb("HDE: call chOsd.Open(%d) returned\n", HDCH_OSD);
-            dsyslog_rb("HDE: start successful\n");
+            DEBUG_RB_HDE("HDE: call chOsd.Open(%d) returned\n", HDCH_OSD);
+            DEBUG_RB_HDE("HDE: start successful\n");
             return 0;
         }
 
@@ -306,7 +306,7 @@ namespace Reel
 
         void SetVideomode(int HDaspect)      // -1 is used on startup + by setup
         {
-            dsyslog_rb("HdCommChannel::SetVideomode(%i)\n", HDaspect);
+            DEBUG_RB_HDE("HDaspect=%d\n", HDaspect);
            
             //printf (" %s \n", __PRETTY_FUNCTION__ );
             int width=0, height=0, interlaced=0, fps=0;
@@ -405,11 +405,11 @@ namespace Reel
                 hda->video_mode.interlace=interlaced;
                 hda->video_mode.framerate=fps;
                 hda->video_mode.norm=RBSetup.HDresolution == 4 || RBSetup.HDnorm == 2 ? 1 : 0; //video_mode.norm not use in original hdplayer, used in my for auto framerate
-                dsyslog_rb("HdCommChannel::SetVideomode(%i) => width=%d height=%d interlaced=%d fps=%d\n", HDaspect, width, height, interlaced, fps);
+                DEBUG_RB_HDE("HDaspect=%d width=%d height=%d interlaced=%d fps=%d\n", HDaspect, width, height, interlaced, fps);
             }
             hda->video_mode.deinterlacer=RBSetup.HDdeint;
             hda->video_mode.auto_format=RBSetup.HDauto_format;
-            dsyslog_rb("HdCommChannel::SetVideomode(%i) => deinterlacer=%d auto_format=%d\n", HDaspect, RBSetup.HDdeint, RBSetup.HDauto_format);
+            DEBUG_RB_HDE("HDaspect=%d deinterlacer=%d auto_format=%d\n", HDaspect, RBSetup.HDdeint, RBSetup.HDauto_format);
             hda->video_mode.changed++;
 
 	    SetAspect(HDaspect);
@@ -417,13 +417,13 @@ namespace Reel
 
         int InitHda()
         {
-            dsyslog_rb("HDE: start\n");
+            DEBUG_RB_HDE("HDE: start\n");
             ::hdshm_area_t *area;
             int nmax = 15;
 
             if (::hd_init(0) != 0)
             {
-                esyslog_rb("HDE: Unable to open hdshm device. Using dummy device.\n");
+                esyslog_rb("HDE: Unable to open hdshm device -> Using dummy device\n");
 //                REEL_THROW();
                 hda=(::hd_data_t*)malloc(sizeof(::hd_data_t));  // GA: Don't crash if no HD was found
                 memset((void*)hda,0,sizeof(::hd_data_t));
@@ -432,7 +432,7 @@ namespace Reel
 
 	        // Be tolerant...
             for(int n = 0; n < nmax ; n++) {
-                dsyslog_rb("HDE: try to get area id=%d (%d/%d)\n", HDID_HDA, n, nmax);
+                DEBUG_RB_HDE("HDE: try to get area id=%d (%d/%d)\n", HDID_HDA, n, nmax);
 		        area = ::hd_get_area(HDID_HDA);
 		        if (area)
 			        break;
@@ -440,12 +440,14 @@ namespace Reel
 	        }
 	    
 	        if (area)
-                dsyslog_rb("HDE control area: %p, mapped %p, pyhs 0x%lx, len 0x%x, hdp_running=%i, hdc_running=%i\n",area,
+            {
+                DEBUG_RB_HDE("HDE control area: %p, mapped %p, pyhs 0x%lx, len 0x%x, hdp_running=%i, hdc_running=%i\n",area,
     	            area->mapped, area->physical, area->length,
     	              ((::hd_data_t volatile *)area->mapped)->hdp_running,((::hd_data_t volatile *)area->mapped)->hdc_running);
+            }
             else
             { // Create dummy
-                esyslog_rb("HDE: can't get control area (hdctrld not running on HDE?). Using dummy.\n");
+                esyslog_rb("HDE: can't get control area (hdctrld not running on HDE?) -> Using dummy\n");
                 int area_size = ALIGN_UP(sizeof(hd_data_t), 2*4096);
 		        ::hdshm_reset();
                 area = hd_create_area(HDID_HDA, NULL, area_size, HDSHM_MEM_HD);
@@ -460,20 +462,20 @@ namespace Reel
 
             hda = (::hd_data_t volatile *)area->mapped;
             for(int n = 0; n <= nmax; n++) {
-                dsyslog_rb("HDE: set hdp_enable=0\n");
+                DEBUG_RB_HDE("HDE: set hdp_enable=0\n");
                 hda->hdp_enable = 0;
-                dsyslog_rb("HDE: set hdp_enable=0 executed\n");
-		        dsyslog_rb("HDE: check for hdp_running=0\n");
+                DEBUG_RB_HDE("HDE: set hdp_enable=0 executed\n");
+                DEBUG_RB_HDE("HDE: check for hdp_running=0\n");
                 if (!hda->hdp_running)
                     break;
                 isyslog_rb("HDE: wait for stopped hdplayer (%i/%i)\n", n, nmax);
                 sleep(1);
             }
             for(int n=0; n<= nmax; n++) {
-		        dsyslog_rb("HDE: set hdp_enable=1\n");
+		        DEBUG_RB_HDE("HDE: set hdp_enable=1\n");
                 hda->hdp_enable = 1;
-                dsyslog_rb("HDE: set hdp_enable=1 executed\n");
-		        dsyslog_rb("HDE: check for hdp_running\n");
+                DEBUG_RB_HDE("HDE: set hdp_enable=1 executed\n");
+                DEBUG_RB_HDE("HDE: check for hdp_running\n");
                 if (hda->hdp_running)
                     break;
                 isyslog_rb("HDE: wait for hdplayer (%i/%i)\n", n, nmax);

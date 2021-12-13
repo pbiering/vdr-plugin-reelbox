@@ -174,7 +174,7 @@ namespace Reel
                 esyslog_rb("HDE selected but HdCommChannel::Init was not successful\n");
                 return false;
             };
-            dsyslog_rb("HDE selected and HdCommChannel::Init was successful\n");
+            isyslog_rb("HDE selected and HdCommChannel::Init was successful\n");
             Reel::HdCommChannel::SetVideomode();
             Reel::HdCommChannel::SetPicture(&RBSetup);
             Reel::HdCommChannel::SetHWControl(&RBSetup);
