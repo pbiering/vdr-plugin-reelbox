@@ -61,9 +61,13 @@ extern "C" {
 
 #endif
 
+#if LIBSWSCALE_VERSION_MAJOR >= 6
+#define SWS_CPU_CAPS_MMX AV_CODEC_FLAG_4MV
+#else // >= 6
 #if LIBSWSCALE_VERSION_MAJOR >= 3
 #define SWS_CPU_CAPS_MMX AV_CPU_FLAG_MMX
-#endif
+#endif // >= 3
+#endif // >= 6
 
 // I like standards...
 typedef unsigned char uchar;
