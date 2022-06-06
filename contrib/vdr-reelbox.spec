@@ -97,8 +97,16 @@ git-commit: %{gitshortcommit} from %{gitdate}
 %endif
 
 mkdir utils
-tar xvzf /home/vdrdev/rpmbuild/SOURCES/ReelBoxNG-head.tar.gz ReelBoxNG-main/src-reelvdr/utils/bspshm --strip-components=2 -C utils/
-tar xvzf /home/vdrdev/rpmbuild/SOURCES/ReelBoxNG-head.tar.gz ReelBoxNG-main/src-reelvdr/utils/hdshm3 --strip-components=2 -C utils/
+
+ReelBoxNG_head_tgz=%{_topdir}/SOURCES/ReelBoxNG-head.tar.gz
+
+if [ ! -e $ReelBoxNG_head_tgz ]; then
+	echo "cannot find required file: $ReelBoxNG_head_tgz"
+	exit 1
+fi
+
+tar xvzf $ReelBoxNG_head_tgz ReelBoxNG-main/src-reelvdr/utils/bspshm --strip-components=2 -C utils/
+tar xvzf $ReelBoxNG_head_tgz ReelBoxNG-main/src-reelvdr/utils/hdshm3 --strip-components=2 -C utils/
 
 
 %build
