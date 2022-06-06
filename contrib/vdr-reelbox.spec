@@ -11,7 +11,7 @@
 %define rel	1
 
 Name:           vdr-%{pname}
-Version:        3.3.2
+Version:        3.3.3
 %if 0%{?gitcommit:1}
 Release:        %{rel}.git.%{gitshortcommit}.%{gitdate}%{?dist}
 %else
