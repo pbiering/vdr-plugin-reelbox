@@ -1,3 +1,6 @@
+20220606/pbiering: 3.3.3
+- update version
+
 20211212/pbiering:
 - HdFbTrueColorOsd.c: avoid printing invisible chars, as calculation of Width has issues
 - HdFbTrueColorOsd.c: replace broken rendering code by VDR internal Bitmap/DrawText:rendering
