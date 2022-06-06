@@ -148,7 +148,11 @@ namespace Reel
 		printf("SWDecoder construct\n");
 
 		enabled = 0;
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(59,18,100)
 		av_codec = NULL;
+#else
+		const AVCodec *av_codec = NULL;
+#endif
 		av_context = NULL;
 		framebuffer = (uint*)-1;
 		fdfb = -1;
