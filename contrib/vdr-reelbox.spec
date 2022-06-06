@@ -138,6 +138,13 @@ install -Dpm 644 contrib/%{file_plugin_config} $RPM_BUILD_ROOT%{_sysconfdir}/sys
 
 
 %changelog
+* Mon Jun 06 2022 Peter Bieringer <pb@bieringer.de> - 3.3.3
+- Update to 3.3.3
+- Replace hardcoded path in prep section
+
+* Fri Dec 10 2021 Peter Bieringer <pb@bieringer.de> - 3.3.2
+- Update to 3.3.2
+
 * Fri Dec 03 2021 Peter Bieringer <pb@bieringer.de> - 3.3.1
 - Update to 3.3.1
 
